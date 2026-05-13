@@ -66,10 +66,36 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-    await new Promise(r => setTimeout(r, 1500))
-    setSubmitting(false)
-    setSubmitted(true)
-    setForm({ name: '', email: '', projectType: 'none', message: '' })
+
+    try {
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          access_key: import.meta.env.VITE_WEB3FORMS_ACCESS_KEY,
+          ...form,
+          from_name: form.name,
+          subject: `New Message from ${form.name} (${form.projectType})`,
+        }),
+      })
+
+      const result = await response.json()
+      if (result.success) {
+        setSubmitted(true)
+        setForm({ name: '', email: '', projectType: 'none', message: '' })
+      } else {
+        console.error('Submission failed:', result)
+        alert(language === 'ar' ? 'فشل الإرسال. يرجى المحاولة مرة أخرى.' : 'Submission failed. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      alert(language === 'ar' ? 'حدث خطأ. يرجى المحاولة لاحقاً.' : 'An error occurred. Please try again later.')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
