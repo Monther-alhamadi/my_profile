@@ -1,3 +1,5 @@
+import { Facebook } from "lucide-react";
+
 export const ROUTE_PATHS = {
   HOME: '/',
 } as const;
@@ -749,6 +751,6 @@ export const CONTACT_INFO = {
   email: 'montheralhamadi7@gmail.com',
   location: 'Remote / Global',
   github: 'https://github.com/Monther-alhamadi',
-  linkedin: 'https://linkedin.com',
-  twitter: 'https://twitter.com',
+  linkedin: 'https://www.linkedin.com/in/monther-alhamadi-51315a216?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3B8KRfM%2Bj4QIi1DBA8XOgXfQ%3D%3D',
+  Facebook: 'https://www.facebook.com/profile.php?id=100005415252086',
 };
