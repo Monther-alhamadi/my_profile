@@ -625,7 +625,7 @@ export default function Home() {
                         value={form[key]}
                         onChange={e => setForm({ ...form, [key]: e.target.value })}
                         required
-                        className="border-border focus:border-emerald-brand rounded-sm h-12 bg-background"
+                        className="border-border focus:border-emerald-brand rounded-sm h-12 bg-obsidian text-ivory placeholder:text-ivory/30"
                       />
                     </div>
                   ))}
@@ -633,7 +633,7 @@ export default function Home() {
                   <div>
                     <label className="block text-xs font-mono font-semibold text-muted-foreground uppercase tracking-widest mb-2">{t.contact.form.projectType}</label>
                     <Select value={form.projectType} onValueChange={v => setForm({ ...form, projectType: v })}>
-                      <SelectTrigger className="border-border rounded-sm h-12 bg-background">
+                      <SelectTrigger className="border-border rounded-sm h-12 bg-obsidian text-ivory">
                         <SelectValue placeholder={t.contact.form.projectType} />
                       </SelectTrigger>
                       <SelectContent>
@@ -655,7 +655,7 @@ export default function Home() {
                       onChange={e => setForm({ ...form, message: e.target.value })}
                       rows={5}
                       required
-                      className="border-border focus:border-emerald-brand rounded-sm bg-background resize-none"
+                      className="border-border focus:border-emerald-brand rounded-sm bg-obsidian resize-none text-ivory placeholder:text-ivory/30"
                     />
                   </div>
 
