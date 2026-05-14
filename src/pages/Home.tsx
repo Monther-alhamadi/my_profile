@@ -38,7 +38,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 const TECH_MARQUEE = [
   'React', 'TypeScript', 'Node.js', 'Python', 'PostgreSQL',
   'FastAPI', 'Flutter', 'Docker', 'AI/ML', 'Next.js',
-  'TensorFlow', 'GraphQL', 'Redis', 'AWS', 'Supabase',
+  'TensorFlow', 'GraphQL', 'Redis', 'React.js', 'Supabase',
 ]
 
 const scrollTo = (id: string) => document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' })
@@ -103,7 +103,7 @@ export default function Home() {
 
       {/* ══════════════════════════════════════════════
           HERO — Ivory
-      ══════════════════════════════════════════════ */}
+      ══════════════════════════════════════════════= */}
       <section ref={heroRef} id="hero" className="section-ivory min-h-screen flex flex-col justify-center relative overflow-hidden">
 
         {/* Parallax BG */}
