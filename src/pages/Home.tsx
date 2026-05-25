@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import {
   Code2, Cpu, Brain, Smartphone, Layers, Sparkles, Network,
@@ -12,15 +13,11 @@ import {
   SectionHeader, RevealWrapper, RuledCard, StatCard,
   TechBadge, TiltCard, Marquee
 } from '@/components/Sections'
-import {
-  PROJECTS_EN, PROJECTS_AR,
-  SKILLS_EN, SKILLS_AR,
-  SERVICES_EN, SERVICES_AR,
-  EXPERIENCE_EN, EXPERIENCE_AR,
-  STATS_EN, STATS_AR,
-  TESTIMONIALS_EN, TESTIMONIALS_AR,
-  translations, CONTACT_INFO
-} from '@/lib/index'
+import ProjectGallery from '@/components/ProjectGallery'
+import { usePortfolio } from '@/hooks/usePortfolio'
+import { submitContact } from '@/services/portfolio-api'
+import { translations, CONTACT_INFO } from '@/lib/data-static'
+import { PROJECT_IMAGES } from '@/assets/project-images'
 import { IMAGES } from '@/assets/images'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -45,14 +42,7 @@ const scrollTo = (id: string) => document.querySelector(id)?.scrollIntoView({ be
 
 export default function Home() {
   const { language } = useLanguage()
-
-  // Select data based on language
-  const projects = language === 'ar' ? PROJECTS_AR : PROJECTS_EN;
-  const skills = language === 'ar' ? SKILLS_AR : SKILLS_EN;
-  const services = language === 'ar' ? SERVICES_AR : SERVICES_EN;
-  const experience = language === 'ar' ? EXPERIENCE_AR : EXPERIENCE_EN;
-  const stats = language === 'ar' ? STATS_AR : STATS_EN;
-  const testimonials = language === 'ar' ? TESTIMONIALS_AR : TESTIMONIALS_EN;
+  const { projects, skills, services, experience, stats, testimonials } = usePortfolio()
   const t = translations[language]
   const [form, setForm] = useState({ name: '', email: '', projectType: 'none', message: '' })
   const [submitting, setSubmitting] = useState(false)
@@ -68,27 +58,16 @@ export default function Home() {
     setSubmitting(true)
 
     try {
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          access_key: import.meta.env.VITE_WEB3FORMS_ACCESS_KEY,
-          ...form,
-          from_name: form.name,
-          subject: `New Message from ${form.name} (${form.projectType})`,
-        }),
+      const result = await submitContact({
+        name: form.name,
+        email: form.email,
+        projectType: form.projectType,
+        message: form.message,
       })
 
-      const result = await response.json()
       if (result.success) {
         setSubmitted(true)
         setForm({ name: '', email: '', projectType: 'none', message: '' })
-      } else {
-        console.error('Submission failed:', result)
-        alert(language === 'ar' ? 'فشل الإرسال. يرجى المحاولة مرة أخرى.' : 'Submission failed. Please try again.')
       }
     } catch (error) {
       console.error('Error submitting form:', error)
@@ -371,10 +350,21 @@ export default function Home() {
                     }`}>
                       {project.complexity}
                     </span>
+
+                    <Link
+                      to={`/projects/${project.id}`}
+                      className="btn-emerald inline-flex items-center gap-2 text-sm mt-6"
+                    >
+                      {t.projects.viewDetails}
+                      <ArrowUpRight className="w-4 h-4" />
+                    </Link>
                   </div>
 
-                  {/* Highlights */}
-                  <div className={i % 2 === 1 ? 'lg:order-1' : ''}>
+                  {/* Image + Highlights */}
+                  <div className={`space-y-6 ${i % 2 === 1 ? 'lg:order-1' : ''}`}>
+                    {PROJECT_IMAGES[project.id] && (
+                      <ProjectGallery images={PROJECT_IMAGES[project.id]} title={project.title} />
+                    )}
                     <div className="ruled-card-dark p-8">
                       <h4 className="text-[11px] font-mono font-semibold text-ivory/35 uppercase tracking-widest mb-5">{t.projects.highlights}</h4>
                       <ul className="space-y-4">

@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { Menu, X, Globe, ArrowUpRight } from 'lucide-react';
 import { SiGithub, SiLinkedin } from 'react-icons/si';
 import { useLanguage } from '@/hooks/useLanguage';
-import { translations, CONTACT_INFO } from '@/lib/index';
+import { translations, CONTACT_INFO } from '@/lib/data-static';
 
 interface LayoutProps { children: React.ReactNode; }
 
 export function Layout({ children }: LayoutProps) {
   const { language, toggleLanguage, isArabic } = useLanguage();
   const t = translations[language];
+  const location = useLocation();
+  const isHome = location.pathname === '/';
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
@@ -22,6 +25,13 @@ export function Layout({ children }: LayoutProps) {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  const pageLinks = [
+    { href: '/cv',   label: language === 'ar' ? 'السيرة الذاتية' : 'CV' },
+    { href: '/links', label: language === 'ar' ? 'الروابط' : 'Links' },
+    { href: '/dashboard', label: language === 'ar' ? 'لوحة التحكم' : 'Dashboard' },
+    { href: '/assistant', label: language === 'ar' ? 'المساعد' : 'Assistant' },
+  ];
 
   const navLinks = [
     { href: '#about',     label: t.nav.about },
@@ -61,9 +71,8 @@ export function Layout({ children }: LayoutProps) {
           <div className="flex items-center justify-between h-16">
 
             {/* Logo */}
-            <a
-              href="#hero"
-              onClick={e => { e.preventDefault(); scrollTo('#hero'); }}
+            <Link
+              to="/"
               className="flex items-center gap-2.5 group"
             >
               <div className="w-9 h-9 bg-obsidian flex items-center justify-center rounded-sm transition-colors group-hover:bg-emerald-brand">
@@ -72,11 +81,11 @@ export function Layout({ children }: LayoutProps) {
               <span className={`hidden md:block text-sm font-medium transition-colors ${isScrolled ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                 Software Engineer
               </span>
-            </a>
+            </Link>
 
             {/* Desktop nav */}
-            <nav className="hidden md:flex items-center gap-8">
-              {navLinks.map(link => (
+            <nav className="hidden md:flex items-center gap-6">
+              {isHome && navLinks.map(link => (
                 <a
                   key={link.href}
                   href={link.href}
@@ -85,6 +94,16 @@ export function Layout({ children }: LayoutProps) {
                 >
                   {link.label}
                 </a>
+              ))}
+              {pageLinks.map(link => (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  onClick={() => setMobileOpen(false)}
+                  className="text-sm font-medium text-foreground/70 hover:text-emerald-brand transition-colors"
+                >
+                  {link.label}
+                </Link>
               ))}
             </nav>
 
@@ -128,7 +147,7 @@ export function Layout({ children }: LayoutProps) {
             className="fixed top-16 left-0 right-0 z-40 md:hidden bg-ivory border-b border-border shadow-lg overflow-hidden"
           >
             <nav className="max-w-7xl mx-auto px-6 py-6 flex flex-col gap-1">
-              {navLinks.map((link, i) => (
+              {isHome && navLinks.map((link, i) => (
                 <motion.a
                   key={link.href}
                   href={link.href}
@@ -136,10 +155,26 @@ export function Layout({ children }: LayoutProps) {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.04 }}
                   onClick={e => { e.preventDefault(); scrollTo(link.href); }}
-                  className="text-base font-medium text-foreground/75 hover:text-foreground py-3 border-b border-border/40 last:border-0 transition-colors"
+                  className="text-base font-medium text-foreground/75 hover:text-foreground py-3 border-b border-border/40 transition-colors"
                 >
                   {link.label}
                 </motion.a>
+              ))}
+              {pageLinks.map((link, i) => (
+                <motion.div
+                  key={link.href}
+                  initial={{ opacity: 0, x: -16 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: (isHome ? navLinks.length : 0 + i) * 0.04 }}
+                >
+                  <Link
+                    to={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="text-base font-medium text-foreground/75 hover:text-emerald-brand py-3 border-b border-border/40 block transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </motion.div>
               ))}
               <div className="flex items-center gap-3 pt-4">
                 <button
@@ -188,7 +223,7 @@ export function Layout({ children }: LayoutProps) {
                 {isArabic ? 'روابط سريعة' : 'Quick Links'}
               </h4>
               <ul className="space-y-2.5">
-                {navLinks.map(link => (
+                {isHome && navLinks.map(link => (
                   <li key={link.href}>
                     <a
                       href={link.href}
@@ -197,6 +232,16 @@ export function Layout({ children }: LayoutProps) {
                     >
                       {link.label}
                     </a>
+                  </li>
+                ))}
+                {pageLinks.map(link => (
+                  <li key={link.href}>
+                    <Link
+                      to={link.href}
+                      className="text-sm text-ivory/55 hover:text-emerald-brand transition-colors"
+                    >
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
