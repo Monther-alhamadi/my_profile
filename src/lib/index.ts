@@ -6,6 +6,8 @@ export type Language = 'en' | 'ar';
 
 export interface Project {
   id: string;
+  locale?: string;
+  sort_order?: number;
   number: string;
   title: string;
   category: string;
@@ -14,11 +16,15 @@ export interface Project {
   complexity: 'High' | 'Critical' | 'Advanced';
   technologies: string[];
   highlights: string[];
-  image?: string;
-  link?: string;
+  image_url?: string;
+  link_url?: string;
+  created_at?: string;
 }
 
 export interface Skill {
+  id?: string;
+  locale?: string;
+  sort_order?: number;
   category: string;
   icon: string;
   description: string;
@@ -27,6 +33,8 @@ export interface Skill {
 
 export interface Service {
   id: string;
+  locale?: string;
+  sort_order?: number;
   icon: string;
   title: string;
   description: string;
@@ -36,6 +44,8 @@ export interface Service {
 
 export interface Experience {
   id: string;
+  locale?: string;
+  sort_order?: number;
   year: string;
   title: string;
   company: string;
@@ -45,6 +55,8 @@ export interface Experience {
 
 export interface Stat {
   id: string;
+  locale?: string;
+  sort_order?: number;
   value: string;
   label: string;
   suffix?: string;
@@ -52,15 +64,18 @@ export interface Stat {
 
 export interface Testimonial {
   id: string;
+  locale?: string;
+  sort_order?: number;
   name: string;
   role: string;
   company: string;
   content: string;
   rating: number;
-  avatar?: string;
+  avatar_url?: string;
 }
 
 export interface ProfileData {
+  id?: string;
   name: string;
   title_en: string;
   title_ar: string;
@@ -73,6 +88,8 @@ export interface ProfileData {
   linkedin_url: string | null;
   facebook_url: string | null;
   cv_url: string | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface ContactMessage {
