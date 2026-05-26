@@ -32,6 +32,10 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   sparkles: Sparkles, network: Network,
 }
 
+function resolveIcon(name: string | undefined): React.ComponentType<{ className?: string }> {
+  return iconMap[name ?? ""] ?? Code2
+}
+
 const TECH_MARQUEE = [
   'React', 'TypeScript', 'Node.js', 'Python', 'PostgreSQL',
   'FastAPI', 'Flutter', 'Docker', 'AI/ML', 'Next.js',
@@ -42,7 +46,7 @@ const scrollTo = (id: string) => document.querySelector(id)?.scrollIntoView({ be
 
 export default function Home() {
   const { language } = useLanguage()
-  const { projects, skills, services, experience, stats, testimonials } = usePortfolio()
+  const { projects, skills, services, experience, stats, testimonials, isLoading, isError } = usePortfolio()
   const t = translations[language]
   const [form, setForm] = useState({ name: '', email: '', projectType: 'none', message: '' })
   const [submitting, setSubmitting] = useState(false)
@@ -205,6 +209,24 @@ export default function Home() {
         </motion.div>
       </section>
 
+      {/* ── Status banner ── */}
+      {isLoading && (
+        <div className="bg-obsidian border-b border-obsidian/10">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-2 text-xs text-ivory/40 font-mono text-center">
+            {language === 'ar' ? 'جاري تحميل البيانات من الخادم...' : 'Loading live data...'}
+          </div>
+        </div>
+      )}
+      {isError && (
+        <div className="bg-red-950/20 border-b border-red-500/20">
+          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-2 text-xs text-red-400 font-mono text-center">
+            {language === 'ar'
+              ? 'تعذر الاتصال بالخادم. يتم عرض البيانات المحفوظة.'
+              : 'Could not connect to server. Showing cached data.'}
+          </div>
+        </div>
+      )}
+
       {/* ── Marquee strip ── */}
       <div className="bg-obsidian">
         <Marquee items={TECH_MARQUEE} dark />
@@ -271,13 +293,13 @@ export default function Home() {
 
           <div className="grid md:grid-cols-2 gap-6">
             {skills.map((skill, i) => {
-              const Icon = iconMap[skill.icon]
+              const Icon = resolveIcon(skill.icon)
               return (
                 <RevealWrapper key={skill.category} delay={0.08 * i}>
                   <RuledCard className="h-full p-8">
                     <div className="flex items-start gap-4 mb-5">
                       <div className="w-11 h-11 bg-primary/8 border border-primary/15 rounded-sm flex items-center justify-center flex-shrink-0">
-                        {Icon && <Icon className="w-5 h-5 text-emerald-brand" />}
+                        <Icon className="w-5 h-5 text-emerald-brand" />
                       </div>
                       <div>
                         <h3 className="text-xl font-bold text-foreground">{skill.category}</h3>
@@ -401,16 +423,14 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-6">
             {services.map((service, i) => {
-              const Icon = iconMap[service.icon]
+              const Icon = resolveIcon(service.icon)
               return (
                 <RevealWrapper key={service.id} delay={0.1 * i}>
                   <RuledCard className="h-full p-8 flex flex-col">
                     <div className="mb-6">
-                      {Icon && (
-                        <div className="w-11 h-11 bg-primary/8 border border-primary/14 rounded-sm flex items-center justify-center mb-5">
-                          <Icon className="w-5 h-5 text-emerald-brand" />
-                        </div>
-                      )}
+                      <div className="w-11 h-11 bg-primary/8 border border-primary/14 rounded-sm flex items-center justify-center mb-5">
+                        <Icon className="w-5 h-5 text-emerald-brand" />
+                      </div>
                       <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
                     </div>

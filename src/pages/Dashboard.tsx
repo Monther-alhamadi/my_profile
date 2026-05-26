@@ -7,8 +7,10 @@ import { useAuth } from '@/hooks/useAuth'
 import { usePortfolio } from '@/hooks/usePortfolio'
 import { fetchMessages, markMessageRead } from '@/services/portfolio-api'
 import type { ContactMessage } from '@/lib'
+import { useNoIndex } from '@/hooks/useNoIndex'
 
 export default function Dashboard() {
+  useNoIndex()
   const { language } = useLanguage()
   const { user, loading: authLoading, signOut } = useAuth()
   const navigate = useNavigate()

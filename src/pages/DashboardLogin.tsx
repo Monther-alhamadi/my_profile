@@ -4,8 +4,10 @@ import { motion } from 'framer-motion'
 import { BarChart3, LogIn, ArrowLeft } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useLanguage } from '@/hooks/useLanguage'
+import { useNoIndex } from '@/hooks/useNoIndex'
 
 export default function DashboardLogin() {
+  useNoIndex()
   const { language } = useLanguage()
   const { signIn } = useAuth()
   const navigate = useNavigate()

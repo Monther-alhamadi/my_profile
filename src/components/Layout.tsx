@@ -73,6 +73,7 @@ export function Layout({ children }: LayoutProps) {
             {/* Logo */}
             <Link
               to="/"
+              aria-label={language === 'ar' ? 'الرئيسية' : 'Home'}
               className="flex items-center gap-2.5 group"
             >
               <div className="w-9 h-9 bg-obsidian flex items-center justify-center rounded-sm transition-colors group-hover:bg-emerald-brand">
@@ -111,6 +112,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex items-center gap-3">
               <button
                 onClick={toggleLanguage}
+                aria-label={language === 'ar' ? 'تغيير اللغة إلى الإنجليزية' : 'Switch language to Arabic'}
                 className="hidden md:flex items-center gap-1.5 text-xs font-mono font-semibold text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 border border-border rounded-sm hover:border-emerald-brand"
               >
                 <Globe className="w-3.5 h-3.5" />
@@ -119,6 +121,7 @@ export function Layout({ children }: LayoutProps) {
 
               <button
                 onClick={() => scrollTo('#contact')}
+                aria-label={t.nav.letsTalk}
                 className="hidden md:flex btn-emerald py-2.5 px-5 text-sm"
               >
                 {t.nav.letsTalk}
@@ -127,6 +130,7 @@ export function Layout({ children }: LayoutProps) {
 
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
+                aria-label={language === 'ar' ? 'القائمة' : 'Menu'}
                 className="md:hidden p-2 text-foreground rounded-sm hover:bg-muted transition-colors"
               >
                 {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -179,12 +183,14 @@ export function Layout({ children }: LayoutProps) {
               <div className="flex items-center gap-3 pt-4">
                 <button
                   onClick={() => scrollTo('#contact')}
+                  aria-label={t.nav.letsTalk}
                   className="btn-emerald flex-1 justify-center py-3 text-sm"
                 >
                   {t.nav.letsTalk}
                 </button>
                 <button
                   onClick={toggleLanguage}
+                  aria-label={language === 'ar' ? 'تغيير اللغة إلى الإنجليزية' : 'Switch language to Arabic'}
                   className="flex items-center gap-1.5 text-xs font-mono font-semibold text-muted-foreground px-3 py-3 border border-border rounded-sm"
                 >
                   <Globe className="w-3.5 h-3.5" />
@@ -253,11 +259,11 @@ export function Layout({ children }: LayoutProps) {
               </h4>
               <div className="flex gap-3 mb-4">
                 <a href={CONTACT_INFO.github} target="_blank" rel="noopener noreferrer"
-                   className="p-2.5 border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
+                   aria-label="GitHub" className="p-2.5 border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
                   <SiGithub className="w-5 h-5" />
                 </a>
                 <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer"
-                   className="p-2.5 border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
+                   aria-label="LinkedIn" className="p-2.5 border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
                   <SiLinkedin className="w-5 h-5" />
                 </a>
               </div>

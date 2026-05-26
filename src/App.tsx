@@ -5,18 +5,21 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, MotionConfig } from "framer-motion";
 import { useEffect } from "react";
+import { lazy, Suspense } from "react";
 import Home from "./pages/Home";
 import NotFound from "./pages/not-found/Index";
-import ProjectDetail from "./pages/ProjectDetail";
-import CV from "./pages/CV";
-import Links from "./pages/Links";
-import Dashboard from "./pages/Dashboard";
-import DashboardLogin from "./pages/DashboardLogin";
-import Assistant from "./pages/Assistant";
 import { Layout } from "./components/Layout";
-import { GlowCursor } from "./components/GlowCursor";
 import { AuthProvider } from "./hooks/useAuth";
 import { useLanguage } from "./hooks/useLanguage";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { Loader2 } from "lucide-react";
+
+const ProjectDetail = lazy(() => import("./pages/ProjectDetail"));
+const CV = lazy(() => import("./pages/CV"));
+const Links = lazy(() => import("./pages/Links"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const DashboardLogin = lazy(() => import("./pages/DashboardLogin"));
+const Assistant = lazy(() => import("./pages/Assistant"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,20 +48,27 @@ function AppContent() {
 
   return (
     <>
-      {/* <GlowCursor /> */}
       <Layout>
-        <AnimatePresence mode="wait">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/projects/:id" element={<ProjectDetail />} />
-            <Route path="/cv" element={<CV />} />
-            <Route path="/links" element={<Links />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/login" element={<DashboardLogin />} />
-            <Route path="/assistant" element={<Assistant />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AnimatePresence>
+        <ErrorBoundary>
+          <Suspense fallback={
+            <div className="section-ivory min-h-screen flex items-center justify-center">
+              <Loader2 className="w-6 h-6 text-emerald-brand animate-spin" />
+            </div>
+          }>
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/projects/:id" element={<ProjectDetail />} />
+                <Route path="/cv" element={<CV />} />
+                <Route path="/links" element={<Links />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/dashboard/login" element={<DashboardLogin />} />
+                <Route path="/assistant" element={<Assistant />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </AnimatePresence>
+          </Suspense>
+        </ErrorBoundary>
       </Layout>
     </>
   );

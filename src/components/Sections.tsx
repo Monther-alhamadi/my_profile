@@ -205,7 +205,7 @@ export function Marquee({ items, dark = false }: MarqueeProps) {
       <div className="marquee-track">
         {doubled.map((item, i) => (
           <span
-            key={i}
+            key={`${item}-${i}`}
             className={`flex items-center gap-4 text-sm font-mono font-medium ${
               dark ? 'text-ivory/38' : 'text-muted-foreground'
             }`}

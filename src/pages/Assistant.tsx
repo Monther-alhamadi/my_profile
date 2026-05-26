@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Send, Bot, User, Sparkles } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
+import { askAssistant } from '@/services/gemini-service'
 
 interface Message {
   role: 'assistant' | 'user'
@@ -18,40 +19,12 @@ const INITIAL_MESSAGE_AR: Message = {
   content: 'مرحباً! أنا المساعد الذكي لمنذر. يمكنني إخبارك عن مهاراته، خبراته، مشاريعه، وكيف يمكنه مساعدتك في احتياجاتك البرمجية. ماذا تريد أن تعرف؟'
 }
 
-const RESPONSES_EN: Record<string, string> = {
-  'hello': "Hi there! Monther is a Software Engineer with 4+ years of experience in full-stack development and AI integration. How can I help you?",
-  'hi': "Hi there! Monther is a Software Engineer with 4+ years of experience in full-stack development and AI integration. How can I help you?",
-  'skills': "Monther's core skills include: React, Next.js, TypeScript, Node.js, Python, Flutter, PostgreSQL, Docker, and AI/ML integration. He specializes in building scalable, production-ready systems.",
-  'experience': "Monther has 4+ years of experience. He currently works as a Senior Full-Stack Engineer (Freelance/Contract) since 2022, and previously worked at a Tech Startup (2020-2022) building core product features for SaaS platforms.",
-  'projects': "Monther has delivered 20+ projects including: Cachear POS (enterprise mobile POS), HeicConverter (privacy-first image conversion), University Scheduler (AI-powered), NextVendors (e-commerce platform), Kayany7 (business management), and AI Tools Hub (orchestration platform).",
-  'contact': "You can reach Monther at montheralhamadi7@gmail.com. He's available for freelance projects and remote work globally.",
-  'default': "I'm not sure about that. Feel free to ask about Monther's skills, experience, projects, or how to contact him!"
-}
-
-const RESPONSES_AR: Record<string, string> = {
-  'مرحبا': 'مرحباً! منذر هو مهندس برمجيات مع أكثر من 4 سنوات من الخبرة في التطوير الشامل ودمج الذكاء الاصطناعي. كيف يمكنني مساعدتك؟',
-  'اهلا': 'مرحباً! منذر هو مهندس برمجيات مع أكثر من 4 سنوات من الخبرة في التطوير الشامل ودمج الذكاء الاصطناعي. كيف يمكنني مساعدتك؟',
-  'المهارات': 'تشمل مهارات منذر الأساسية: React، Next.js، TypeScript، Node.js، Python، Flutter، PostgreSQL، Docker، ودمج الذكاء الاصطناعي. يتخصص في بناء أنظمة قابلة للتوسع وجاهزة للإنتاج.',
-  'الخبرات': 'لدى منذر أكثر من 4 سنوات من الخبرة. يعمل حالياً كمهندس برمجيات أول (عمل حر) منذ 2022، وعمل سابقاً في شركة تقنية ناشئة (2020-2022) لبناء ميزات المنتج الأساسية لمنصات SaaS.',
-  'المشاريع': 'قدم منذر أكثر من 20 مشروعاً منها: Cachear POS (نظام نقاط بيع مؤسسي)، HeicConverter (تحويل الصور مع خصوصية)، University Scheduler (جدولة ذكية)، NextVendors (تجارة إلكترونية)، Kayany7 (إدارة أعمال)، و AI Tools Hub.',
-  'تواصل': 'يمكنك التواصل مع منذر على montheralhamadi7@gmail.com. وهو متاح لمشاريع العمل الحر والعمل عن بعد عالمياً.',
-  'default': 'لست متأكداً من ذلك. اسأل عن مهارات منذر، خبراته، مشاريعه، أو كيفية التواصل معه!'
-}
-
-function getResponse(input: string, lang: string): string {
-  const responses = lang === 'ar' ? RESPONSES_AR : RESPONSES_EN
-  const lower = input.toLowerCase().trim()
-  for (const [key, value] of Object.entries(responses)) {
-    if (lower.includes(key)) return value
-  }
-  return responses['default']
-}
-
 export default function Assistant() {
   const { language } = useLanguage()
   const [messages, setMessages] = useState<Message[]>([language === 'ar' ? INITIAL_MESSAGE_AR : INITIAL_MESSAGE])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [error, setError] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -64,12 +37,16 @@ export default function Assistant() {
     setMessages(prev => [...prev, userMsg])
     setInput('')
     setIsTyping(true)
+    setError(false)
 
-    setTimeout(() => {
-      const response = getResponse(input, language)
+    try {
+      const response = await askAssistant(input, language)
       setMessages(prev => [...prev, { role: 'assistant', content: response }])
+    } catch {
+      setError(true)
+    } finally {
       setIsTyping(false)
-    }, 800)
+    }
   }
 
   return (
@@ -91,7 +68,6 @@ export default function Assistant() {
             : 'Ask about Monther\'s skills, experience, and projects'}
         </p>
 
-        {/* Chat area */}
         <div className="flex-1 bg-white/50 border border-border rounded-sm p-6 mb-4 overflow-y-auto max-h-[60vh] space-y-4">
           <AnimatePresence>
             {messages.map((msg, i) => (
@@ -138,11 +114,21 @@ export default function Assistant() {
                 </div>
               </motion.div>
             )}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-xs text-red-500 text-center"
+              >
+                {language === 'ar'
+                  ? 'حدث خطأ. حاول مرة أخرى.'
+                  : 'Something went wrong. Please try again.'}
+              </motion.div>
+            )}
           </AnimatePresence>
           <div ref={bottomRef} />
         </div>
 
-        {/* Input */}
         <div className="flex gap-3">
           <input
             type="text"
