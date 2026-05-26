@@ -15,6 +15,7 @@ export default function Dashboard() {
   const { projects, skills, experience, stats, testimonials } = usePortfolio()
   const [messages, setMessages] = useState<ContactMessage[]>([])
   const [messagesLoading, setMessagesLoading] = useState(true)
+  const [messagesError, setMessagesError] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all')
 
@@ -26,9 +27,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (user) {
+      setMessagesError(null)
       fetchMessages()
         .then(setMessages)
-        .catch(console.error)
+        .catch(err => {
+          console.error(err)
+          setMessagesError(err instanceof Error ? err.message : language === 'ar' ? 'فشل جلب الرسائل' : 'Failed to load messages')
+        })
         .finally(() => setMessagesLoading(false))
     }
   }, [user])
@@ -155,6 +160,12 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {messagesError && (
+            <div className="border border-red-500/20 bg-red-500/5 rounded-sm p-4 mb-4">
+              <p className="text-red-400 text-sm font-mono">{messagesError}</p>
+            </div>
+          )}
+
           {messagesLoading ? (
             <div className="border border-ivory/10 rounded-sm p-12 text-center">
               <motion.span
@@ -163,7 +174,7 @@ export default function Dashboard() {
                 className="inline-block w-6 h-6 border-2 border-emerald-brand/30 border-t-emerald-brand rounded-full"
               />
             </div>
-          ) : messages.length === 0 ? (
+          ) : messages.length === 0 && !messagesError ? (
             <div className="border border-ivory/10 rounded-sm p-12 text-center">
               <p className="text-ivory/30 text-sm font-mono">
                 {language === 'ar' ? 'لا توجد رسائل بعد' : 'No messages yet'}

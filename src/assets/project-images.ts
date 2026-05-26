@@ -20,8 +20,8 @@ export const PROJECT_IMAGES: Record<string, { desktop: string; mobile: string }>
     mobile: '/images/projects/nextvendors-mobile.png',
   },
   'ai-tools-hub': {
-    desktop: '/images/projects/aibridge-desktop.png',
-    mobile: '/images/projects/aibridge-mobile.png',
+    desktop: '/images/projects/unischeduler-desktop.png',
+    mobile: '/images/projects/unischeduler-mobile.png',
   },
   'kayany7': {
     desktop: '/images/projects/kayany7-desktop.png',

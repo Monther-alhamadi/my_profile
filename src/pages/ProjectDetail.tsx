@@ -7,6 +7,12 @@ import ProjectGallery from '@/components/ProjectGallery'
 import { TechBadge, RevealWrapper } from '@/components/Sections'
 import { translations } from '@/lib/data-static'
 
+const LIVE_URLS: Record<string, string> = {
+  'heic-converter': 'https://heiconverts.vercel.app',
+  'nextvendors-ecommerce': 'https://next-vendors.vercel.app',
+  'kayany7': 'https://kayany7.vercel.app',
+}
+
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>()
   const { language } = useLanguage()
@@ -130,33 +136,9 @@ export default function ProjectDetail() {
                 <ArrowLeft className="w-4 h-4" />
                 {language === 'ar' ? 'جميع المشاريع' : 'All Projects'}
               </Link>
-              {project.id === 'heic-converter' && (
+              {LIVE_URLS[project.id] && (
                 <a
-                  href="https://heiconverts.vercel.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-emerald inline-flex items-center gap-2"
-                >
-                  <Globe className="w-4 h-4" />
-                  {language === 'ar' ? 'عرض الموقع' : 'Live Site'}
-                  <ArrowUpRight className="w-4 h-4" />
-                </a>
-              )}
-              {project.id === 'nextvendors-ecommerce' && (
-                <a
-                  href="https://next-vendors.vercel.app"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-emerald inline-flex items-center gap-2"
-                >
-                  <Globe className="w-4 h-4" />
-                  {language === 'ar' ? 'عرض الموقع' : 'Live Site'}
-                  <ArrowUpRight className="w-4 h-4" />
-                </a>
-              )}
-              {project.id === 'kayany7' && (
-                <a
-                  href="https://kayany7.vercel.app"
+                  href={LIVE_URLS[project.id]}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-emerald inline-flex items-center gap-2"

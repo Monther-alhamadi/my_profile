@@ -78,8 +78,8 @@ export function Layout({ children }: LayoutProps) {
               <div className="w-9 h-9 bg-obsidian flex items-center justify-center rounded-sm transition-colors group-hover:bg-emerald-brand">
                 <span className="text-ivory font-mono font-bold text-sm leading-none">SE</span>
               </div>
-              <span className={`hidden md:block text-sm font-medium transition-colors ${isScrolled ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
-                Software Engineer
+              <span className={`hidden md:block text-sm font-medium transition-colors ${isScrolled ? 'text-foreground/70' : 'text-muted-foreground'}`}>
+                {t.nav.brand}
               </span>
             </Link>
 
@@ -209,7 +209,7 @@ export function Layout({ children }: LayoutProps) {
                 <div className="w-10 h-10 bg-emerald-brand flex items-center justify-center rounded-sm">
                   <span className="text-white font-mono font-bold text-sm">SE</span>
                 </div>
-                <span className="font-heading font-bold text-lg">Software Engineer</span>
+                <span className="font-heading font-bold text-lg">{t.nav.brand}</span>
               </div>
               <p className="text-sm text-ivory/50 leading-relaxed max-w-xs">
                 {isArabic

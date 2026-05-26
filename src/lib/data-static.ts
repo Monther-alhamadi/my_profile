@@ -65,7 +65,7 @@ export const PROJECTS_EN: Project[] = [
     ],
   },
   {
-    id: "ai-image-platform", number: "03",
+    id: "ai-image-platform", number: "04",
     title: "AI-Powered Image Conversion Platform",
     category: "SaaS Platform",
     problem: "Users worldwide struggled with HEIC image format compatibility across different devices and platforms. Businesses needed compliant image formats for various international markets with different technical requirements.",
@@ -82,7 +82,7 @@ export const PROJECTS_EN: Project[] = [
     ],
   },
   {
-    id: "nextvendors-ecommerce", number: "04",
+    id: "nextvendors-ecommerce", number: "05",
     title: "NextVendors E-Commerce Platform",
     category: "SaaS Platform",
     problem: "Yemen lacked reliable centralized digital marketplaces. Additionally, strict API constraints and financial infrastructure limitations made standard payment gateways unviable for local businesses.",
@@ -99,7 +99,7 @@ export const PROJECTS_EN: Project[] = [
     ],
   },
   {
-    id: "ai-tools-hub", number: "05",
+    id: "ai-tools-hub", number: "06",
     title: "AI Tools Orchestration Hub",
     category: "AI Integration Platform",
     problem: "Businesses struggled to integrate and manage multiple AI tools and APIs. Prompt engineering required technical expertise, and there was no unified interface for AI workflow automation.",
@@ -116,7 +116,7 @@ export const PROJECTS_EN: Project[] = [
     ],
   },
   {
-    id: "kayany7", number: "06",
+    id: "kayany7", number: "07",
     title: "Kayany7 E-Commerce & Management System",
     category: "Multi-Purpose Business Platform",
     problem: "Small to medium businesses needed an affordable, all-in-one platform combining e-commerce storefront, inventory management, order tracking, and customer communication — without the complexity of enterprise solutions.",
@@ -184,7 +184,7 @@ export const PROJECTS_AR: Project[] = [
     ]
   },
   {
-    id: "ai-image-platform", number: "03",
+    id: "ai-image-platform", number: "04",
     title: "منصة تحويل الصور بالذكاء الاصطناعي",
     category: "منصة SaaS",
     problem: "يعاني المستخدمون حول العالم من توافق تنسيق صور HEIC عبر الأجهزة والمنصات المختلفة. احتاجت الشركات إلى تنسيقات صور متوافقة للأسواق الدولية المختلفة مع متطلبات تقنية متنوعة.",
@@ -201,7 +201,7 @@ export const PROJECTS_AR: Project[] = [
     ]
   },
   {
-    id: "nextvendors-ecommerce", number: "04",
+    id: "nextvendors-ecommerce", number: "05",
     title: "منصة NextVendors للتجارة الإلكترونية",
     category: "منصة SaaS متكاملة",
     problem: "غياب المتاجر المركزية الموثوقة في السوق المحلي، بالإضافة إلى القيود المعقدة وشروط بوابات الدفع المحلية التي تعيق تبني حلول التجارة الإلكترونية التقليدية.",
@@ -218,7 +218,7 @@ export const PROJECTS_AR: Project[] = [
     ]
   },
   {
-    id: "ai-tools-hub", number: "05",
+    id: "ai-tools-hub", number: "06",
     title: "مركز تنسيق أدوات الذكاء الاصطناعي",
     category: "منصة دمج الذكاء الاصطناعي",
     problem: "واجهت الشركات صعوبة في دمج وإدارة أدوات ونماذج الذكاء الاصطناعي المتاصطناعي المتعددة. تطلبت هندسة الأوامر (Prompt Engineering) خبرة تقنية، ولم تكن هناك واجهة موحدة لأتمتة سير عمل الذكاء الاصطناعي.",
@@ -235,7 +235,7 @@ export const PROJECTS_AR: Project[] = [
     ]
   },
   {
-    id: "kayany7", number: "06",
+    id: "kayany7", number: "07",
     title: "نظام Kayany7 للتجارة والإدارة",
     category: "منصة أعمال متعددة الأغراض",
     problem: "احتاجت الشركات الصغيرة والمتوسطة إلى منصة شاملة بأسعار معقولة تجمع بين متجر إلكتروني، وإدارة المخزون، وتتبع الطلبات، والتواصل مع العملاء — دون تعقيد حلول المؤسسات الكبيرة.",
@@ -477,6 +477,7 @@ export const translations: Record<Language, any> = {
       home: "Home", about: "About", expertise: "Expertise",
       projects: "Projects", services: "Services", experience: "Experience",
       testimonials: "Testimonials", contact: "Contact", letsTalk: "Let's Talk",
+      brand: "Software Engineer",
     },
     hero: {
       greeting: "Hi, I'm Monther Alhamadi",
@@ -526,6 +527,7 @@ export const translations: Record<Language, any> = {
       home: "الرئيسية", about: "نبذة", expertise: "الخبرات",
       projects: "المشاريع", services: "الخدمات", experience: "التجربة",
       testimonials: "الآراء", contact: "تواصل", letsTalk: "لنتحدث",
+      brand: "مهندس برمجيات",
     },
     hero: {
       greeting: "مرحباً، أنا منذر الحمادي",

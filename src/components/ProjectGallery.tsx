@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
+import { Monitor, Smartphone } from 'lucide-react'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface ProjectGalleryProps {
   images: { desktop: string; mobile: string }
@@ -6,6 +8,7 @@ interface ProjectGalleryProps {
 }
 
 export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
+  const { language } = useLanguage()
   const [view, setView] = useState<'desktop' | 'mobile'>('desktop')
   const [zoomed, setZoomed] = useState(false)
   const intervalRef = useRef<ReturnType<typeof setInterval>>()
@@ -41,9 +44,15 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
 
         <button
           onClick={(e) => { e.stopPropagation(); toggleView() }}
-          className="absolute bottom-3 right-3 px-3 py-1.5 text-[11px] font-mono font-semibold uppercase tracking-wider rounded-sm bg-obsidian/80 text-ivory/70 border border-border/30 hover:border-emerald-brand/50 hover:text-emerald-brand transition-all backdrop-blur-sm opacity-0 group-hover:opacity-100"
+          aria-label={view === 'desktop'
+            ? (language === 'ar' ? 'عرض الجوال' : 'Switch to mobile view')
+            : (language === 'ar' ? 'عرض سطح المكتب' : 'Switch to desktop view')}
+          className="absolute bottom-3 right-3 px-3 py-1.5 text-[11px] font-mono font-semibold uppercase tracking-wider rounded-sm bg-obsidian/80 text-ivory/70 border border-border/30 hover:border-emerald-brand/50 hover:text-emerald-brand transition-all backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center gap-1.5"
         >
-          {view === 'desktop' ? '📱 Mobile' : '💻 Desktop'}
+          {view === 'desktop' ? <Smartphone className="w-3.5 h-3.5" /> : <Monitor className="w-3.5 h-3.5" />}
+          {view === 'desktop'
+            ? (language === 'ar' ? 'جوال' : 'Mobile')
+            : (language === 'ar' ? 'سطح المكتب' : 'Desktop')}
         </button>
       </div>
 
@@ -53,7 +62,7 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
           onClick={() => setZoomed(false)}
         >
           <img
-            src={images.desktop}
+            src={view === 'desktop' ? images.desktop : images.mobile}
             alt={title}
             className="max-w-[90vw] max-h-[90vh] object-contain rounded-sm shadow-2xl"
           />
