@@ -212,6 +212,19 @@ export default defineConfig(({ mode }) => {
       host: "::",
       port: 8080,
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+            'vendor-motion': ['framer-motion'],
+            'vendor-supabase': ['@supabase/supabase-js'],
+            'vendor-query': ['@tanstack/react-query'],
+            'vendor-ui': ['@radix-ui/react-select', '@radix-ui/react-tooltip', '@radix-ui/react-toast', '@radix-ui/react-slot', 'sonner', 'class-variance-authority'],
+          },
+        },
+      },
+    },
     plugins: [
       tailwindcss(),
       react(),

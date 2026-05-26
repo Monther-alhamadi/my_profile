@@ -60,9 +60,18 @@ export async function fetchProfile(): Promise<ProfileData | null> {
 
 // ── Contact (public insert / authenticated read+update+delete) ──
 
+let lastSubmission = 0
+const MIN_INTERVAL_MS = 30_000
+
 export async function submitContact(fields: {
   name: string; email: string; projectType: string; message: string;
+  _hp?: string; _t?: number;
 }): Promise<{ success: boolean }> {
+  if (fields._hp) throw new Error('Spam detected')
+  if (!fields._t || Date.now() - fields._t < 3000) throw new Error('Submission too fast')
+  const now = Date.now()
+  if (now - lastSubmission < MIN_INTERVAL_MS) throw new Error('Please wait 30 seconds before sending another message')
+  lastSubmission = now
   const { error } = await supabase.from('contact_messages').insert({
     name: fields.name, email: fields.email,
     subject: fields.projectType !== 'none' ? fields.projectType : null,

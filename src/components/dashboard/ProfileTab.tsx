@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 import { User, Save } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
-import { fetchProfile, updateProfile } from '@/services/portfolio-api'
+import { fetchProfile } from '@/services/portfolio-api'
 import { useUpdateProfile } from '@/services/portfolio-queries'
-import { uploadImage, deleteImage, getImagePath } from '@/services/storage'
+import { uploadImage, getImagePath } from '@/services/storage'
 import { useAuth } from '@/hooks/useAuth'
 import type { ProfileData } from '@/lib'
 import ImageUploader from './ImageUploader'
@@ -39,12 +39,12 @@ export default function ProfileTab() {
       }
     }).catch(() => toast.error(language === 'ar' ? 'فشل تحميل البروفايل' : 'Failed to load profile'))
     .finally(() => setLoading(false))
-  }, [])
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSave = async () => {
     if (!profile?.id) return
     setSaving(true)
-    const updates: any = { ...form }
+    const updates: Record<string, string | null> = { ...form }
     updates.github_url = updates.github_url || null
     updates.linkedin_url = updates.linkedin_url || null
     updates.facebook_url = updates.facebook_url || null

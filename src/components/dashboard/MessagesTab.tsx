@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Mail, Eye, CheckCircle2, Trash2 } from 'lucide-react'
+import { Mail, CheckCircle2, Trash2 } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { fetchMessages, markMessageRead, deleteMessage } from '@/services/portfolio-api'
 import type { ContactMessage } from '@/lib'
@@ -24,7 +24,7 @@ export default function MessagesTab() {
       .finally(() => setLoading(false))
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleMarkRead = async (id: string, isRead: boolean) => {
     try {

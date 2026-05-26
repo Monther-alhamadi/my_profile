@@ -24,7 +24,7 @@ export default function Dashboard() {
   const { language } = useLanguage()
   const { user, loading: authLoading, signOut } = useAuth()
   const navigate = useNavigate()
-  const { projects, skills, services, experience, stats, testimonials } = usePortfolio()
+  const { projects, skills, services, experience, testimonials } = usePortfolio()
   const [activeTab, setActiveTab] = useState<TabId>('overview')
   const [messages, setMessages] = useState<ContactMessage[]>([])
   const [unreadCount, setUnreadCount] = useState(0)

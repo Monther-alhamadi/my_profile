@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Star, Plus } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { useTestimonialsQuery, useCreateTestimonial, useUpdateTestimonial, useDeleteTestimonial } from '@/services/portfolio-queries'
-import { uploadImage, deleteImage, getImagePath } from '@/services/storage'
+import { uploadImage, getImagePath } from '@/services/storage'
 import { useAuth } from '@/hooks/useAuth'
 import type { Testimonial } from '@/lib'
 import DataTable from './DataTable'
@@ -30,7 +30,7 @@ export default function TestimonialsTab() {
   const openEdit = (t: Testimonial) => { setEditing(t); setForm({ name: t.name, role: t.role, company: t.company, content: t.content, rating: t.rating }); setAvatarFile(null); setModalOpen(true) }
 
   const handleSave = async () => {
-    const payload: any = { name: form.name, role: form.role, company: form.company, content: form.content, rating: form.rating, locale: language }
+    const payload: Record<string, string | number> = { name: form.name, role: form.role, company: form.company, content: form.content, rating: form.rating, locale: language }
     try {
       if (avatarFile && user) {
         const path = getImagePath(user.id, 'avatars', avatarFile.name)

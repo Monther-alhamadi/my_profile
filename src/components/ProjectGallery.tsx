@@ -37,6 +37,7 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
         <img
           src={view === 'desktop' ? images.desktop : images.mobile}
           alt={title}
+          loading="lazy"
           className={`w-full transition-all duration-700 ${view === 'desktop' ? 'object-cover' : 'object-contain max-w-[280px] mx-auto'}`}
         />
 

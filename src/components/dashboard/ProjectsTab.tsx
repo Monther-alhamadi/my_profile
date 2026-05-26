@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { FolderKanban, Plus } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { useProjectsQuery, useCreateProject, useUpdateProject, useDeleteProject } from '@/services/portfolio-queries'
-import { uploadImage, deleteImage, getImagePath } from '@/services/storage'
+import { uploadImage, getImagePath } from '@/services/storage'
 import { useAuth } from '@/hooks/useAuth'
 import type { Project } from '@/lib'
 import DataTable from './DataTable'
@@ -54,7 +53,7 @@ export default function ProjectsTab() {
   }
 
   const handleSave = async () => {
-    const payload: any = {
+    const payload: Record<string, string | string[] | null> = {
       title: form.title, category: form.category,
       problem: form.problem, solution: form.solution,
       complexity: form.complexity,
@@ -153,7 +152,7 @@ export default function ProjectsTab() {
             </div>
             <div>
               <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'التعقيد' : 'Complexity'} *</label>
-              <select value={form.complexity} onChange={e => setForm(f => ({ ...f, complexity: e.target.value as any }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none bg-white">
+              <select value={form.complexity} onChange={e => setForm(f => ({ ...f, complexity: e.target.value as typeof COMPLEXITIES[number] }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none bg-white">
                 {COMPLEXITIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>

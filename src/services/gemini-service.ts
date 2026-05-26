@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai"
-import { PROFILE_STATIC, PROJECTS_EN, PROJECTS_AR } from "@/lib/data-static"
+import { PROFILE_STATIC, PROJECTS_EN } from "@/lib/data-static"
 import type { Language } from "@/lib/index"
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY

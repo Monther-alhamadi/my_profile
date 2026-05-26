@@ -48,7 +48,7 @@ export default function Home() {
   const { language } = useLanguage()
   const { projects, skills, services, experience, stats, testimonials, isLoading, isError } = usePortfolio()
   const t = translations[language]
-  const [form, setForm] = useState({ name: '', email: '', projectType: 'none', message: '' })
+  const [form, setForm] = useState({ name: '', email: '', projectType: 'none', message: '', _hp: '', _t: 0 })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
@@ -67,11 +67,13 @@ export default function Home() {
         email: form.email,
         projectType: form.projectType,
         message: form.message,
+        _hp: form._hp,
+        _t: Date.now(),
       })
 
       if (result.success) {
         setSubmitted(true)
-        setForm({ name: '', email: '', projectType: 'none', message: '' })
+        setForm({ name: '', email: '', projectType: 'none', message: '', _hp: '', _t: 0 })
       }
     } catch (error) {
       console.error('Error submitting form:', error)
@@ -91,7 +93,7 @@ export default function Home() {
 
         {/* Parallax BG */}
         <motion.div className="absolute inset-0 z-0" style={{ y: heroY, opacity: heroOpacity }}>
-          <img src={IMAGES.HERO_BG_3} alt="" className="w-full h-full object-cover opacity-[0.05]" />
+          <img src={IMAGES.HERO_BG_3} alt="" loading="lazy" className="w-full h-full object-cover opacity-[0.05]" />
         </motion.div>
 
         {/* Subtle emerald orbs */}
@@ -181,7 +183,7 @@ export default function Home() {
             >
               <TiltCard className="!p-0">
                 <div className="relative aspect-[4/5] overflow-hidden">
-                  <img src={IMAGES.ABOUT_BG_8} alt="Developer at work" className="w-full h-full object-cover" />
+                  <img src={IMAGES.ABOUT_BG_8} alt="Developer at work" loading="lazy" className="w-full h-full object-cover" />
                   {/* <div className="absolute top-0 left-0 w-[3px] h-20 bg-emerald-brand" /> */}
                   <div className="absolute bottom-4 left-4 right-4 bg-obsidian/88 backdrop-blur-sm rounded-sm p-4">
                     <div className="flex items-center gap-2 mb-1">
@@ -238,7 +240,7 @@ export default function Home() {
       <section id="about" className="section-obsidian py-28 relative overflow-hidden">
         <span className="section-num text-ivory">01</span>
         <div className="absolute inset-0 z-0 opacity-[0.02]">
-          <img src={IMAGES.DARK_BG_1} alt="" className="w-full h-full object-cover" />
+          <img src={IMAGES.DARK_BG_1} alt="" loading="lazy" className="w-full h-full object-cover" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
@@ -269,7 +271,7 @@ export default function Home() {
                 ))}
               </div>
               <div className="relative overflow-hidden rounded-sm aspect-[16/7]">
-                <img src={IMAGES.ABOUT_BG_1} alt="" className="w-full h-full object-cover opacity-45" />
+                <img src={IMAGES.ABOUT_BG_1} alt="" loading="lazy" className="w-full h-full object-cover opacity-45" />
                 <div className="absolute inset-0 bg-gradient-to-r from-obsidian/80 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4">
                   <span className="font-mono text-xs text-emerald-brand">$ npm run build:production</span>
@@ -323,7 +325,7 @@ export default function Home() {
       <section id="projects" className="section-obsidian py-28 relative overflow-hidden">
         <span className="section-num text-ivory">03</span>
         <div className="absolute inset-0 opacity-[0.018]">
-          <img src={IMAGES.DARK_BG_7} alt="" className="w-full h-full object-cover" />
+          <img src={IMAGES.DARK_BG_7} alt="" loading="lazy" className="w-full h-full object-cover" />
         </div>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
@@ -669,6 +671,13 @@ export default function Home() {
                     />
                   </div>
 
+                  <div aria-hidden="true" className="absolute opacity-0 pointer-events-none" style={{ position: 'absolute', left: '-9999px' }}>
+                    <label htmlFor="hp-field">Leave this empty</label>
+                    <input id="hp-field" name="_hp" tabIndex={-1} autoComplete="off"
+                      value={form._hp}
+                      onChange={e => setForm({ ...form, _hp: e.target.value })}
+                    />
+                  </div>
                   <button type="submit" disabled={submitting} className="btn-emerald w-full justify-center">
                     {submitting ? (
                       <span className="flex items-center gap-2">
