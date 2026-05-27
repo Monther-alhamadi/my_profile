@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { Menu, X, Globe, ArrowUpRight, Sun, Moon } from 'lucide-react';
+import AiChatbot from './AiChatbot';
 import { SiGithub, SiLinkedin } from 'react-icons/si';
 import { useLanguage } from '@/hooks/useLanguage';
 import { useTheme } from 'next-themes';
@@ -296,6 +297,9 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </div>
       </footer>
+
+      {/* ── AI Assistant chatbot ── */}
+      {location.pathname !== '/dashboard' && <AiChatbot />}
     </div>
   );
 }

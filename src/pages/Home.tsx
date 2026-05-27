@@ -46,6 +46,8 @@ const TECH_MARQUEE = [
   'TensorFlow', 'GraphQL', 'Redis', 'React.js', 'Supabase',
 ]
 
+const ease = [0.25, 0.46, 0.45, 0.94] as const
+
 const heroContainer = {
   hidden: { opacity: 0 },
   visible: {
@@ -66,7 +68,7 @@ const heroChildFade = {
 
 export default function Home() {
   const { language } = useLanguage()
-  const { projects, skills, services, experience, stats, testimonials, isLoading, isError } = usePortfolio()
+  const { projects, skills, services, experience, stats, testimonials, profile, isLoading, isError } = usePortfolio()
   const t = translations[language]
   const [form, setForm] = useState({ name: '', email: '', projectType: 'none', message: '', _hp: '', _t: 0 })
   const [submitting, setSubmitting] = useState(false)
@@ -242,7 +244,7 @@ export default function Home() {
             >
               <TiltCard className="!p-0">
                 <div className="relative aspect-[4/5] overflow-hidden">
-                  <img src={IMAGES.ABOUT_BG_8} alt="Developer at work" loading="lazy" className="w-full h-full object-cover" />
+                  <img src={profile?.avatar_url || IMAGES.ABOUT_BG_8} alt="Developer at work" loading="lazy" className="w-full h-full object-cover" />
                   {/* <div className="absolute top-0 left-0 w-[3px] h-20 bg-emerald-brand" /> */}
                   <div className="absolute bottom-4 left-4 right-4 bg-obsidian/88 backdrop-blur-sm rounded-sm p-4">
                     <div className="flex items-center gap-2 mb-1">

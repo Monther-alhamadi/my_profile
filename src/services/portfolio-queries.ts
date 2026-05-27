@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Language } from '@/lib';
 import {
   fetchProjects, fetchSkills, fetchServices, fetchExperience,
-  fetchStats, fetchTestimonials, submitContact,
+  fetchStats, fetchTestimonials, fetchProfile, submitContact,
   createProject, updateProject, deleteProject,
   createSkill, updateSkill, deleteSkill,
   createService, updateService, deleteService,
@@ -15,6 +15,7 @@ import {
   PROJECTS_EN, PROJECTS_AR, SKILLS_EN, SKILLS_AR,
   SERVICES_EN, SERVICES_AR, EXPERIENCE_EN, EXPERIENCE_AR,
   STATS_EN, STATS_AR, TESTIMONIALS_EN, TESTIMONIALS_AR,
+  PROFILE_STATIC,
 } from '@/lib/data-static';
 
 const STALE_TIME = 5 * 60 * 1000;
@@ -79,6 +80,15 @@ export function useTestimonialsQuery(locale: Language) {
   });
 }
 
+export function useProfileQuery() {
+  return useQuery({
+    queryKey: ['profile'],
+    queryFn: fetchProfile,
+    staleTime: STALE_TIME, retry: 2, refetchOnWindowFocus: false,
+    placeholderData: () => PROFILE_STATIC,
+  });
+}
+
 export function useAllQueries(locale: Language) {
   const projects = useProjectsQuery(locale);
   const skills = useSkillsQuery(locale);
@@ -86,12 +96,13 @@ export function useAllQueries(locale: Language) {
   const experience = useExperienceQuery(locale);
   const stats = useStatsQuery(locale);
   const testimonials = useTestimonialsQuery(locale);
+  const profile = useProfileQuery();
 
   const isLoading = projects.isLoading || skills.isLoading ||
-    services.isLoading || experience.isLoading || stats.isLoading || testimonials.isLoading;
+    services.isLoading || experience.isLoading || stats.isLoading || testimonials.isLoading || profile.isLoading;
 
   const isError = projects.isError || skills.isError ||
-    services.isError || experience.isError || stats.isError || testimonials.isError;
+    services.isError || experience.isError || stats.isError || testimonials.isError || profile.isError;
 
   return {
     projects: projects.data ?? selectByLocale(PROJECTS_EN, PROJECTS_AR, locale),
@@ -100,6 +111,7 @@ export function useAllQueries(locale: Language) {
     experience: experience.data ?? selectByLocale(EXPERIENCE_EN, EXPERIENCE_AR, locale),
     stats: stats.data ?? selectByLocale(STATS_EN, STATS_AR, locale),
     testimonials: testimonials.data ?? selectByLocale(TESTIMONIALS_EN, TESTIMONIALS_AR, locale),
+    profile: profile.data ?? PROFILE_STATIC,
     isLoading, isError,
   };
 }
