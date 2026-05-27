@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
-import { Menu, X, Globe, ArrowUpRight } from 'lucide-react';
+import { Menu, X, Globe, ArrowUpRight, Sun, Moon } from 'lucide-react';
 import { SiGithub, SiLinkedin } from 'react-icons/si';
 import { useLanguage } from '@/hooks/useLanguage';
+import { useTheme } from 'next-themes';
 import { translations, CONTACT_INFO } from '@/lib/data-static';
 
 interface LayoutProps { children: React.ReactNode; }
 
 export function Layout({ children }: LayoutProps) {
   const { language, toggleLanguage, isArabic } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const t = translations[language];
   const location = useLocation();
   const isHome = location.pathname === '/';
@@ -111,6 +113,13 @@ export function Layout({ children }: LayoutProps) {
             {/* Actions */}
             <div className="flex items-center gap-3">
               <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                className="hidden md:flex items-center text-muted-foreground hover:text-foreground transition-colors px-2 py-1.5 border border-border rounded-sm hover:border-emerald-brand"
+              >
+                {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+              </button>
+              <button
                 onClick={toggleLanguage}
                 aria-label={language === 'ar' ? 'تغيير اللغة إلى الإنجليزية' : 'Switch language to Arabic'}
                 className="hidden md:flex items-center gap-1.5 text-xs font-mono font-semibold text-muted-foreground hover:text-foreground transition-colors px-2.5 py-1.5 border border-border rounded-sm hover:border-emerald-brand"
@@ -187,6 +196,13 @@ export function Layout({ children }: LayoutProps) {
                   className="btn-emerald flex-1 justify-center py-3 text-sm"
                 >
                   {t.nav.letsTalk}
+                </button>
+                <button
+                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                  aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                  className="flex items-center text-muted-foreground px-3 py-3 border border-border rounded-sm"
+                >
+                  {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
                 </button>
                 <button
                   onClick={toggleLanguage}

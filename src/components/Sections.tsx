@@ -1,5 +1,5 @@
-import { motion, useInView } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
+import { motion, useInView, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useRef, useEffect, useState, useCallback } from "react";
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
 
@@ -55,29 +55,40 @@ export function SectionHeader({ number, title, subtitle, light = false, classNam
   );
 }
 
-/* ── Reveal Wrapper ── */
+/* ── Reveal Wrapper (with stagger support) ── */
 interface RevealWrapperProps {
   children: React.ReactNode;
   delay?: number;
   className?: string;
-  direction?: 'up' | 'left' | 'right';
+  direction?: 'up' | 'left' | 'right' | 'down' | 'none';
+  stagger?: boolean;
+  staggerDelay?: number;
 }
 
-export function RevealWrapper({ children, delay = 0, className = "", direction = 'up' }: RevealWrapperProps) {
+export function RevealWrapper({
+  children, delay = 0, className = "",
+  direction = 'up', stagger = false, staggerDelay = 0.06
+}: RevealWrapperProps) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-80px" });
   const init = direction === 'up' ? { opacity: 0, y: 36 }
+             : direction === 'down' ? { opacity: 0, y: -36 }
              : direction === 'left' ? { opacity: 0, x: -36 }
-             : { opacity: 0, x: 36 };
-  const anim = direction === 'up' ? { opacity: 1, y: 0 }
-             : direction === 'left' ? { opacity: 1, x: 0 }
-             : { opacity: 1, x: 0 };
+             : direction === 'right' ? { opacity: 0, x: 36 }
+             : { opacity: 0 };
+  const anim = direction === 'none' ? { opacity: 1 }
+             : direction === 'down' ? { opacity: 1, y: 0 }
+             : { opacity: 1, y: 0, x: 0 };
   return (
     <motion.div
       ref={ref}
       initial={init}
       animate={inView ? anim : init}
-      transition={{ duration: 0.6, delay, ease }}
+      transition={stagger ? {
+        duration: 0.6, ease,
+        staggerChildren: staggerDelay,
+        delayChildren: delay,
+      } : { duration: 0.6, delay, ease }}
       className={className}
     >
       {children}
@@ -95,8 +106,11 @@ interface RuledCardProps {
 export function RuledCard({ children, className = "", dark = false }: RuledCardProps) {
   return (
     <motion.div
-      whileHover={{ y: -6 }}
-      transition={{ duration: 0.3, ease }}
+      whileHover={{ y: -6, boxShadow: dark
+        ? '0 12px 40px rgba(0,0,0,0.3)'
+        : '0 12px 40px rgba(0,0,0,0.06)'
+      }}
+      transition={{ type: 'spring', stiffness: 200, damping: 18 }}
       className={`${dark ? 'ruled-card-dark' : 'ruled-card'} p-6 ${className}`}
     >
       {children}
@@ -165,33 +179,63 @@ export function TechBadge({ name, dark = false, className = "" }: TechBadgeProps
   );
 }
 
-/* ── Tilt Card (3-D mouse effect) ── */
-interface TiltCardProps { children: React.ReactNode; className?: string; dark?: boolean; }
+/* ── Tilt Card (3-D mouse effect with glare + spring physics) ── */
+interface TiltCardProps {
+  children: React.ReactNode;
+  className?: string;
+  dark?: boolean;
+  tiltDegree?: number;
+  glare?: boolean;
+}
 
-export function TiltCard({ children, className = "", dark = false }: TiltCardProps) {
+export function TiltCard({
+  children, className = "", dark = false,
+  tiltDegree = 8, glare = true
+}: TiltCardProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(0.5);
+  const mouseY = useMotionValue(0.5);
+  const springX = useSpring(mouseX, { stiffness: 180, damping: 18 });
+  const springY = useSpring(mouseY, { stiffness: 180, damping: 18 });
 
-  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const rotateY = useTransform(springX, [0, 1], [tiltDegree, -tiltDegree]);
+  const rotateX = useTransform(springY, [0, 1], [-tiltDegree, tiltDegree]);
+  const glareX = useTransform(springX, [0, 1], [0, 100]);
+  const glareY = useTransform(springY, [0, 1], [0, 100]);
+  const glareBackground = useTransform([glareX, glareY], (gx: number, gy: number) =>
+    `radial-gradient(circle at ${gx}% ${gy}%, rgba(255,255,255,0.15), transparent 70%)`
+  );
+
+  const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!ref.current) return;
     const { left, top, width, height } = ref.current.getBoundingClientRect();
-    const rx = ((e.clientY - top  - height / 2) / (height / 2)) * -7;
-    const ry = ((e.clientX - left - width  / 2) / (width  / 2)) *  7;
-    ref.current.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(6px)`;
-  };
-  const onLeave = () => {
-    if (ref.current) ref.current.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)';
-  };
+    mouseX.set((e.clientX - left) / width);
+    mouseY.set((e.clientY - top) / height);
+  }, [mouseX, mouseY]);
+
+  const onLeave = useCallback(() => {
+    mouseX.set(0.5);
+    mouseY.set(0.5);
+  }, [mouseX, mouseY]);
 
   return (
-    <div
+    <motion.div
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
-      style={{ transition: 'transform .4s cubic-bezier(.25,.46,.45,.94)' }}
-      className={`${dark ? 'ruled-card-dark' : 'ruled-card'} overflow-hidden ${className}`}
+      style={{ rotateX, rotateY, perspective: 900 }}
+      whileHover={{ scale: 1.015 }}
+      transition={{ scale: { duration: 0.3, ease } }}
+      className={`${dark ? 'ruled-card-dark' : 'ruled-card'} overflow-hidden relative ${className}`}
     >
       {children}
-    </div>
+      {glare && (
+        <motion.div
+          className="pointer-events-none absolute inset-0 z-10"
+          style={{ background: glareBackground }}
+        />
+      )}
+    </motion.div>
   );
 }
 

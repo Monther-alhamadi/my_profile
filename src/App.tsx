@@ -6,6 +6,7 @@ import { HashRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, MotionConfig } from "framer-motion";
 import { useEffect } from "react";
 import { lazy, Suspense } from "react";
+import { ThemeProvider } from "next-themes";
 import Home from "./pages/Home";
 import NotFound from "./pages/not-found/Index";
 import { Layout } from "./components/Layout";
@@ -41,8 +42,6 @@ function AppContent() {
   }, [location.pathname]);
 
   useEffect(() => {
-    // document.documentElement.classList.remove('dark');
-    document.documentElement.classList.add('dark');
     document.documentElement.dir = direction;
   }, [direction]);
 
@@ -76,17 +75,19 @@ function AppContent() {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <MotionConfig reducedMotion="user">
-          <Toaster />
-          <Sonner />
-          <HashRouter>
-            <AppContent />
-          </HashRouter>
-        </MotionConfig>
-      </TooltipProvider>
-    </AuthProvider>
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+      <AuthProvider>
+        <TooltipProvider>
+          <MotionConfig reducedMotion="user">
+            <Toaster />
+            <Sonner />
+            <HashRouter>
+              <AppContent />
+            </HashRouter>
+          </MotionConfig>
+        </TooltipProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

@@ -1,6 +1,6 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import {
   Code2, Cpu, Brain, Smartphone, Layers, Sparkles, Network,
   Mail, MapPin, Clock, Star, ArrowUpRight, ArrowRight,
@@ -13,6 +13,10 @@ import {
   SectionHeader, RevealWrapper, RuledCard, StatCard,
   TechBadge, TiltCard, Marquee
 } from '@/components/Sections'
+import {
+  HeroSkeleton, ProjectsSkeleton, SkillsSkeleton,
+  ServicesSkeleton, StatsSkeleton, TestimonialsSkeleton, ExperienceSkeleton
+} from '@/components/Skeleton'
 import ProjectGallery from '@/components/ProjectGallery'
 import { usePortfolio } from '@/hooks/usePortfolio'
 import { submitContact } from '@/services/portfolio-api'
@@ -42,7 +46,23 @@ const TECH_MARQUEE = [
   'TensorFlow', 'GraphQL', 'Redis', 'React.js', 'Supabase',
 ]
 
-const scrollTo = (id: string) => document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' })
+const heroContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.07, delayChildren: 0.2 }
+  }
+}
+
+const heroChild = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] } }
+}
+
+const heroChildFade = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.5 } }
+}
 
 export default function Home() {
   const { language } = useLanguage()
@@ -51,16 +71,23 @@ export default function Home() {
   const [form, setForm] = useState({ name: '', email: '', projectType: 'none', message: '', _hp: '', _t: 0 })
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [showSkeleton, setShowSkeleton] = useState(true)
 
   const heroRef = useRef<HTMLElement>(null)
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 100])
   const heroOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0])
 
+  useEffect(() => {
+    if (!isLoading) {
+      const timer = setTimeout(() => setShowSkeleton(false), 200)
+      return () => clearTimeout(timer)
+    }
+  }, [isLoading])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSubmitting(true)
-
     try {
       const result = await submitContact({
         name: form.name,
@@ -70,21 +97,49 @@ export default function Home() {
         _hp: form._hp,
         _t: Date.now(),
       })
-
       if (result.success) {
         setSubmitted(true)
         setForm({ name: '', email: '', projectType: 'none', message: '', _hp: '', _t: 0 })
       }
-    } catch (error) {
-      console.error('Error submitting form:', error)
+    } catch {
       alert(language === 'ar' ? 'حدث خطأ. يرجى المحاولة لاحقاً.' : 'An error occurred. Please try again later.')
     } finally {
       setSubmitting(false)
     }
   }
 
+  const scrollTo = (id: string) => document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' })
+
+  const projectCategories = useMemo(() => {
+    const cats = new Set(projects.map(p => p.category).filter(Boolean))
+    return ['all', ...cats] as const
+  }, [projects])
+  const [activeFilter, setActiveFilter] = useState('all')
+  const filteredProjects = activeFilter === 'all' ? projects : projects.filter(p => p.category === activeFilter)
+
   return (
-    <div>
+    <AnimatePresence mode="wait">
+      {showSkeleton ? (
+        <motion.div
+          key="skeleton"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3, ease }}
+        >
+          <HeroSkeleton />
+          <SkillsSkeleton />
+          <ProjectsSkeleton />
+          <ServicesSkeleton />
+          <StatsSkeleton />
+          <TestimonialsSkeleton />
+          <ExperienceSkeleton />
+        </motion.div>
+      ) : (
+      <motion.div
+        key="content"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, ease }}
+      >
 
       {/* ══════════════════════════════════════════════
           HERO — Ivory
@@ -104,68 +159,72 @@ export default function Home() {
           <div className="grid lg:grid-cols-[1fr_400px] gap-16 items-center">
 
             {/* Left */}
-            <div>
+            <motion.div variants={heroContainer} initial="hidden" animate="visible">
               {/* Badge */}
-              <motion.div initial={{ opacity:0, y:14 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.5 }} className="mb-8">
-                <span className="available-badge">
+              <motion.div variants={heroChild} className="mb-8">
+                <motion.span
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                  className="available-badge"
+                >
                   <span className="available-dot" />
                   {language === 'ar' ? 'متاح للعمل' : 'Available for new projects'}
-                </span>
+                </motion.span>
               </motion.div>
 
               {/* Greeting */}
-              <motion.p
-                initial={{ opacity:0, y:14 }}
-                animate={{ opacity:1, y:0 }}
-                transition={{ duration:0.5, delay:0.05 }}
-                className="text-emerald-brand font-mono font-medium mb-4"
-              >
+              <motion.p variants={heroChild} className="text-emerald-brand font-mono font-medium mb-4">
                 {t.hero.greeting}
               </motion.p>
 
               {/* Headline */}
-              <motion.h1
-                initial={{ opacity:0, y:30 }}
-                animate={{ opacity:1, y:0 }}
-                transition={{ duration:0.7, delay:0.1, ease:[0.25,0.46,0.45,0.94] }}
-                className="text-[clamp(2.6rem,6.5vw,5.5rem)] font-bold leading-[1.04] tracking-tight text-obsidian mb-6"
-              >
+              <motion.h1 variants={heroChild} className="text-[clamp(2.6rem,6.5vw,5.5rem)] font-bold leading-[1.04] tracking-tight text-obsidian mb-6">
                 {t.hero.title}
               </motion.h1>
 
               {/* Typewriter */}
-              <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.4 }} className="h-9 mb-8">
+              <motion.div variants={heroChildFade} className="h-9 mb-8">
                 <TypewriterText text={t.hero.specializations[0]} className="text-lg text-muted-foreground font-mono" speed={45} />
               </motion.div>
 
               {/* Description */}
-              <motion.p
-                initial={{ opacity:0, y:16 }}
-                animate={{ opacity:1, y:0 }}
-                transition={{ delay:0.5, duration:0.6 }}
-                className="text-base text-muted-foreground max-w-lg leading-relaxed mb-10"
-              >
+              <motion.p variants={heroChild} className="text-base text-muted-foreground max-w-lg leading-relaxed mb-10">
                 {language === 'ar'
                   ? 'أبني أنظمة برمجية متقدمة — من تطبيقات الويب إلى أدوات الذكاء الاصطناعي. أحوّل المشاكل المعقدة إلى حلول تقنية أنيقة وقابلة للتوسع.'
                   : 'I build advanced software systems — from full-stack web apps to AI-powered tools. I turn complex problems into elegant, scalable solutions.'}
               </motion.p>
 
               {/* CTAs */}
-              <motion.div initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ delay:0.6 }} className="flex flex-wrap gap-4 mb-12">
-                <button className="btn-emerald" onClick={() => scrollTo('#contact')}>
+              <motion.div variants={heroChild} className="flex flex-wrap gap-4 mb-12">
+                <motion.button
+                  whileHover={{ scale: 1.04, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                  className="btn-emerald" onClick={() => scrollTo('#contact')}
+                >
                   {t.hero.cta1} <ArrowUpRight className="w-4 h-4" />
-                </button>
-                <button className="btn-outline-dark" onClick={() => scrollTo('#projects')}>
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                  className="btn-outline-dark" onClick={() => scrollTo('#projects')}
+                >
                   {t.hero.cta2} <ArrowRight className="w-4 h-4" />
-                </button>
-                <a href="/cv.pdf" download className="hidden md:inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border-b border-dashed border-border hover:border-emerald-brand pb-0.5">
+                </motion.button>
+                <motion.a
+                  href="/cv.pdf" download
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+                  className="hidden md:inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border-b border-dashed border-border hover:border-emerald-brand pb-0.5"
+                >
                   <Download className="w-3.5 h-3.5" />
                   {language === 'ar' ? 'تحميل السيرة الذاتية' : 'Download CV'}
-                </a>
+                </motion.a>
               </motion.div>
 
               {/* Quick stats */}
-              <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:0.8 }} className="flex items-center gap-8 flex-wrap">
+              <motion.div variants={heroChildFade} className="flex items-center gap-8 flex-wrap">
                 {stats.slice(0, 3).map(stat => (
                   <div key={stat.id}>
                     <div className="text-2xl font-bold font-heading text-obsidian">{stat.value}{stat.suffix}</div>
@@ -173,13 +232,13 @@ export default function Home() {
                   </div>
                 ))}
               </motion.div>
-            </div>
+            </motion.div>
 
             {/* Right — tilt card */}
             <motion.div
-              initial={{ opacity:0, x:36 }}
-              animate={{ opacity:1, x:0 }}
-              transition={{ duration:0.75, delay:0.3, ease:[0.25,0.46,0.45,0.94] }}
+              initial={{ opacity: 0, x: 36 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
             >
               <TiltCard className="!p-0">
                 <div className="relative aspect-[4/5] overflow-hidden">
@@ -201,7 +260,7 @@ export default function Home() {
         </div>
 
         {/* Scroll hint */}
-        <motion.div initial={{ opacity:0 }} animate={{ opacity:1 }} transition={{ delay:1.1 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5">
           <span className="text-[10px] font-mono text-muted-foreground tracking-widest uppercase">
             {language === 'ar' ? 'مرر للأسفل' : 'Scroll'}
           </span>
@@ -333,8 +392,37 @@ export default function Home() {
             <SectionHeader number="03" title={t.projects.title} subtitle={t.projects.subtitle} light />
           </RevealWrapper>
 
-          <div className="space-y-24">
-            {projects.map((project, i) => (
+          {/* ── Project Filter ── */}
+          <RevealWrapper delay={0.1}>
+            <div className="flex flex-wrap gap-2 mb-14 pb-6 border-b border-ivory/8">
+              {projectCategories.map(cat => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveFilter(cat)}
+                  className={`px-4 py-2 rounded-sm text-sm font-mono font-medium transition-all duration-300 ${
+                    activeFilter === cat
+                      ? 'bg-emerald-brand text-white shadow-lg shadow-emerald-brand/25'
+                      : 'text-ivory/45 hover:text-ivory hover:bg-ivory/5 border border-ivory/8'
+                  }`}
+                >
+                  {cat === 'all'
+                    ? (language === 'ar' ? 'الكل' : 'All')
+                    : cat}
+                </button>
+              ))}
+            </div>
+          </RevealWrapper>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeFilter}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="space-y-24"
+            >
+            {filteredProjects.map((project, i) => (
               <RevealWrapper key={project.id} delay={0.05}>
                 <div className={`grid lg:grid-cols-2 gap-12 items-start`}>
 
@@ -403,12 +491,13 @@ export default function Home() {
                   </div>
                 </div>
 
-                {i < projects.length - 1 && (
+                {i < filteredProjects.length - 1 && (
                   <div className="hr-emerald mt-24 opacity-[0.18]" />
                 )}
               </RevealWrapper>
             ))}
-          </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </section>
 
@@ -681,9 +770,10 @@ export default function Home() {
                   <button type="submit" disabled={submitting} className="btn-emerald w-full justify-center">
                     {submitting ? (
                       <span className="flex items-center gap-2">
-                        <motion.span
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+          <motion.span
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+            whileHover={{ scale: 1.2 }}
                           className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
                         />
                         {t.contact.form.sending}
@@ -698,6 +788,8 @@ export default function Home() {
           </div>
         </div>
       </section>
-    </div>
+    </motion.div>
+    )}
+  </AnimatePresence>
   )
 }
