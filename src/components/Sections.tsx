@@ -33,7 +33,7 @@ export function SectionHeader({ number, title, subtitle, light = false, classNam
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.55, delay: 0.08, ease }}
-        className={`text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight mb-4 ${
+        className={`text-3xl md:text-4xl lg:text-6xl font-bold leading-[1.05] tracking-tight mb-4 ${
           light ? 'text-ivory' : 'text-foreground'
         }`}
       >

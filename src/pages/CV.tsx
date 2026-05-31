@@ -12,7 +12,7 @@ export default function CV() {
   return (
     <div className="min-h-screen bg-obsidian">
       {/* Header */}
-      <section className="section-obsidian py-20 border-b border-ivory/10">
+      <section className="section-obsidian py-16 md:py-20 border-b border-ivory/10">
         <div className="max-w-4xl mx-auto px-6 lg:px-12">
           <RevealWrapper>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -21,7 +21,7 @@ export default function CV() {
                 <p className="text-emerald-brand font-mono text-sm mb-4">
                   {language === 'ar' ? 'مهندس برمجيات | تطوير شامل وأنظمة ذكية' : 'Software Engineer | Full-Stack & Intelligent Systems'}
                 </p>
-                <div className="flex flex-wrap gap-4 text-xs text-ivory/50 font-mono">
+                <div className="flex flex-wrap gap-3 md:gap-4 text-xs text-ivory/50 font-mono">
                   <span className="flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5" /> {CONTACT_INFO.email}
                   </span>
@@ -36,15 +36,15 @@ export default function CV() {
               </div>
               <div className="flex gap-3">
                 <a href={CONTACT_INFO.github} target="_blank" rel="noopener noreferrer"
-                   className="p-3 border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
+                   className="p-[13px] border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
                   <SiGithub className="w-5 h-5" />
                 </a>
                 <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer"
-                   className="p-3 border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
+                   className="p-[13px] border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
                   <SiLinkedin className="w-5 h-5" />
                 </a>
                 <a href="/cv.pdf" download
-                   className="btn-emerald inline-flex items-center gap-2 text-sm">
+                   className="btn-emerald inline-flex items-center gap-2 text-sm py-[13px]">
                   <Download className="w-4 h-4" />
                   {language === 'ar' ? 'تحميل PDF' : 'Download PDF'}
                 </a>
@@ -54,10 +54,10 @@ export default function CV() {
         </div>
       </section>
 
-      <div className="max-w-4xl mx-auto px-6 lg:px-12 py-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-12 py-12 md:py-16">
         {/* Stats */}
         <RevealWrapper>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-12 md:mb-16">
             {stats.map(stat => (
               <div key={stat.id} className="border border-ivory/10 rounded-sm p-5 text-center">
                 <div className="text-3xl font-bold text-emerald-brand font-heading">
@@ -74,7 +74,7 @@ export default function CV() {
           <h2 className="text-xs font-mono font-semibold text-emerald-brand uppercase tracking-widest mb-8">
             {language === 'ar' ? 'الخبرة المهنية' : 'Professional Experience'}
           </h2>
-          <div className="space-y-6 mb-16">
+          <div className="space-y-5 md:space-y-6 mb-12 md:mb-16">
             {experience.map(exp => (
               <div key={exp.id} className="ruled-card-dark p-6 md:p-8">
                 <div className="flex flex-col md:flex-row md:items-start gap-4 md:gap-8">

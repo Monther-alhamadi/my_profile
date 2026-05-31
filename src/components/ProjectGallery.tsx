@@ -26,7 +26,7 @@ export default function ProjectGallery({ images, title }: ProjectGalleryProps) {
   return (
     <div className="relative group">
       <div
-        className="relative overflow-hidden rounded-sm cursor-pointer border border-border/40 transition-all duration-500 hover:border-emerald-brand/30 aspect-[4/3]"
+        className="relative overflow-hidden rounded-sm cursor-pointer border border-border/40 transition-all duration-500 hover:border-emerald-brand/30 aspect-[3/2] md:aspect-[4/3]"
         onClick={() => setZoomed(!zoomed)}
         onMouseEnter={() => clearInterval(intervalRef.current)}
         onMouseLeave={() => {

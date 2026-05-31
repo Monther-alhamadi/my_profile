@@ -57,14 +57,14 @@ export default function Links() {
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-4 p-4 rounded-sm border border-border bg-white/50 hover:border-emerald-brand hover:bg-emerald-brand/5 transition-all group"
+                className="flex items-center gap-4 p-[13px] md:p-4 rounded-sm border border-border bg-white/50 hover:border-emerald-brand hover:bg-emerald-brand/5 transition-all group"
               >
-                <Icon className="w-5 h-5 text-muted-foreground group-hover:text-emerald-brand transition-colors flex-shrink-0" />
+                <Icon className="w-6 h-6 text-muted-foreground group-hover:text-emerald-brand transition-colors flex-shrink-0" />
                 <div className="flex-1 text-left">
                   <p className="text-sm font-semibold text-foreground">{link.label}</p>
                   <p className="text-xs text-muted-foreground">{link.subtitle}</p>
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-muted-foreground group-hover:text-emerald-brand transition-colors" />
+                <ArrowUpRight className="w-5 h-5 text-muted-foreground group-hover:text-emerald-brand transition-colors" />
               </a>
             )
           })}
@@ -74,7 +74,7 @@ export default function Links() {
         <a
           href="/cv.pdf"
           download
-          className="btn-emerald w-full justify-center inline-flex items-center gap-2 mb-8"
+          className="btn-emerald w-full justify-center inline-flex items-center gap-2 mb-8 py-[13px]"
         >
           <Download className="w-4 h-4" />
           {language === 'ar' ? 'تحميل السيرة الذاتية' : 'Download CV'}

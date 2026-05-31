@@ -41,7 +41,7 @@ export default function ProjectDetail() {
   return (
     <div>
       {/* Hero section */}
-      <section className="section-obsidian py-28 relative overflow-hidden">
+      <section className="section-obsidian py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-ivory">{project.number}</span>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
@@ -55,7 +55,7 @@ export default function ProjectDetail() {
             </Link>
           </RevealWrapper>
 
-          <div className="grid lg:grid-cols-[1fr_1fr] gap-16 items-start">
+          <div className="grid lg:grid-cols-[1fr_1fr] gap-10 md:gap-16 items-start">
             <RevealWrapper direction="left">
               <div className="flex items-baseline gap-4 mb-6">
                 <span className="font-mono text-7xl font-bold text-emerald-brand opacity-[0.18] leading-none select-none">
@@ -101,9 +101,9 @@ export default function ProjectDetail() {
       </section>
 
       {/* Technologies & Highlights */}
-      <section className="section-ivory py-20">
+      <section className="section-ivory py-16 md:py-20">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="grid lg:grid-cols-2 gap-16">
+          <div className="grid lg:grid-cols-2 gap-10 md:gap-16">
             <RevealWrapper>
               <h3 className="text-[11px] font-mono font-semibold text-emerald-brand uppercase tracking-widest mb-5">
                 {t.projects.technologies}

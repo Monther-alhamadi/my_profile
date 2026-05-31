@@ -157,13 +157,13 @@ export default function Home() {
         <div className="absolute top-1/4 right-[8%]  w-[550px] h-[550px] rounded-full bg-emerald-brand opacity-[0.04] blur-[100px] pointer-events-none" />
         <div className="absolute bottom-1/4 left-[4%] w-[380px] h-[380px] rounded-full bg-emerald-brand opacity-[0.03] blur-[80px]  pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10 w-full py-24">
-          <div className="grid lg:grid-cols-[1fr_400px] gap-16 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10 w-full py-16 md:py-24">
+          <div className="grid lg:grid-cols-[1fr_400px] gap-12 md:gap-16 items-start">
 
             {/* Left */}
             <motion.div variants={heroContainer} initial="hidden" animate="visible">
               {/* Badge */}
-              <motion.div variants={heroChild} className="mb-8">
+              <motion.div variants={heroChild} className="mb-6 md:mb-8">
                 <motion.span
                   whileHover={{ scale: 1.03 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 15 }}
@@ -175,34 +175,34 @@ export default function Home() {
               </motion.div>
 
               {/* Greeting */}
-              <motion.p variants={heroChild} className="text-emerald-brand font-mono font-medium mb-4">
+              <motion.p variants={heroChild} className="text-emerald-brand font-mono font-medium mb-3 md:mb-4">
                 {t.hero.greeting}
               </motion.p>
 
               {/* Headline */}
-              <motion.h1 variants={heroChild} className="text-[clamp(2.6rem,6.5vw,5.5rem)] font-bold leading-[1.04] tracking-tight text-obsidian mb-6">
+              <motion.h1 variants={heroChild} className="text-[clamp(2.2rem,7vw,5.5rem)] font-bold leading-[1.04] tracking-tight text-obsidian mb-5 md:mb-6">
                 {t.hero.title}
               </motion.h1>
 
               {/* Typewriter */}
-              <motion.div variants={heroChildFade} className="h-9 mb-8">
-                <TypewriterText text={t.hero.specializations[0]} className="text-lg text-muted-foreground font-mono" speed={45} />
+              <motion.div variants={heroChildFade} className="h-8 md:h-9 mb-6 md:mb-8">
+                <TypewriterText text={t.hero.specializations[0]} className="text-base md:text-lg text-muted-foreground font-mono" speed={45} />
               </motion.div>
 
               {/* Description */}
-              <motion.p variants={heroChild} className="text-base text-muted-foreground max-w-lg leading-relaxed mb-10">
+              <motion.p variants={heroChild} className="text-sm md:text-base text-muted-foreground max-w-lg leading-relaxed mb-8 md:mb-10">
                 {language === 'ar'
                   ? 'أبني أنظمة برمجية متقدمة — من تطبيقات الويب إلى أدوات الذكاء الاصطناعي. أحوّل المشاكل المعقدة إلى حلول تقنية أنيقة وقابلة للتوسع.'
                   : 'I build advanced software systems — from full-stack web apps to AI-powered tools. I turn complex problems into elegant, scalable solutions.'}
               </motion.p>
 
               {/* CTAs */}
-              <motion.div variants={heroChild} className="flex flex-wrap gap-4 mb-12">
+              <motion.div variants={heroChild} className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-10 md:mb-12">
                 <motion.button
                   whileHover={{ scale: 1.04, y: -2 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                  className="btn-emerald" onClick={() => scrollTo('#contact')}
+                  className="btn-emerald w-full sm:w-auto justify-center" onClick={() => scrollTo('#contact')}
                 >
                   {t.hero.cta1} <ArrowUpRight className="w-4 h-4" />
                 </motion.button>
@@ -210,7 +210,7 @@ export default function Home() {
                   whileHover={{ scale: 1.03, y: -2 }}
                   whileTap={{ scale: 0.97 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                  className="btn-outline-dark" onClick={() => scrollTo('#projects')}
+                  className="btn-outline-dark w-full sm:w-auto justify-center" onClick={() => scrollTo('#projects')}
                 >
                   {t.hero.cta2} <ArrowRight className="w-4 h-4" />
                 </motion.button>
@@ -226,26 +226,26 @@ export default function Home() {
               </motion.div>
 
               {/* Quick stats */}
-              <motion.div variants={heroChildFade} className="flex items-center gap-8 flex-wrap">
+              <motion.div variants={heroChildFade} className="flex items-center gap-6 md:gap-8 flex-wrap">
                 {stats.slice(0, 3).map(stat => (
                   <div key={stat.id}>
-                    <div className="text-2xl font-bold font-heading text-obsidian">{stat.value}{stat.suffix}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{stat.label}</div>
+                    <div className="text-xl md:text-2xl font-bold font-heading text-obsidian">{stat.value}{stat.suffix}</div>
+                    <div className="text-[11px] md:text-xs text-muted-foreground mt-0.5">{stat.label}</div>
                   </div>
                 ))}
               </motion.div>
             </motion.div>
 
-            {/* Right — tilt card */}
+            {/* Right — tilt card (hidden on mobile) */}
             <motion.div
               initial={{ opacity: 0, x: 36 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6, delay: 0.55, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="hidden md:block"
             >
               <TiltCard className="!p-0">
                 <div className="relative aspect-[4/5] overflow-hidden">
                   <img src={profile?.avatar_url || IMAGES.ABOUT_BG_8} alt="Developer at work" loading="lazy" className="w-full h-full object-cover" />
-                  {/* <div className="absolute top-0 left-0 w-[3px] h-20 bg-emerald-brand" /> */}
                   <div className="absolute bottom-4 left-4 right-4 bg-obsidian/88 backdrop-blur-sm rounded-sm p-4">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="available-dot" />
@@ -262,7 +262,7 @@ export default function Home() {
         </div>
 
         {/* Scroll hint */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }} className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.1 }} className="hidden md:flex absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-1.5">
           <span className="text-[10px] font-mono text-muted-foreground tracking-widest uppercase">
             {language === 'ar' ? 'مرر للأسفل' : 'Scroll'}
           </span>
@@ -298,7 +298,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════
           ABOUT — Obsidian
       ══════════════════════════════════════════════ */}
-      <section id="about" className="section-obsidian py-28 relative overflow-hidden">
+      <section id="about" className="section-obsidian py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-ivory">01</span>
         <div className="absolute inset-0 z-0 opacity-[0.02]">
           <img src={IMAGES.DARK_BG_1} alt="" loading="lazy" className="w-full h-full object-cover" />
@@ -309,9 +309,9 @@ export default function Home() {
             <SectionHeader number="01" title={t.about.title} subtitle={t.about.subtitle} light />
           </RevealWrapper>
 
-          <div className="grid lg:grid-cols-2 gap-16 items-start">
+          <div className="grid lg:grid-cols-2 gap-10 md:gap-16 items-start">
             <RevealWrapper delay={0.15} direction="left">
-              <h3 className="text-2xl lg:text-3xl font-bold text-ivory leading-snug mb-7">{t.about.statement}</h3>
+              <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-ivory leading-snug mb-7">{t.about.statement}</h3>
               <p className="text-ivory/52 text-base leading-relaxed mb-8">{t.about.bio}</p>
               <div className="space-y-3">
                 {t.about.highlights.map((h: string, i: number) => (
@@ -346,7 +346,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════
           EXPERTISE — Ivory
       ══════════════════════════════════════════════ */}
-      <section id="expertise" className="section-ivory py-28 relative overflow-hidden">
+      <section id="expertise" className="section-ivory py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-foreground">02</span>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
@@ -354,18 +354,18 @@ export default function Home() {
             <SectionHeader number="02" title={t.expertise.title} subtitle={t.expertise.subtitle} />
           </RevealWrapper>
 
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="flex md:grid md:grid-cols-2 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0">
             {skills.map((skill, i) => {
               const Icon = resolveIcon(skill.icon)
               return (
-                <RevealWrapper key={skill.category} delay={0.08 * i}>
-                  <RuledCard className="h-full p-8">
+                <RevealWrapper key={skill.category} delay={0.08 * i} className="snap-start shrink-0 w-[82vw] md:w-auto md:shrink">
+                  <RuledCard className="h-full p-6 md:p-8">
                     <div className="flex items-start gap-4 mb-5">
                       <div className="w-11 h-11 bg-primary/8 border border-primary/15 rounded-sm flex items-center justify-center flex-shrink-0">
                         <Icon className="w-5 h-5 text-emerald-brand" />
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-foreground">{skill.category}</h3>
+                        <h3 className="text-lg md:text-xl font-bold text-foreground">{skill.category}</h3>
                         <p className="text-sm text-muted-foreground mt-0.5">{skill.description}</p>
                       </div>
                     </div>
@@ -383,7 +383,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════
           PROJECTS — Obsidian
       ══════════════════════════════════════════════ */}
-      <section id="projects" className="section-obsidian py-28 relative overflow-hidden">
+      <section id="projects" className="section-obsidian py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-ivory">03</span>
         <div className="absolute inset-0 opacity-[0.018]">
           <img src={IMAGES.DARK_BG_7} alt="" loading="lazy" className="w-full h-full object-cover" />
@@ -401,7 +401,7 @@ export default function Home() {
                 <button
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
-                  className={`px-4 py-2 rounded-sm text-sm font-mono font-medium transition-all duration-300 ${
+                  className={`px-5 py-[11px] rounded-sm text-sm font-mono font-medium transition-all duration-300 ${
                     activeFilter === cat
                       ? 'bg-emerald-brand text-white shadow-lg shadow-emerald-brand/25'
                       : 'text-ivory/45 hover:text-ivory hover:bg-ivory/5 border border-ivory/8'
@@ -506,7 +506,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════
           SERVICES — Ivory
       ══════════════════════════════════════════════ */}
-      <section id="services" className="section-ivory py-28 relative overflow-hidden">
+      <section id="services" className="section-ivory py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-foreground">04</span>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
@@ -514,21 +514,21 @@ export default function Home() {
             <SectionHeader number="04" title={t.services.title} subtitle={t.services.subtitle} />
           </RevealWrapper>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0">
             {services.map((service, i) => {
               const Icon = resolveIcon(service.icon)
               return (
-                <RevealWrapper key={service.id} delay={0.1 * i}>
-                  <RuledCard className="h-full p-8 flex flex-col">
+                <RevealWrapper key={service.id} delay={0.1 * i} className="snap-start shrink-0 w-[78vw] md:w-auto md:shrink">
+                  <RuledCard className="h-full p-6 md:p-8 flex flex-col">
                     <div className="mb-6">
                       <div className="w-11 h-11 bg-primary/8 border border-primary/14 rounded-sm flex items-center justify-center mb-5">
                         <Icon className="w-5 h-5 text-emerald-brand" />
                       </div>
-                      <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
+                      <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">{service.title}</h3>
                       <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
                     </div>
                     <div className="mt-auto">
-                      <p className="text-3xl font-bold font-heading text-emerald-brand mb-5">{service.pricing}</p>
+                      <p className="text-2xl md:text-3xl font-bold font-heading text-emerald-brand mb-5">{service.pricing}</p>
                       <div className="space-y-2.5">
                         {service.features.map((f, idx) => (
                           <div key={idx} className="flex items-start gap-2.5">
@@ -546,7 +546,7 @@ export default function Home() {
 
           {/* CTA banner */}
           <RevealWrapper delay={0.25}>
-            <div className="mt-12 bg-obsidian rounded-sm p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="mt-12 bg-obsidian rounded-sm p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div>
                 <h3 className="text-2xl font-bold text-ivory mb-2">
                   {language === 'ar' ? 'هل لديك مشروع في ذهنك؟' : 'Have a project in mind?'}
@@ -568,7 +568,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════
           EXPERIENCE — Obsidian
       ══════════════════════════════════════════════ */}
-      <section id="experience" className="section-obsidian py-28 relative overflow-hidden">
+      <section id="experience" className="section-obsidian py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-ivory">05</span>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
@@ -610,7 +610,7 @@ export default function Home() {
       {/* ══════════════════════════════════════════════
           TESTIMONIALS — Ivory
       ══════════════════════════════════════════════ */}
-      <section id="testimonials" className="section-ivory py-28 relative overflow-hidden">
+      <section id="testimonials" className="section-ivory py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-foreground">06</span>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
@@ -618,10 +618,10 @@ export default function Home() {
             <SectionHeader number="06" title={t.testimonials.title} subtitle={t.testimonials.subtitle} />
           </RevealWrapper>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0">
             {testimonials.map((t2, i) => (
-              <RevealWrapper key={t2.id} delay={0.1 * i}>
-                <RuledCard className="h-full p-8 flex flex-col">
+              <RevealWrapper key={t2.id} delay={0.1 * i} className="snap-start shrink-0 w-[80vw] md:w-auto md:shrink">
+                <RuledCard className="h-full p-6 md:p-8 flex flex-col">
                   <div className="flex gap-1 mb-5">
                     {Array.from({ length: t2.rating }).map((_, idx) => (
                       <Star key={idx} className="w-4 h-4 fill-emerald-brand text-emerald-brand" />
@@ -651,7 +651,7 @@ export default function Home() {
         <div className="grid lg:grid-cols-2 min-h-[80vh]">
 
           {/* Left — Obsidian info */}
-          <div className="section-obsidian py-24 px-8 lg:px-16 relative overflow-hidden">
+          <div className="section-obsidian py-16 md:py-24 px-6 lg:px-16 relative overflow-hidden">
             <span className="section-num text-ivory">07</span>
             <div className="relative z-10">
               <RevealWrapper direction="left">
@@ -667,7 +667,7 @@ export default function Home() {
                   ].map(({ icon: Icon, label, value, href, accent }) => {
                     const inner = (
                       <div className="flex items-center gap-4 group">
-                        <div className="w-12 h-12 border border-ivory/14 rounded-sm flex items-center justify-center group-hover:border-emerald-brand transition-colors flex-shrink-0">
+                        <div className="w-[44px] h-[44px] md:w-12 md:h-12 border border-ivory/14 rounded-sm flex items-center justify-center group-hover:border-emerald-brand transition-colors flex-shrink-0">
                           <Icon className="w-5 h-5 text-ivory/45 group-hover:text-emerald-brand transition-colors" />
                         </div>
                         <div>
@@ -684,11 +684,11 @@ export default function Home() {
               <RevealWrapper delay={0.28} direction="left">
                 <div className="flex gap-3">
                   <a href={CONTACT_INFO.github} target="_blank" rel="noopener noreferrer"
-                     className="p-3 border border-ivory/14 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/45">
+                     className="p-[13px] border border-ivory/14 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/45">
                     <SiGithub className="w-5 h-5" />
                   </a>
                   <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer"
-                     className="p-3 border border-ivory/14 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/45">
+                     className="p-[13px] border border-ivory/14 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/45">
                     <SiLinkedin className="w-5 h-5" />
                   </a>
                 </div>
@@ -697,7 +697,7 @@ export default function Home() {
           </div>
 
           {/* Right — Form */}
-          <div className="section-ivory py-24 px-8 lg:px-16">
+          <div className="section-ivory py-16 md:py-24 px-6 lg:px-16">
             <RevealWrapper delay={0.18} direction="right">
               {submitted ? (
                 <div className="flex flex-col items-center justify-center h-full gap-6 text-center py-20">
@@ -728,7 +728,7 @@ export default function Home() {
                         value={form[key]}
                         onChange={e => setForm({ ...form, [key]: e.target.value })}
                         required
-                        className="border-border focus:border-emerald-brand rounded-sm h-12 bg-obsidian text-ivory placeholder:text-ivory/30"
+                        className="border-border focus:border-emerald-brand rounded-sm h-[48px] md:h-12 bg-obsidian text-ivory placeholder:text-ivory/30"
                       />
                     </div>
                   ))}
@@ -736,7 +736,7 @@ export default function Home() {
                   <div>
                     <label className="block text-xs font-mono font-semibold text-muted-foreground uppercase tracking-widest mb-2">{t.contact.form.projectType}</label>
                     <Select value={form.projectType} onValueChange={v => setForm({ ...form, projectType: v })}>
-                      <SelectTrigger className="border-border rounded-sm h-12 bg-obsidian text-ivory">
+                      <SelectTrigger className="border-border rounded-sm h-[48px] md:h-12 bg-obsidian text-ivory">
                         <SelectValue placeholder={t.contact.form.projectType} />
                       </SelectTrigger>
                       <SelectContent>
@@ -756,9 +756,9 @@ export default function Home() {
                       placeholder={t.contact.form.message}
                       value={form.message}
                       onChange={e => setForm({ ...form, message: e.target.value })}
-                      rows={5}
+                      rows={4}
                       required
-                      className="border-border focus:border-emerald-brand rounded-sm bg-obsidian resize-none text-ivory placeholder:text-ivory/30"
+                      className="border-border focus:border-emerald-brand rounded-sm bg-obsidian resize-none text-ivory placeholder:text-ivory/30 min-h-[120px] md:min-h-0"
                     />
                   </div>
 

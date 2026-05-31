@@ -155,6 +155,8 @@
 @layer base {
   * { @apply border-border outline-ring/50; }
   html { @apply scroll-smooth antialiased; }
+  /* Mobile tap highlight colour */
+  html { -webkit-tap-highlight-color: transparent; }
   body {
     @apply bg-background text-foreground min-h-screen;
     font-family: var(--font-sans);
@@ -240,6 +242,21 @@
                 0 20px 60px rgba(0,0,0,0.40);
     /* border-left-color: var(--emerald-bright); */
   }
+
+  /* ── Responsive section padding ── */
+  .section-padding {
+    @apply py-16 md:py-20 lg:py-28 px-4 sm:px-6 lg:px-12;
+  }
+  .section-padding-sm {
+    @apply py-12 md:py-16 lg:py-20 px-4 sm:px-6 lg:px-12;
+  }
+
+  /* ── Hide scrollbar for carousels ── */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
 
   /* ── Availability badge ── */
   .available-badge {

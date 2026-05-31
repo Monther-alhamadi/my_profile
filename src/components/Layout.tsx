@@ -150,72 +150,94 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </motion.header>
 
-      {/* ── Mobile menu ── */}
+      {/* ── Mobile menu (Bottom Sheet) ── */}
       <AnimatePresence>
         {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.22, ease: 'easeInOut' }}
-            className="fixed top-16 left-0 right-0 z-40 md:hidden bg-ivory border-b border-border shadow-lg overflow-hidden"
-          >
-            <nav className="max-w-7xl mx-auto px-6 py-6 flex flex-col gap-1">
-              {isHome && navLinks.map((link, i) => (
-                <motion.a
-                  key={link.href}
-                  href={link.href}
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  onClick={e => { e.preventDefault(); scrollTo(link.href); }}
-                  className="text-base font-medium text-foreground/75 hover:text-foreground py-3 border-b border-border/40 transition-colors"
-                >
-                  {link.label}
-                </motion.a>
-              ))}
-              {pageLinks.map((link, i) => (
-                <motion.div
-                  key={link.href}
-                  initial={{ opacity: 0, x: -16 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: (isHome ? navLinks.length : 0 + i) * 0.04 }}
-                >
-                  <Link
-                    to={link.href}
-                    onClick={() => setMobileOpen(false)}
-                    className="text-base font-medium text-foreground/75 hover:text-emerald-brand py-3 border-b border-border/40 block transition-colors"
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+              onClick={() => setMobileOpen(false)}
+            />
+
+            {/* Sheet */}
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={0.15}
+              onDragEnd={(_e, info) => {
+                if (info.offset.y > 80) setMobileOpen(false)
+              }}
+              className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/98 backdrop-blur-2xl border-t border-border rounded-t-2xl shadow-2xl max-h-[80vh] overflow-y-auto"
+            >
+              {/* Drag handle */}
+              <div className={`mx-auto mt-2 w-10 h-1 rounded-full bg-muted-foreground/20 ${isArabic ? 'ml-auto mr-auto' : ''}`} />
+
+              <nav className="px-6 py-5 pb-8">
+                {isHome && navLinks.map((link, i) => (
+                  <motion.a
+                    key={link.href}
+                    href={link.href}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                    onClick={e => { e.preventDefault(); scrollTo(link.href); }}
+                    className="flex items-center gap-3 text-base font-medium text-foreground/75 hover:text-foreground py-[13px] border-b border-border/40 transition-colors"
                   >
                     {link.label}
-                  </Link>
-                </motion.div>
-              ))}
-              <div className="flex items-center gap-3 pt-4">
-                <button
-                  onClick={() => scrollTo('#contact')}
-                  aria-label={t.nav.letsTalk}
-                  className="btn-emerald flex-1 justify-center py-3 text-sm"
-                >
-                  {t.nav.letsTalk}
-                </button>
-                <button
-                  onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                  aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-                  className="flex items-center text-muted-foreground px-3 py-3 border border-border rounded-sm"
-                >
-                  {theme === 'dark' ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-                </button>
-                <button
-                  onClick={toggleLanguage}
-                  aria-label={language === 'ar' ? 'تغيير اللغة إلى الإنجليزية' : 'Switch language to Arabic'}
-                  className="flex items-center gap-1.5 text-xs font-mono font-semibold text-muted-foreground px-3 py-3 border border-border rounded-sm"
-                >
-                  <Globe className="w-3.5 h-3.5" />
-                  {isArabic ? 'EN' : 'AR'}
-                </button>
-              </div>
-            </nav>
-          </motion.div>
+                  </motion.a>
+                ))}
+                {pageLinks.map((link, i) => (
+                  <motion.div
+                    key={link.href}
+                    initial={{ opacity: 0, x: -16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: (isHome ? navLinks.length : 0 + i) * 0.04 }}
+                  >
+                    <Link
+                      to={link.href}
+                      onClick={() => setMobileOpen(false)}
+                      className="flex items-center gap-3 text-base font-medium text-foreground/75 hover:text-emerald-brand py-[13px] border-b border-border/40 transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
+                ))}
+                <div className="flex items-center gap-3 pt-5">
+                  <button
+                    onClick={() => { setMobileOpen(false); scrollTo('#contact') }}
+                    aria-label={t.nav.letsTalk}
+                    className="btn-emerald flex-1 justify-center py-[13px] text-sm"
+                  >
+                    {t.nav.letsTalk}
+                  </button>
+                  <button
+                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                    aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                    className="flex items-center text-muted-foreground p-[13px] border border-border rounded-sm"
+                  >
+                    {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                  </button>
+                  <button
+                    onClick={toggleLanguage}
+                    aria-label={language === 'ar' ? 'تغيير اللغة إلى الإنجليزية' : 'Switch language to Arabic'}
+                    className="flex items-center gap-1.5 text-xs font-mono font-semibold text-muted-foreground p-[13px] border border-border rounded-sm"
+                  >
+                    <Globe className="w-4 h-4" />
+                    {isArabic ? 'EN' : 'AR'}
+                  </button>
+                </div>
+              </nav>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
@@ -276,11 +298,11 @@ export function Layout({ children }: LayoutProps) {
               </h4>
               <div className="flex gap-3 mb-4">
                 <a href={CONTACT_INFO.github} target="_blank" rel="noopener noreferrer"
-                   aria-label="GitHub" className="p-2.5 border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
+                   aria-label="GitHub" className="p-3 border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
                   <SiGithub className="w-5 h-5" />
                 </a>
                 <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer"
-                   aria-label="LinkedIn" className="p-2.5 border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
+                   aria-label="LinkedIn" className="p-3 border border-ivory/15 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/50">
                   <SiLinkedin className="w-5 h-5" />
                 </a>
               </div>
