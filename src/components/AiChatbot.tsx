@@ -63,7 +63,7 @@ export default function AiChatbot() {
   return (
     <>
       {/* ── Floating button ── */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end">
+      <div className="fixed bottom-6 right-3 md:right-6 z-40 flex flex-col items-end">
         {/* Glow ring */}
         <motion.div
           className="absolute -inset-3 rounded-full bg-emerald-brand/20 blur-xl pointer-events-none"

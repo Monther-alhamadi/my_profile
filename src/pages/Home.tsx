@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useEffect } from 'react'
+import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import {
@@ -66,6 +66,39 @@ const heroChildFade = {
   visible: { opacity: 1, transition: { duration: 0.5 } }
 }
 
+/* ── Carousel progress dots ── */
+function CarouselDots({ count, active }: { count: number; active: number }) {
+  if (count <= 1) return null
+  return (
+    <div className="flex items-center justify-center gap-1.5 mt-4 md:hidden">
+      {Array.from({ length: count }).map((_, i) => (
+        <span
+          key={i}
+          className={`h-1.5 rounded-full transition-all duration-500 ${
+            i === active ? 'w-5 bg-emerald-brand' : 'w-1.5 bg-border/50'
+          }`}
+        />
+      ))}
+    </div>
+  )
+}
+
+/* ── Carousel scroll hook ── */
+function useCarousel(count: number) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(0)
+
+  const onScroll = useCallback(() => {
+    if (!ref.current || count <= 1) return
+    const { scrollLeft, scrollWidth, clientWidth } = ref.current
+    const maxScroll = scrollWidth - clientWidth
+    const idx = maxScroll > 0 ? Math.round((scrollLeft / maxScroll) * (count - 1)) : 0
+    setActive(Math.min(idx, count - 1))
+  }, [count])
+
+  return { ref, active, onScroll }
+}
+
 export default function Home() {
   const { language } = useLanguage()
   const { projects, skills, services, experience, stats, testimonials, profile, isLoading, isError } = usePortfolio()
@@ -118,6 +151,9 @@ export default function Home() {
   }, [projects])
   const [activeFilter, setActiveFilter] = useState('all')
   const filteredProjects = activeFilter === 'all' ? projects : projects.filter(p => p.category === activeFilter)
+  const skillsCarousel = useCarousel(skills.length)
+  const servicesCarousel = useCarousel(services.length)
+  const testimonialsCarousel = useCarousel(testimonials.length)
 
   return (
     <AnimatePresence mode="wait">
@@ -354,28 +390,36 @@ export default function Home() {
             <SectionHeader number="02" title={t.expertise.title} subtitle={t.expertise.subtitle} />
           </RevealWrapper>
 
-          <div className="flex md:grid md:grid-cols-2 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0">
-            {skills.map((skill, i) => {
-              const Icon = resolveIcon(skill.icon)
-              return (
-                <RevealWrapper key={skill.category} delay={0.08 * i} className="snap-start shrink-0 w-[82vw] md:w-auto md:shrink">
-                  <RuledCard className="h-full p-6 md:p-8">
-                    <div className="flex items-start gap-4 mb-5">
-                      <div className="w-11 h-11 bg-primary/8 border border-primary/15 rounded-sm flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-5 h-5 text-emerald-brand" />
+          <div className="relative">
+            <div
+              ref={skillsCarousel.ref}
+              onScroll={skillsCarousel.onScroll}
+              className="flex md:grid md:grid-cols-2 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0"
+              style={{ maskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)' }}
+            >
+              {skills.map((skill, i) => {
+                const Icon = resolveIcon(skill.icon)
+                return (
+                  <RevealWrapper key={skill.category} delay={0.08 * i} className="snap-start shrink-0 w-[82vw] md:w-auto md:shrink">
+                    <RuledCard className="h-full p-6 md:p-8">
+                      <div className="flex items-start gap-4 mb-5">
+                        <div className="w-11 h-11 bg-primary/8 border border-primary/15 rounded-sm flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-5 h-5 text-emerald-brand" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg md:text-xl font-bold text-foreground">{skill.category}</h3>
+                          <p className="text-sm text-muted-foreground mt-0.5">{skill.description}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg md:text-xl font-bold text-foreground">{skill.category}</h3>
-                        <p className="text-sm text-muted-foreground mt-0.5">{skill.description}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {skill.technologies.map(tech => <TechBadge key={tech} name={tech} />)}
                       </div>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {skill.technologies.map(tech => <TechBadge key={tech} name={tech} />)}
-                    </div>
-                  </RuledCard>
-                </RevealWrapper>
-              )
-            })}
+                    </RuledCard>
+                  </RevealWrapper>
+                )
+              })}
+            </div>
+            <CarouselDots count={skills.length} active={skillsCarousel.active} />
           </div>
         </div>
       </section>
@@ -514,34 +558,42 @@ export default function Home() {
             <SectionHeader number="04" title={t.services.title} subtitle={t.services.subtitle} />
           </RevealWrapper>
 
-          <div className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0">
-            {services.map((service, i) => {
-              const Icon = resolveIcon(service.icon)
-              return (
-                <RevealWrapper key={service.id} delay={0.1 * i} className="snap-start shrink-0 w-[78vw] md:w-auto md:shrink">
-                  <RuledCard className="h-full p-6 md:p-8 flex flex-col">
-                    <div className="mb-6">
-                      <div className="w-11 h-11 bg-primary/8 border border-primary/14 rounded-sm flex items-center justify-center mb-5">
-                        <Icon className="w-5 h-5 text-emerald-brand" />
+          <div className="relative">
+            <div
+              ref={servicesCarousel.ref}
+              onScroll={servicesCarousel.onScroll}
+              className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0"
+              style={{ maskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)' }}
+            >
+              {services.map((service, i) => {
+                const Icon = resolveIcon(service.icon)
+                return (
+                  <RevealWrapper key={service.id} delay={0.1 * i} className="snap-start shrink-0 w-[78vw] md:w-auto md:shrink">
+                    <RuledCard className="h-full p-6 md:p-8 flex flex-col">
+                      <div className="mb-6">
+                        <div className="w-11 h-11 bg-primary/8 border border-primary/14 rounded-sm flex items-center justify-center mb-5">
+                          <Icon className="w-5 h-5 text-emerald-brand" />
+                        </div>
+                        <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">{service.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
                       </div>
-                      <h3 className="text-lg md:text-xl font-bold text-foreground mb-2">{service.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
-                    </div>
-                    <div className="mt-auto">
-                      <p className="text-2xl md:text-3xl font-bold font-heading text-emerald-brand mb-5">{service.pricing}</p>
-                      <div className="space-y-2.5">
-                        {service.features.map((f, idx) => (
-                          <div key={idx} className="flex items-start gap-2.5">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-brand mt-0.5 flex-shrink-0" />
-                            <p className="text-sm text-muted-foreground">{f}</p>
-                          </div>
-                        ))}
+                      <div className="mt-auto">
+                        <p className="text-2xl md:text-3xl font-bold font-heading text-emerald-brand mb-5">{service.pricing}</p>
+                        <div className="space-y-2.5">
+                          {service.features.map((f, idx) => (
+                            <div key={idx} className="flex items-start gap-2.5">
+                              <CheckCircle2 className="w-4 h-4 text-emerald-brand mt-0.5 flex-shrink-0" />
+                              <p className="text-sm text-muted-foreground">{f}</p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  </RuledCard>
-                </RevealWrapper>
-              )
-            })}
+                    </RuledCard>
+                  </RevealWrapper>
+                )
+              })}
+            </div>
+            <CarouselDots count={services.length} active={servicesCarousel.active} />
           </div>
 
           {/* CTA banner */}
@@ -618,28 +670,36 @@ export default function Home() {
             <SectionHeader number="06" title={t.testimonials.title} subtitle={t.testimonials.subtitle} />
           </RevealWrapper>
 
-          <div className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0">
-            {testimonials.map((t2, i) => (
-              <RevealWrapper key={t2.id} delay={0.1 * i} className="snap-start shrink-0 w-[80vw] md:w-auto md:shrink">
-                <RuledCard className="h-full p-6 md:p-8 flex flex-col">
-                  <div className="flex gap-1 mb-5">
-                    {Array.from({ length: t2.rating }).map((_, idx) => (
-                      <Star key={idx} className="w-4 h-4 fill-emerald-brand text-emerald-brand" />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed italic flex-1 mb-6">"{t2.content}"</p>
-                  <div className="flex items-center gap-3 pt-5 border-t border-border">
-                    <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center">
-                      <span className="font-bold text-sm text-emerald-brand">{t2.name.charAt(0)}</span>
+          <div className="relative">
+            <div
+              ref={testimonialsCarousel.ref}
+              onScroll={testimonialsCarousel.onScroll}
+              className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0"
+              style={{ maskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)' }}
+            >
+              {testimonials.map((t2, i) => (
+                <RevealWrapper key={t2.id} delay={0.1 * i} className="snap-start shrink-0 w-[80vw] md:w-auto md:shrink">
+                  <RuledCard className="h-full p-6 md:p-8 flex flex-col">
+                    <div className="flex gap-1 mb-5">
+                      {Array.from({ length: t2.rating }).map((_, idx) => (
+                        <Star key={idx} className="w-4 h-4 fill-emerald-brand text-emerald-brand" />
+                      ))}
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">{t2.name}</p>
-                      <p className="text-xs text-muted-foreground">{t2.role}, {t2.company}</p>
+                    <p className="text-muted-foreground text-sm leading-relaxed italic flex-1 mb-6">"{t2.content}"</p>
+                    <div className="flex items-center gap-3 pt-5 border-t border-border">
+                      <div className="w-10 h-10 rounded-sm bg-primary/10 flex items-center justify-center">
+                        <span className="font-bold text-sm text-emerald-brand">{t2.name.charAt(0)}</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{t2.name}</p>
+                        <p className="text-xs text-muted-foreground">{t2.role}, {t2.company}</p>
+                      </div>
                     </div>
-                  </div>
-                </RuledCard>
-              </RevealWrapper>
-            ))}
+                  </RuledCard>
+                </RevealWrapper>
+              ))}
+            </div>
+            <CarouselDots count={testimonials.length} active={testimonialsCarousel.active} />
           </div>
         </div>
       </section>
