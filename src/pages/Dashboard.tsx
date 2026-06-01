@@ -111,12 +111,12 @@ export default function Dashboard() {
 
         {/* Mobile tabs */}
         <div className="lg:hidden w-full">
-          <div className="flex overflow-x-auto gap-1 px-4 py-3 border-b border-border/40 bg-white">
+          <div className="flex overflow-x-auto gap-1 px-3 py-2 border-b border-border/40 bg-white scrollbar-none">
             {(['overview', 'messages', 'projects', 'skills', 'services', 'experience', 'stats', 'testimonials', 'profile'] as TabId[]).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`text-[10px] font-mono whitespace-nowrap px-2.5 py-1.5 rounded-sm transition-colors ${
+                className={`text-[11px] font-mono whitespace-nowrap px-3 py-[11px] rounded-sm transition-colors ${
                   activeTab === tab ? 'bg-emerald-brand/10 text-emerald-brand font-semibold' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -135,7 +135,7 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-8">
+        <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 dashboard-content">
           {renderTab()}
         </div>
       </div>

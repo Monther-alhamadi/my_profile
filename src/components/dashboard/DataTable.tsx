@@ -85,13 +85,13 @@ export default function DataTable<T>({
                 <td className="py-3 text-right">
                   <div className="flex items-center gap-1 justify-end">
                     {onEdit && (
-                      <button onClick={() => onEdit(item)} className="p-1.5 hover:bg-muted rounded-sm transition-colors" title="Edit">
-                        <Pencil className="w-3.5 h-3.5 text-muted-foreground/60 hover:text-emerald-brand" />
+                      <button onClick={() => onEdit(item)} className="p-2 hover:bg-muted rounded-sm transition-colors" title="Edit">
+                        <Pencil className="w-4 h-4 text-muted-foreground/60 hover:text-emerald-brand" />
                       </button>
                     )}
                     {onDelete && (
-                      <button onClick={() => onDelete(item)} className="p-1.5 hover:bg-red-50 rounded-sm transition-colors" title="Delete">
-                        <Trash2 className="w-3.5 h-3.5 text-muted-foreground/60 hover:text-red-500" />
+                      <button onClick={() => onDelete(item)} className="p-2 hover:bg-red-50 rounded-sm transition-colors" title="Delete">
+                        <Trash2 className="w-4 h-4 text-muted-foreground/60 hover:text-red-500" />
                       </button>
                     )}
                   </div>
