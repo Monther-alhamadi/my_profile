@@ -1,49 +1,70 @@
 import { useState } from 'react'
 import { Wrench, Plus } from 'lucide-react'
-import { useLanguage } from '@/hooks/useLanguage'
-import { useSkillsQuery, useCreateSkill, useUpdateSkill, useDeleteSkill } from '@/services/portfolio-queries'
+import { useDualLocaleSkillsQuery, useBilingualSave, useBilingualDelete } from '@/services/portfolio-queries'
+import { createSkill, updateSkill, deleteSkill } from '@/services/portfolio-api'
+import type { BilingualItem } from '@/services/portfolio-queries'
 import type { Skill } from '@/lib'
 import DataTable from './DataTable'
 import FormModal from './FormModal'
 import ConfirmDialog from './ConfirmDialog'
+import BilingualFields, { Field, TextInput, SelectInput } from './BilingualFields'
 import { toast } from 'sonner'
-
-const emptyForm = { category: '', icon: '', description: '', technologies: '' }
 
 const ICON_OPTIONS = ['cpu', 'code', 'brain', 'smartphone', 'layers', 'sparkles', 'network', 'database', 'cloud', 'shield']
 
+type FormData = {
+  icon: string
+  sort_order: number
+  technologies: string
+  en: { category: string; description: string }
+  ar: { category: string; description: string }
+}
+
+const emptyForm: FormData = {
+  icon: '', sort_order: 0, technologies: '',
+  en: { category: '', description: '' },
+  ar: { category: '', description: '' },
+}
+
 export default function SkillsTab() {
-  const { language } = useLanguage()
-  const { data: skills, isLoading } = useSkillsQuery(language)
-  const createMut = useCreateSkill()
-  const updateMut = useUpdateSkill()
-  const deleteMut = useDeleteSkill()
+  const { data: skills, isLoading } = useDualLocaleSkillsQuery()
+  const saveMut = useBilingualSave('skills', createSkill, updateSkill)
+  const deleteMut = useBilingualDelete('skills', deleteSkill)
   const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Skill | null>(null)
-  const [form, setForm] = useState(emptyForm)
-  const [deleteTarget, setDeleteTarget] = useState<Skill | null>(null)
+  const [editing, setEditing] = useState<BilingualItem<Skill> | null>(null)
+  const [form, setForm] = useState<FormData>(emptyForm)
+  const [deleteTarget, setDeleteTarget] = useState<BilingualItem<Skill> | null>(null)
 
   const openAdd = () => { setEditing(null); setForm(emptyForm); setModalOpen(true) }
-  const openEdit = (s: Skill) => {
-    setEditing(s); setForm({ category: s.category, icon: s.icon, description: s.description, technologies: s.technologies.join(', ') }); setModalOpen(true)
+
+  const openEdit = (item: BilingualItem<Skill>) => {
+    setEditing(item)
+    setForm({
+      icon: item.en.icon, sort_order: item.en.sort_order ?? 0,
+      technologies: item.en.technologies.join(', '),
+      en: { category: item.en.category, description: item.en.description },
+      ar: { category: item.ar?.category ?? '', description: item.ar?.description ?? '' },
+    })
+    setModalOpen(true)
   }
 
   const handleSave = async () => {
-    const payload = {
-      category: form.category, icon: form.icon, description: form.description,
+    const shared = {
+      icon: form.icon, sort_order: form.sort_order,
       technologies: form.technologies.split(',').map(s => s.trim()).filter(Boolean),
-      locale: language,
     }
+    const enData = { ...shared, ...form.en }
+    const arData = { ...shared, ...form.ar }
     try {
       if (editing) {
-        await updateMut.mutateAsync({ id: editing.id!, updates: payload })
-        toast.success(language === 'ar' ? 'تم التحديث' : 'Updated')
+        await saveMut.mutateAsync({ mode: 'edit', id: editing.id, en: enData, ar: arData })
+        toast.success('Updated')
       } else {
-        await createMut.mutateAsync(payload)
-        toast.success(language === 'ar' ? 'تمت الإضافة' : 'Created')
+        await saveMut.mutateAsync({ mode: 'add', en: enData, ar: arData })
+        toast.success('Created')
       }
       setModalOpen(false)
-    } catch { toast.error(language === 'ar' ? 'فشل الحفظ' : 'Save failed') }
+    } catch { toast.error('Save failed') }
   }
 
   return (
@@ -51,53 +72,73 @@ export default function SkillsTab() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
           <Wrench className="w-5 h-5 text-emerald-brand" />
-          <h2 className="text-lg font-bold text-obsidian">{language === 'ar' ? 'المهارات' : 'Skills'}</h2>
+          <h2 className="text-lg font-bold text-obsidian">Skills</h2>
         </div>
-        <button onClick={openAdd} className="btn-emerald text-xs py-2 px-3"><Plus className="w-3.5 h-3.5" />{language === 'ar' ? 'إضافة' : 'Add'}</button>
+        <button onClick={openAdd} className="btn-emerald text-xs py-2 px-3"><Plus className="w-3.5 h-3.5" />Add</button>
       </div>
+
       <DataTable
         columns={[
-          { key: 'category', header: language === 'ar' ? 'التصنيف' : 'Category', render: (s: Skill) => <span className="font-medium text-sm">{s.category}</span> },
-          { key: 'icon', header: 'Icon', render: (s: Skill) => <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm">{s.icon}</span> },
-          { key: 'technologies', header: language === 'ar' ? 'التقنيات' : 'Technologies', render: (s: Skill) => <span className="text-xs text-muted-foreground">{s.technologies.join(', ')}</span> },
+          { key: 'category', header: 'Category', render: (item: BilingualItem<Skill>) => <span className="font-medium text-sm">{item.en.category}</span> },
+          { key: 'icon', header: 'Icon', render: (item: BilingualItem<Skill>) => <span className="text-[10px] font-mono text-muted-foreground bg-muted px-1.5 py-0.5 rounded-sm">{item.en.icon}</span> },
+          { key: 'technologies', header: 'Technologies', render: (item: BilingualItem<Skill>) => <span className="text-xs text-muted-foreground">{item.en.technologies.join(', ')}</span> },
         ]}
         data={skills} isLoading={isLoading}
-        onEdit={openEdit} onDelete={(s: Skill) => setDeleteTarget(s)}
-        emptyMessage={language === 'ar' ? 'لا توجد مهارات' : 'No skills'}
-        emptyAction={{ label: language === 'ar' ? 'أضف مهارة' : 'Add a skill', onClick: openAdd }}
+        onEdit={openEdit} onDelete={(item: BilingualItem<Skill>) => setDeleteTarget(item)}
+        onBulkDelete={(items) => {
+          if (confirm(`Delete ${items.length} skill(s)?`)) {
+            Promise.all(items.map(item => deleteMut.mutateAsync({ id: item.id! })))
+              .then(() => toast.success(`Deleted ${items.length} skill(s)`))
+              .catch(() => toast.error('Delete failed'))
+          }
+        }}
+        getId={(item) => item.id ?? ''}
+        exportFileName="skills"
+        emptyMessage="No skills"
+        emptyAction={{ label: 'Add a skill', onClick: openAdd }}
       />
-      <FormModal open={modalOpen} onClose={() => setModalOpen(false)}
-        title={editing ? (language === 'ar' ? 'تعديل المهارة' : 'Edit Skill') : (language === 'ar' ? 'إضافة مهارة' : 'Add Skill')}>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'التصنيف' : 'Category'} *</label>
-              <input value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none" />
-            </div>
-            <div>
-              <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'الأيقونة' : 'Icon'} *</label>
-              <select value={form.icon} onChange={e => setForm(f => ({ ...f, icon: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none bg-white">
-                {ICON_OPTIONS.map(io => <option key={io} value={io}>{io}</option>)}
-              </select>
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'الوصف' : 'Description'} *</label>
-            <input value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none" />
-          </div>
-          <div>
-            <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'التقنيات (مفصولة بفواصل)' : 'Technologies (comma-separated)'}</label>
-            <input value={form.technologies} onChange={e => setForm(f => ({ ...f, technologies: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none" placeholder="React, Node.js, PostgreSQL" />
-          </div>
-          <div className="flex gap-3 justify-end pt-2">
-            <button onClick={() => setModalOpen(false)} className="btn-ghost text-sm py-2 px-4 text-muted-foreground hover:text-foreground transition-colors">{language === 'ar' ? 'إلغاء' : 'Cancel'}</button>
-            <button onClick={handleSave} disabled={!form.category || !form.description || createMut.isPending || updateMut.isPending} className="btn-emerald text-sm py-2 px-4 disabled:opacity-40">
-              {createMut.isPending || updateMut.isPending ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (language === 'ar' ? 'حفظ' : 'Save')}
+
+      <FormModal open={modalOpen} onClose={() => setModalOpen(false)} size="lg"
+        title={editing ? 'Edit Skill' : 'Add Skill'}>
+        <div className="space-y-5">
+          <BilingualFields
+            sharedFields={
+              <>
+                <Field label="Icon" required>
+                  <SelectInput value={form.icon} onChange={v => setForm(f => ({ ...f, icon: v }))} options={ICON_OPTIONS} />
+                </Field>
+                <Field label="Order"><TextInput value={String(form.sort_order)} onChange={v => setForm(f => ({ ...f, sort_order: Number(v) || 0 }))} /></Field>
+                <Field label="Technologies"><TextInput value={form.technologies} onChange={v => setForm(f => ({ ...f, technologies: v }))} placeholder="React, Node.js" /></Field>
+              </>
+            }
+            enFields={
+              <>
+                <Field label="Category" required><TextInput value={form.en.category} onChange={v => setForm(f => ({ ...f, en: { ...f.en, category: v } }))} /></Field>
+                <Field label="Description" required><TextInput value={form.en.description} onChange={v => setForm(f => ({ ...f, en: { ...f.en, description: v } }))} /></Field>
+              </>
+            }
+            arFields={
+              <>
+                <Field label="التصنيف" required><TextInput value={form.ar.category} onChange={v => setForm(f => ({ ...f, ar: { ...f.ar, category: v } }))} /></Field>
+                <Field label="الوصف" required><TextInput value={form.ar.description} onChange={v => setForm(f => ({ ...f, ar: { ...f.ar, description: v } }))} /></Field>
+              </>
+            }
+          />
+          <div className="flex gap-3 justify-end pt-2 border-t border-border">
+            <button onClick={() => setModalOpen(false)} className="btn-ghost text-sm py-2 px-4 text-muted-foreground hover:text-foreground transition-colors">Cancel</button>
+            <button onClick={handleSave} disabled={!form.icon || !form.en.category || !form.ar.category || saveMut.isPending}
+              className="btn-emerald text-sm py-2 px-4 disabled:opacity-40">
+              {saveMut.isPending ? 'Saving...' : 'Save Both'}
             </button>
           </div>
         </div>
       </FormModal>
-      <ConfirmDialog open={!!deleteTarget} onConfirm={() => { if (deleteTarget) deleteMut.mutateAsync({ id: deleteTarget.id! }).then(() => { toast.success(language === 'ar' ? 'تم الحذف' : 'Deleted'); setDeleteTarget(null) }).catch(() => toast.error(language === 'ar' ? 'فشل الحذف' : 'Delete failed')) } } onCancel={() => setDeleteTarget(null)} loading={deleteMut.isPending} />
+
+      <ConfirmDialog open={!!deleteTarget} onConfirm={() => {
+        if (deleteTarget) deleteMut.mutateAsync({ id: deleteTarget.id })
+          .then(() => { toast.success('Deleted'); setDeleteTarget(null) })
+          .catch(() => toast.error('Delete failed'))
+      }} onCancel={() => setDeleteTarget(null)} loading={deleteMut.isPending} />
     </div>
   )
 }

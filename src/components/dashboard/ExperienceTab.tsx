@@ -1,96 +1,138 @@
 import { useState } from 'react'
 import { FileText, Plus } from 'lucide-react'
-import { useLanguage } from '@/hooks/useLanguage'
-import { useExperienceQuery, useCreateExperience, useUpdateExperience, useDeleteExperience } from '@/services/portfolio-queries'
+import { useDualLocaleExperienceQuery, useBilingualSave, useBilingualDelete } from '@/services/portfolio-queries'
+import { createExperience, updateExperience, deleteExperience } from '@/services/portfolio-api'
+import type { BilingualItem } from '@/services/portfolio-queries'
 import type { Experience } from '@/lib'
 import DataTable from './DataTable'
 import FormModal from './FormModal'
 import ConfirmDialog from './ConfirmDialog'
+import BilingualFields, { Field, TextInput, TextArea } from './BilingualFields'
 import { toast } from 'sonner'
 
-const emptyForm = { year: '', title: '', company: '', description: '', achievements: '' }
+type FormData = {
+  year: string
+  sort_order: number
+  en: { title: string; company: string; description: string; achievements: string }
+  ar: { title: string; company: string; description: string; achievements: string }
+}
+
+const emptyForm: FormData = {
+  year: '', sort_order: 0,
+  en: { title: '', company: '', description: '', achievements: '' },
+  ar: { title: '', company: '', description: '', achievements: '' },
+}
 
 export default function ExperienceTab() {
-  const { language } = useLanguage()
-  const { data: experience, isLoading } = useExperienceQuery(language)
-  const createMut = useCreateExperience()
-  const updateMut = useUpdateExperience()
-  const deleteMut = useDeleteExperience()
+  const { data: experience, isLoading } = useDualLocaleExperienceQuery()
+  const saveMut = useBilingualSave('experience', createExperience, updateExperience)
+  const deleteMut = useBilingualDelete('experience', deleteExperience)
   const [modalOpen, setModalOpen] = useState(false)
-  const [editing, setEditing] = useState<Experience | null>(null)
-  const [form, setForm] = useState(emptyForm)
-  const [deleteTarget, setDeleteTarget] = useState<Experience | null>(null)
+  const [editing, setEditing] = useState<BilingualItem<Experience> | null>(null)
+  const [form, setForm] = useState<FormData>(emptyForm)
+  const [deleteTarget, setDeleteTarget] = useState<BilingualItem<Experience> | null>(null)
 
   const openAdd = () => { setEditing(null); setForm(emptyForm); setModalOpen(true) }
-  const openEdit = (e: Experience) => {
-    setEditing(e); setForm({ year: e.year, title: e.title, company: e.company, description: e.description, achievements: e.achievements.join(', ') }); setModalOpen(true)
+
+  const openEdit = (item: BilingualItem<Experience>) => {
+    setEditing(item)
+    setForm({
+      year: item.en.year, sort_order: item.en.sort_order ?? 0,
+      en: { title: item.en.title, company: item.en.company, description: item.en.description, achievements: item.en.achievements.join(', ') },
+      ar: { title: item.ar?.title ?? '', company: item.ar?.company ?? '', description: item.ar?.description ?? '', achievements: item.ar?.achievements?.join(', ') ?? '' },
+    })
+    setModalOpen(true)
   }
 
   const handleSave = async () => {
-    const payload = { year: form.year, title: form.title, company: form.company, description: form.description, achievements: form.achievements.split(',').map(s => s.trim()).filter(Boolean), locale: language }
+    const shared = { year: form.year, sort_order: form.sort_order }
+    const enData = { ...shared, ...form.en, achievements: form.en.achievements.split(',').map(s => s.trim()).filter(Boolean) }
+    const arData = { ...shared, ...form.ar, achievements: form.ar.achievements.split(',').map(s => s.trim()).filter(Boolean) }
     try {
       if (editing) {
-        await updateMut.mutateAsync({ id: editing.id, locale: language, updates: payload })
-        toast.success(language === 'ar' ? 'تم التحديث' : 'Updated')
+        await saveMut.mutateAsync({ mode: 'edit', id: editing.id, en: enData, ar: arData })
+        toast.success('Updated')
       } else {
-        await createMut.mutateAsync({ ...payload, id: crypto.randomUUID() })
-        toast.success(language === 'ar' ? 'تمت الإضافة' : 'Created')
+        await saveMut.mutateAsync({ mode: 'add', en: enData, ar: arData })
+        toast.success('Created')
       }
       setModalOpen(false)
-    } catch { toast.error(language === 'ar' ? 'فشل الحفظ' : 'Save failed') }
+    } catch { toast.error('Save failed') }
   }
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2"><FileText className="w-5 h-5 text-emerald-brand" /><h2 className="text-lg font-bold text-obsidian">{language === 'ar' ? 'الخبرات' : 'Experience'}</h2></div>
-        <button onClick={openAdd} className="btn-emerald text-xs py-2 px-3"><Plus className="w-3.5 h-3.5" />{language === 'ar' ? 'إضافة' : 'Add'}</button>
+        <div className="flex items-center gap-2">
+          <FileText className="w-5 h-5 text-emerald-brand" />
+          <h2 className="text-lg font-bold text-obsidian">Experience</h2>
+        </div>
+        <button onClick={openAdd} className="btn-emerald text-xs py-2 px-3"><Plus className="w-3.5 h-3.5" />Add</button>
       </div>
+
       <DataTable
         columns={[
-          { key: 'year', header: language === 'ar' ? 'السنة' : 'Year', render: (e: Experience) => <span className="font-mono text-xs text-muted-foreground">{e.year}</span> },
-          { key: 'title', header: language === 'ar' ? 'المسمى' : 'Title', render: (e: Experience) => <span className="font-medium text-sm">{e.title}</span> },
-          { key: 'company', header: language === 'ar' ? 'الشركة' : 'Company', render: (e: Experience) => <span className="text-xs text-muted-foreground">{e.company}</span> },
+          { key: 'year', header: 'Year', render: (item: BilingualItem<Experience>) => <span className="font-mono text-xs text-muted-foreground">{item.en.year}</span> },
+          { key: 'title', header: 'Title', render: (item: BilingualItem<Experience>) => <span className="font-medium text-sm">{item.en.title}</span> },
+          { key: 'company', header: 'Company', render: (item: BilingualItem<Experience>) => <span className="text-xs text-muted-foreground">{item.en.company}</span> },
         ]}
         data={experience} isLoading={isLoading}
-        onEdit={openEdit} onDelete={(e: Experience) => setDeleteTarget(e)}
-        emptyMessage={language === 'ar' ? 'لا توجد خبرات' : 'No experience'}
-        emptyAction={{ label: language === 'ar' ? 'أضف خبرة' : 'Add experience', onClick: openAdd }}
+        onEdit={openEdit} onDelete={(item: BilingualItem<Experience>) => setDeleteTarget(item)}
+        onBulkDelete={(items) => {
+          if (confirm(`Delete ${items.length} experience(s)?`)) {
+            Promise.all(items.map(item => deleteMut.mutateAsync({ id: item.id })))
+              .then(() => toast.success(`Deleted ${items.length} experience(s)`))
+              .catch(() => toast.error('Delete failed'))
+          }
+        }}
+        getId={(item) => item.id}
+        exportFileName="experience"
+        emptyMessage="No experience"
+        emptyAction={{ label: 'Add experience', onClick: openAdd }}
       />
-      <FormModal open={modalOpen} onClose={() => setModalOpen(false)}
-        title={editing ? (language === 'ar' ? 'تعديل الخبرة' : 'Edit Experience') : (language === 'ar' ? 'إضافة خبرة' : 'Add Experience')}>
-        <div className="space-y-4">
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'السنة' : 'Year'} *</label>
-              <input value={form.year} onChange={e => setForm(f => ({ ...f, year: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none" placeholder="2022" />
-            </div>
-            <div>
-              <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'المسمى' : 'Title'} *</label>
-              <input value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none" />
-            </div>
-            <div>
-              <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'الشركة' : 'Company'} *</label>
-              <input value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none" />
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'الوصف' : 'Description'} *</label>
-            <textarea value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={3} className="w-full px-3 py-2 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none resize-none" />
-          </div>
-          <div>
-            <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'الإنجازات (مفصولة بفواصل)' : 'Achievements (comma-separated)'}</label>
-            <textarea value={form.achievements} onChange={e => setForm(f => ({ ...f, achievements: e.target.value }))} rows={2} className="w-full px-3 py-2 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none resize-none" />
-          </div>
-          <div className="flex gap-3 justify-end pt-2">
-            <button onClick={() => setModalOpen(false)} className="btn-ghost text-sm py-2 px-4 text-muted-foreground hover:text-foreground transition-colors">{language === 'ar' ? 'إلغاء' : 'Cancel'}</button>
-            <button onClick={handleSave} disabled={!form.title || !form.company || createMut.isPending || updateMut.isPending} className="btn-emerald text-sm py-2 px-4 disabled:opacity-40">
-              {createMut.isPending || updateMut.isPending ? (language === 'ar' ? 'جاري الحفظ...' : 'Saving...') : (language === 'ar' ? 'حفظ' : 'Save')}
+
+      <FormModal open={modalOpen} onClose={() => setModalOpen(false)} size="lg"
+        title={editing ? 'Edit Experience' : 'Add Experience'}>
+        <div className="space-y-5">
+          <BilingualFields
+            sharedFields={
+              <>
+                <Field label="Year" required><TextInput value={form.year} onChange={v => setForm(f => ({ ...f, year: v }))} placeholder="2022" /></Field>
+                <Field label="Order"><TextInput value={String(form.sort_order)} onChange={v => setForm(f => ({ ...f, sort_order: Number(v) || 0 }))} /></Field>
+              </>
+            }
+            enFields={
+              <>
+                <Field label="Title" required><TextInput value={form.en.title} onChange={v => setForm(f => ({ ...f, en: { ...f.en, title: v } }))} /></Field>
+                <Field label="Company" required><TextInput value={form.en.company} onChange={v => setForm(f => ({ ...f, en: { ...f.en, company: v } }))} /></Field>
+                <Field label="Description" required><TextArea value={form.en.description} onChange={v => setForm(f => ({ ...f, en: { ...f.en, description: v } }))} /></Field>
+                <Field label="Achievements"><TextArea value={form.en.achievements} onChange={v => setForm(f => ({ ...f, en: { ...f.en, achievements: v } }))} rows={2} /></Field>
+              </>
+            }
+            arFields={
+              <>
+                <Field label="المسمى" required><TextInput value={form.ar.title} onChange={v => setForm(f => ({ ...f, ar: { ...f.ar, title: v } }))} /></Field>
+                <Field label="الشركة" required><TextInput value={form.ar.company} onChange={v => setForm(f => ({ ...f, ar: { ...f.ar, company: v } }))} /></Field>
+                <Field label="الوصف" required><TextArea value={form.ar.description} onChange={v => setForm(f => ({ ...f, ar: { ...f.ar, description: v } }))} /></Field>
+                <Field label="الإنجازات"><TextArea value={form.ar.achievements} onChange={v => setForm(f => ({ ...f, ar: { ...f.ar, achievements: v } }))} rows={2} /></Field>
+              </>
+            }
+          />
+          <div className="flex gap-3 justify-end pt-2 border-t border-border">
+            <button onClick={() => setModalOpen(false)} className="btn-ghost text-sm py-2 px-4 text-muted-foreground hover:text-foreground transition-colors">Cancel</button>
+            <button onClick={handleSave} disabled={!form.year || !form.en.title || !form.ar.title || saveMut.isPending}
+              className="btn-emerald text-sm py-2 px-4 disabled:opacity-40">
+              {saveMut.isPending ? 'Saving...' : 'Save Both'}
             </button>
           </div>
         </div>
       </FormModal>
-      <ConfirmDialog open={!!deleteTarget} onConfirm={() => { if (deleteTarget) deleteMut.mutateAsync({ id: deleteTarget.id, locale: language }).then(() => { toast.success(language === 'ar' ? 'تم الحذف' : 'Deleted'); setDeleteTarget(null) }).catch(() => toast.error(language === 'ar' ? 'فشل الحذف' : 'Delete failed')) } } onCancel={() => setDeleteTarget(null)} loading={deleteMut.isPending} />
+
+      <ConfirmDialog open={!!deleteTarget} onConfirm={() => {
+        if (deleteTarget) deleteMut.mutateAsync({ id: deleteTarget.id })
+          .then(() => { toast.success('Deleted'); setDeleteTarget(null) })
+          .catch(() => toast.error('Delete failed'))
+      }} onCancel={() => setDeleteTarget(null)} loading={deleteMut.isPending} />
     </div>
   )
 }

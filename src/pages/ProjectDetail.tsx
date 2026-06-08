@@ -7,12 +7,6 @@ import ProjectGallery from '@/components/ProjectGallery'
 import { TechBadge, RevealWrapper } from '@/components/Sections'
 import { translations } from '@/lib/data-static'
 
-const LIVE_URLS: Record<string, string> = {
-  'heic-converter': 'https://heiconverts.vercel.app',
-  'nextvendors-ecommerce': 'https://next-vendors.vercel.app',
-  'kayany7': 'https://kayany7.vercel.app',
-}
-
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>()
   const { language } = useLanguage()
@@ -136,15 +130,15 @@ export default function ProjectDetail() {
                 <ArrowLeft className="w-4 h-4" />
                 {language === 'ar' ? 'جميع المشاريع' : 'All Projects'}
               </Link>
-              {LIVE_URLS[project.id] && (
+              {project.link_url && (
                 <a
-                  href={LIVE_URLS[project.id]}
+                  href={project.link_url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn-emerald inline-flex items-center gap-2"
                 >
                   <Globe className="w-4 h-4" />
-                  {language === 'ar' ? 'عرض الموقع' : 'Live Site'}
+                  {language === 'ar' ? 'زيارة الموقع' : 'Visit Website'}
                   <ArrowUpRight className="w-4 h-4" />
                 </a>
               )}

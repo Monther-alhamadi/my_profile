@@ -8,34 +8,44 @@ function localeFilter<T extends { locale: string }>(data: T[], locale: Language)
   return data.filter(item => item.locale === locale);
 }
 
+function parseJSONFields<T extends Record<string, unknown>>(item: T, ...fields: string[]): T {
+  const result = { ...item };
+  for (const f of fields) {
+    if (typeof result[f] === 'string') {
+      try { (result as Record<string, unknown>)[f] = JSON.parse(result[f] as string); } catch { /* keep as-is */ }
+    }
+  }
+  return result;
+}
+
 // ── Fetch (public) ──
 
 export async function fetchProjects(locale: Language): Promise<Project[]> {
   const { data, error } = await supabase
     .from('projects').select('*').order('sort_order', { ascending: true });
   if (error) throw error;
-  return localeFilter(data as Project[], locale);
+  return localeFilter((data as Project[]).map(d => parseJSONFields(d, 'technologies', 'highlights')), locale);
 }
 
 export async function fetchSkills(locale: Language): Promise<Skill[]> {
   const { data, error } = await supabase
     .from('skills').select('*').order('sort_order', { ascending: true });
   if (error) throw error;
-  return localeFilter(data as Skill[], locale);
+  return localeFilter((data as Skill[]).map(d => parseJSONFields(d, 'technologies')), locale);
 }
 
 export async function fetchServices(locale: Language): Promise<Service[]> {
   const { data, error } = await supabase
     .from('services').select('*').order('sort_order', { ascending: true });
   if (error) throw error;
-  return localeFilter(data as Service[], locale);
+  return localeFilter((data as Service[]).map(d => parseJSONFields(d, 'features')), locale);
 }
 
 export async function fetchExperience(locale: Language): Promise<Experience[]> {
   const { data, error } = await supabase
     .from('experience').select('*').order('sort_order', { ascending: true });
   if (error) throw error;
-  return localeFilter(data as Experience[], locale);
+  return localeFilter((data as Experience[]).map(d => parseJSONFields(d, 'achievements')), locale);
 }
 
 export async function fetchStats(locale: Language): Promise<Stat[]> {
@@ -142,9 +152,10 @@ export async function deleteProject(id: string, locale: string): Promise<void> {
 
 // ── CRUD: Skills ──
 
-export async function createSkill(skill: Partial<Skill>): Promise<void> {
+export async function createSkill(skill: Partial<Skill> & { id: string; locale: string }): Promise<void> {
   const { error } = await supabase.from('skills').insert({
-    locale: skill.locale ?? 'en', sort_order: skill.sort_order ?? 0,
+    id: skill.id, locale: skill.locale,
+    sort_order: skill.sort_order ?? 0,
     category: skill.category ?? '', icon: skill.icon ?? '',
     description: skill.description ?? '',
     technologies: JSON.stringify(skill.technologies ?? []),
@@ -152,20 +163,19 @@ export async function createSkill(skill: Partial<Skill>): Promise<void> {
   if (error) throw error;
 }
 
-export async function updateSkill(id: string, updates: Partial<Skill>): Promise<void> {
+export async function updateSkill(id: string, locale: string, updates: Partial<Skill>): Promise<void> {
   const payload: Record<string, unknown> = {};
   if (updates.category !== undefined) payload.category = updates.category;
   if (updates.icon !== undefined) payload.icon = updates.icon;
   if (updates.description !== undefined) payload.description = updates.description;
   if (updates.sort_order !== undefined) payload.sort_order = updates.sort_order;
   if (updates.technologies !== undefined) payload.technologies = JSON.stringify(updates.technologies);
-  if (updates.locale !== undefined) payload.locale = updates.locale;
-  const { error } = await supabase.from('skills').update(payload).eq('id', id);
+  const { error } = await supabase.from('skills').update(payload).eq('id', id).eq('locale', locale);
   if (error) throw error;
 }
 
-export async function deleteSkill(id: string): Promise<void> {
-  const { error } = await supabase.from('skills').delete().eq('id', id);
+export async function deleteSkill(id: string, locale: string): Promise<void> {
+  const { error } = await supabase.from('skills').delete().eq('id', id).eq('locale', locale);
   if (error) throw error;
 }
 

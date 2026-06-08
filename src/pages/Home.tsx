@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import {
   Code2, Cpu, Brain, Smartphone, Layers, Sparkles, Network,
   Mail, MapPin, Clock, Star, ArrowUpRight, ArrowRight,
-  Send, Download, CheckCircle2, ChevronDown
+  Send, Download, CheckCircle2, ChevronDown, Globe
 } from 'lucide-react'
 import { SiGithub, SiLinkedin } from 'react-icons/si'
 import { useLanguage } from '@/hooks/useLanguage'
@@ -509,13 +509,27 @@ export default function Home() {
                       {project.complexity}
                     </span>
 
-                    <Link
-                      to={`/projects/${project.id}`}
-                      className="btn-emerald inline-flex items-center gap-2 text-sm mt-6"
-                    >
-                      {t.projects.viewDetails}
-                      <ArrowUpRight className="w-4 h-4" />
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-3 mt-6">
+                      <Link
+                        to={`/projects/${project.id}`}
+                        className="btn-emerald inline-flex items-center gap-2 text-sm"
+                      >
+                        {t.projects.viewDetails}
+                        <ArrowUpRight className="w-4 h-4" />
+                      </Link>
+                      {project.link_url && (
+                        <a
+                          href={project.link_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn-outline-dark inline-flex items-center gap-2 text-sm"
+                        >
+                          <Globe className="w-4 h-4" />
+                          {language === 'ar' ? 'زيارة الموقع' : 'Visit Website'}
+                          <ArrowUpRight className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </div>
                   </div>
 
                   {/* Image + Highlights */}

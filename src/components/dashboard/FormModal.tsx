@@ -6,9 +6,10 @@ interface FormModalProps {
   onClose: () => void
   title: string
   children: React.ReactNode
+  size?: 'sm' | 'lg'
 }
 
-export default function FormModal({ open, onClose, title, children }: FormModalProps) {
+export default function FormModal({ open, onClose, title, children, size = 'sm' }: FormModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -19,13 +20,15 @@ export default function FormModal({ open, onClose, title, children }: FormModalP
 
   if (!open) return null
 
+  const maxWidth = size === 'lg' ? 'max-w-4xl' : 'max-w-2xl'
+
   return (
     <div
       ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
       onClick={(e) => { if (e.target === overlayRef.current) onClose() }}
     >
-      <div className="bg-white rounded-sm shadow-xl w-full max-w-2xl mx-3 md:mx-4 max-h-[85vh] md:max-h-[90vh] overflow-y-auto">
+      <div className={`bg-white rounded-sm shadow-xl w-full ${maxWidth} mx-3 md:mx-4 max-h-[85vh] md:max-h-[90vh] overflow-y-auto`}>
         <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-border">
           <h2 className="text-sm md:text-base font-bold text-foreground">{title}</h2>
           <button onClick={onClose} className="p-2 hover:bg-muted rounded-sm transition-colors">

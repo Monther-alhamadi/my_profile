@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { Language } from '@/lib';
+import type { Project, Skill, Service, Experience, Stat, Testimonial } from '@/lib';
 import {
   fetchProjects, fetchSkills, fetchServices, fetchExperience,
   fetchStats, fetchTestimonials, fetchProfile, submitContact,
@@ -24,7 +25,20 @@ function selectByLocale<T>(en: T[], ar: T[], locale: Language): T[] {
   return locale === 'ar' ? ar : en;
 }
 
-// ── Queries ──
+// ── Bilingual merge ──
+
+export type BilingualItem<T> = { id: string; en: T; ar: T | null };
+
+export function mergeByLocale<T extends { id?: string }>(en: T[], ar: T[]): BilingualItem<T>[] {
+  const arMap = new Map(ar.map(item => [item.id!, item]));
+  return en.map(enItem => ({
+    id: enItem.id!,
+    en: enItem,
+    ar: arMap.get(enItem.id!) ?? null,
+  }));
+}
+
+// ── Queries (single locale, used by public site) ──
 
 export function useProjectsQuery(locale: Language) {
   return useQuery({
@@ -118,15 +132,69 @@ export function useAllQueries(locale: Language) {
 
 export { submitContact };
 
-// ── Mutations (for Dashboard CMS) ──
+// ── Dual-Locale Queries (for Dashboard CMS) ──
+
+export function useDualLocaleProjectsQuery() {
+  const en = useProjectsQuery('en');
+  const ar = useProjectsQuery('ar');
+  return {
+    data: mergeByLocale<Project>(en.data ?? [], ar.data ?? []),
+    isLoading: en.isLoading || ar.isLoading,
+  };
+}
+
+export function useDualLocaleSkillsQuery() {
+  const en = useSkillsQuery('en');
+  const ar = useSkillsQuery('ar');
+  return {
+    data: mergeByLocale<Skill>(en.data ?? [], ar.data ?? []),
+    isLoading: en.isLoading || ar.isLoading,
+  };
+}
+
+export function useDualLocaleServicesQuery() {
+  const en = useServicesQuery('en');
+  const ar = useServicesQuery('ar');
+  return {
+    data: mergeByLocale<Service>(en.data ?? [], ar.data ?? []),
+    isLoading: en.isLoading || ar.isLoading,
+  };
+}
+
+export function useDualLocaleExperienceQuery() {
+  const en = useExperienceQuery('en');
+  const ar = useExperienceQuery('ar');
+  return {
+    data: mergeByLocale<Experience>(en.data ?? [], ar.data ?? []),
+    isLoading: en.isLoading || ar.isLoading,
+  };
+}
+
+export function useDualLocaleStatsQuery() {
+  const en = useStatsQuery('en');
+  const ar = useStatsQuery('ar');
+  return {
+    data: mergeByLocale<Stat>(en.data ?? [], ar.data ?? []),
+    isLoading: en.isLoading || ar.isLoading,
+  };
+}
+
+export function useDualLocaleTestimonialsQuery() {
+  const en = useTestimonialsQuery('en');
+  const ar = useTestimonialsQuery('ar');
+  return {
+    data: mergeByLocale<Testimonial>(en.data ?? [], ar.data ?? []),
+    isLoading: en.isLoading || ar.isLoading,
+  };
+}
+
+// ── Single-Locale Mutations (backward compat) ──
 
 function useCreateMutation(key: string, fn: (data: any) => Promise<void>) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: fn,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [key] });
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: [key] }); },
   });
 }
 
@@ -137,9 +205,7 @@ function useUpdateMutation(key: string, fn: (...args: any[]) => Promise<void>) {
       if (args.locale) return (fn as any)(args.id, args.locale, args.updates);
       return (fn as any)(args.id, args.updates);
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [key] });
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: [key] }); },
   });
 }
 
@@ -150,9 +216,7 @@ function useDeleteMutation(key: string, fn: (...args: any[]) => Promise<void>) {
       if (args.locale) return (fn as any)(args.id, args.locale);
       return (fn as any)(args.id);
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: [key] });
-    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: [key] }); },
   });
 }
 
@@ -179,6 +243,54 @@ export function useDeleteStat() { return useDeleteMutation('stats', deleteStat);
 export function useCreateTestimonial() { return useCreateMutation('testimonials', createTestimonial); }
 export function useUpdateTestimonial() { return useUpdateMutation('testimonials', updateTestimonial); }
 export function useDeleteTestimonial() { return useDeleteMutation('testimonials', deleteTestimonial); }
+
+// ── Bilingual Mutations (for Dashboard CMS dual-language forms) ──
+
+export function useBilingualSave(
+  table: string,
+  createFn: (data: any) => Promise<void>,
+  updateFn: (id: string, locale: string, updates: any) => Promise<void>,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (args: {
+      mode: 'add' | 'edit';
+      id?: string;
+      en: Record<string, unknown>;
+      ar: Record<string, unknown>;
+    }) => {
+      if (args.mode === 'add') {
+        const id = args.id ?? crypto.randomUUID();
+        await Promise.all([
+          createFn({ ...args.en, id, locale: 'en' }),
+          createFn({ ...args.ar, id, locale: 'ar' }),
+        ]);
+      } else {
+        await Promise.all([
+          updateFn(args.id!, 'en', args.en),
+          updateFn(args.id!, 'ar', args.ar),
+        ]);
+      }
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: [table] }); },
+  });
+}
+
+export function useBilingualDelete(
+  table: string,
+  deleteFn: (id: string, locale: string) => Promise<void>,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (args: { id: string }) => {
+      await Promise.all([
+        deleteFn(args.id, 'en'),
+        deleteFn(args.id, 'ar'),
+      ]);
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: [table] }); },
+  });
+}
 
 export function useUpdateProfile() {
   const qc = useQueryClient();
