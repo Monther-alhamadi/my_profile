@@ -84,17 +84,53 @@ function buildInitialSections(): CVSection[] {
   }
 
   const projects = sections.find(s => s.id === 'projects')!
+  const PROJECT_CV_DESCRIPTIONS: Record<string, { en: string; ar: string }> = {
+    'cachear-pos': {
+      en: 'Offline-first enterprise POS with QR-sandboxed workspaces, omnidirectional barcode scanning, Bluetooth thermal printing, and sovereign SQLite database with SQL triggers.',
+      ar: 'نظام POS مؤسسي يعمل بدون إنترنت مع بيئات معزولة عبر QR، مسح باركود ذكي، طباعة حرارية، وقاعدة بيانات سيادية مع محفزات SQL.',
+    },
+    'heic-converter': {
+      en: 'Privacy-first HEIC-to-JPG converter using WebAssembly (zero-upload). Evolved into SaaS with 20+ format standards, multi-country compliance, and SEO content system.',
+      ar: 'محول HEIC إلى JPG يعمل محلياً بالكامل عبر WebAssembly بدون رفع. تطور إلى منصة SaaS مع 20+ تنسيق دولي ونظام محتوى SEO.',
+    },
+    'university-scheduler': {
+      en: 'Hybrid scheduling engine combining Genetic Algorithms with Google OR-Tools (CP-SAT). Reduced generation time from 3 weeks to 4 minutes for 10,000+ variables.',
+      ar: 'محرك جدولة هجين يجمع بين الخوارزميات الجينية وGoogle OR-Tools. قلّل وقت الإنشاء من 3 أسابيع إلى 4 دقائق لأكثر من 10,000 متغير.',
+    },
+    'nextvendors-ecommerce': {
+      en: 'Multi-vendor SaaS with custom borderless payment engine, Alembic migrations, Zustand/React Query state management, and Docker/Nginx deployment.',
+      ar: 'منصة SaaS متعددة البائعين مع محرك دفع مخصص مستقل، إدارة حالة Zustand، ونشر Docker/Nginx.',
+    },
+    'ai-tools-hub': {
+      en: 'AI orchestration platform unifying GPT, Claude, and Midjourney with prompt templates, A/B testing, cost tracking, and real-time streaming.',
+      ar: 'منصة تنسيق ذكاء اصطناعي توحد GPT وClaude وMidjourney مع قوالب أوامر واختبار A/B وتتبع التكلفة.',
+    },
+    'kayany': {
+      en: 'Tax compliance SaaS for GCC freelancers — 6-country calculator, ZATCA e-invoicing with QR codes, multi-currency tracking, and subscription billing.',
+      ar: 'منصة امتثال ضريبي لمستقلين الخليج — حاسبة 6 دول، فواتير ZATCA مع QR، تتبع متعدد العملات، واشتراكات.',
+    },
+  }
+  const PROJECT_LINKS: Record<string, { url?: string; github_url?: string }> = {
+    'cachear-pos': { github_url: 'https://github.com/Monther-alhamadi/cachear' },
+    'heic-converter': { url: 'https://heiconverts.vercel.app' },
+    'university-scheduler': { github_url: 'https://github.com/Monther-alhamadi/Timetabling_v2' },
+    'nextvendors-ecommerce': { url: 'https://next-vendors.vercel.app' },
+    'ai-tools-hub': {},
+    'kayany': { url: 'https://kayany7.vercel.app' },
+  }
   projects.data = {
     project_items: PROJECTS_EN.map((p, i) => {
       const ar = PROJECTS_AR[i]
+      const cvDesc = PROJECT_CV_DESCRIPTIONS[p.id]
+      const links = PROJECT_LINKS[p.id] || {}
       return {
         id: crypto.randomUUID(),
         name: p.title,
-        description_en: p.solution,
-        description_ar: ar?.solution || '',
+        description_en: cvDesc?.en || p.solution,
+        description_ar: cvDesc?.ar || ar?.solution || '',
         technologies: p.technologies,
-        url: (p as any).link_url || '',
-        github_url: '',
+        url: links.url || '',
+        github_url: links.github_url || '',
       }
     }),
   }
