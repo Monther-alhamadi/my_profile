@@ -4,7 +4,7 @@ import { useLanguage } from '@/hooks/useLanguage'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { supabase } from '@/services/api'
-import html2canvas from 'html2canvas'
+import html2canvas from 'html2canvas-pro'
 import { jsPDF } from 'jspdf'
 import type { CVData, CVSection } from '@/lib'
 import { PROFILE_STATIC, EXPERIENCE_EN, EXPERIENCE_AR, SKILLS_EN, SKILLS_AR, PROJECTS_EN, PROJECTS_AR } from '@/lib/data-static'
@@ -713,7 +713,7 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, exporting, setE
   const sections = cv.sections.filter(s => s.enabled).sort((a, b) => a.order - b.order)
   const { theme_color, font_family, spacing } = cv.settings
 
-  const spacingGap = spacing === 'compact' ? '6px' : spacing === 'relaxed' ? '16px' : '10px'
+  const spacingGap = spacing === 'compact' ? '4px' : spacing === 'relaxed' ? '12px' : '7px'
   const fontFamily = font_family === 'ibm-plex' ? '"IBM Plex Sans Arabic", Inter, sans-serif' : font_family === 'geist' ? 'Geist, Inter, sans-serif' : 'Inter, system-ui, sans-serif'
 
   const handleExportPDF = useCallback(async () => {
@@ -727,7 +727,8 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, exporting, setE
         backgroundColor: '#ffffff',
         logging: false,
         windowWidth: 794,
-      })
+        allowTaint: true,
+      } as any)
       const imgData = canvas.toDataURL('image/png')
       const pdf = new jsPDF('p', 'mm', 'a4')
       const pdfW = pdf.internal.pageSize.getWidth()
@@ -798,20 +799,19 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, exporting, setE
             maxWidth: '100%',
             fontFamily,
             color: '#1a1a1a',
+            padding: '24px 28px',
           }}
         >
-          <div style={{ padding: '20px 24px' }}>
-            {sections.map(section => (
-              <CVSectionRender
-                key={section.id}
-                section={section}
-                themeColor={theme_color}
-                isAr={isAr}
-                spacingGap={spacingGap}
-                fontFamily={fontFamily}
-              />
-            ))}
-          </div>
+          {sections.map(section => (
+            <CVSectionRender
+              key={section.id}
+              section={section}
+              themeColor={theme_color}
+              isAr={isAr}
+              spacingGap={spacingGap}
+              fontFamily={fontFamily}
+            />
+          ))}
         </div>
       </div>
     </div>
@@ -820,20 +820,18 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, exporting, setE
 
 /* ── Professional Section Renderers ─────────────────────── */
 
-function SectionTitle({ title, themeColor, isAr }: { title: string; themeColor: string; isAr: boolean }) {
+function SectionTitle({ title, themeColor }: { title: string; themeColor: string }) {
   return (
-    <div style={{ marginBottom: '8px', borderBottom: `2px solid ${themeColor}`, paddingBottom: '4px' }}>
-      <h2
-        style={{
-          fontSize: '13px',
-          fontWeight: 700,
-          color: themeColor,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          margin: 0,
-          fontFamily: 'Inter, system-ui, sans-serif',
-        }}
-      >
+    <div style={{ marginBottom: '6px', borderBottom: `2px solid ${themeColor}`, paddingBottom: '3px' }}>
+      <h2 style={{
+        fontSize: '11px',
+        fontWeight: 700,
+        color: themeColor,
+        textTransform: 'uppercase',
+        letterSpacing: '0.1em',
+        margin: 0,
+        fontFamily: 'Inter, system-ui, sans-serif',
+      }}>
         {title}
       </h2>
     </div>
@@ -848,18 +846,18 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
   /* ── Header ──────────────────────── */
   if (section.type === 'header') {
     const contactItems: { icon: JSX.Element; value: string; href?: string }[] = []
-    if (data.email) contactItems.push({ icon: <Mail size={10} />, value: data.email, href: `mailto:${data.email}` })
-    if (data.phone) contactItems.push({ icon: <Phone size={10} />, value: data.phone, href: `tel:${data.phone}` })
-    if (data.location) contactItems.push({ icon: <MapPin size={10} />, value: data.location })
-    if (data.website) contactItems.push({ icon: <Globe size={10} />, value: data.website, href: data.website.startsWith('http') ? data.website : `https://${data.website}` })
-    if (data.linkedin) contactItems.push({ icon: <Linkedin size={10} />, value: data.linkedin.replace('https://linkedin.com/in/', ''), href: data.linkedin })
-    if (data.github) contactItems.push({ icon: <Github size={10} />, value: data.github.replace('https://github.com/', ''), href: data.github })
+    if (data.email) contactItems.push({ icon: <Mail size={9} />, value: data.email, href: `mailto:${data.email}` })
+    if (data.phone) contactItems.push({ icon: <Phone size={9} />, value: data.phone, href: `tel:${data.phone}` })
+    if (data.location) contactItems.push({ icon: <MapPin size={9} />, value: data.location })
+    if (data.website) contactItems.push({ icon: <Globe size={9} />, value: data.website, href: data.website.startsWith('http') ? data.website : `https://${data.website}` })
+    if (data.linkedin) contactItems.push({ icon: <Linkedin size={9} />, value: data.linkedin.replace('https://linkedin.com/in/', ''), href: data.linkedin })
+    if (data.github) contactItems.push({ icon: <Github size={9} />, value: data.github.replace('https://github.com/', ''), href: data.github })
 
     return (
       <div style={{ marginBottom: spacingGap, textAlign: isAr ? 'right' : 'center' }}>
         {data.name && (
           <h1 style={{
-            fontSize: '22px',
+            fontSize: '20px',
             fontWeight: 800,
             color: '#111827',
             margin: 0,
@@ -871,7 +869,7 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
         )}
         {(data.title_en || data.title_ar) && (
           <p style={{
-            fontSize: '12px',
+            fontSize: '11px',
             color: themeColor,
             fontWeight: 500,
             margin: '2px 0 0',
@@ -884,16 +882,16 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
           <div style={{
             display: 'flex',
             flexWrap: 'wrap',
-            gap: '8px',
-            marginTop: '8px',
+            gap: '10px',
+            marginTop: '6px',
             justifyContent: isAr ? 'flex-end' : 'center',
-            fontSize: '9px',
+            fontSize: '8.5px',
             color: '#6b7280',
             fontFamily: 'Inter, system-ui, sans-serif',
           }}>
             {contactItems.map((item, i) => (
               <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                <span style={{ color: themeColor, display: 'flex' }}>{item.icon}</span>
+                <span style={{ color: themeColor, display: 'flex', alignItems: 'center' }}>{item.icon}</span>
                 {item.href ? (
                   <a href={item.href} target="_blank" rel="noopener noreferrer" style={{ color: '#374151', textDecoration: 'none' }}>
                     {item.value}
@@ -915,13 +913,15 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     if (!text) return null
     return (
       <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'الملخص Professional' : 'Professional Summary'} themeColor={themeColor} isAr={isAr} />
+        <SectionTitle title={isAr ? 'الملخص المهني' : 'Professional Summary'} themeColor={themeColor} />
         <p style={{
-          fontSize: '10.5px',
+          fontSize: '9.5px',
           lineHeight: 1.6,
           color: '#374151',
           margin: 0,
           fontFamily,
+          wordWrap: 'break-word',
+          overflowWrap: 'break-word',
         }}>
           {text}
         </p>
@@ -935,42 +935,42 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     if (items.length === 0) return null
     return (
       <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'الخبرة المهنية' : 'Professional Experience'} themeColor={themeColor} isAr={isAr} />
+        <SectionTitle title={isAr ? 'الخبرة المهنية' : 'Professional Experience'} themeColor={themeColor} />
         {items.map((item: any) => (
-          <div key={item.id} style={{ marginBottom: '10px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
-              <h3 style={{ fontSize: '11.5px', fontWeight: 700, color: '#111827', margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <div key={item.id} style={{ marginBottom: '8px', pageBreakInside: 'avoid' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+              <h3 style={{ fontSize: '10.5px', fontWeight: 700, color: '#111827', margin: 0, fontFamily: 'Inter, system-ui, sans-serif', flexShrink: 1, minWidth: 0 }}>
                 {item.role}
               </h3>
-              <span style={{ fontSize: '9px', color: '#9ca3af', fontFamily: 'Inter, system-ui, sans-serif', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '8.5px', color: '#9ca3af', fontFamily: 'Inter, system-ui, sans-serif', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 {item.start_date} — {item.current ? (isAr ? 'الحالي' : 'Present') : item.end_date}
               </span>
             </div>
-            <p style={{ fontSize: '10px', color: '#6b7280', margin: '1px 0 4px', fontFamily: 'Inter, system-ui, sans-serif' }}>
+            <p style={{ fontSize: '9.5px', color: '#6b7280', margin: '1px 0 3px', fontFamily: 'Inter, system-ui, sans-serif' }}>
               {item.company}
             </p>
             {item.description_en || item.description_ar ? (
-              <p style={{ fontSize: '10px', color: '#4b5563', margin: '0 0 4px', lineHeight: 1.5, fontFamily }}>
+              <p style={{ fontSize: '9px', color: '#4b5563', margin: '0 0 3px', lineHeight: 1.5, fontFamily, wordWrap: 'break-word', overflowWrap: 'break-word' }}>
                 {isAr && item.description_ar ? item.description_ar : item.description_en}
               </p>
             ) : null}
             {((isAr ? item.achievements_ar : item.achievements_en)?.length > 0) && (
-              <ul style={{ margin: '4px 0 0', paddingLeft: isAr ? 0 : '16px', paddingRight: isAr ? '16px' : 0, listStyleType: isAr ? 'none' : 'disc' }}>
+              <ul style={{ margin: '3px 0 0', paddingLeft: isAr ? 0 : '14px', paddingRight: isAr ? '14px' : 0, listStyleType: 'none' }}>
                 {(isAr ? item.achievements_ar : item.achievements_en).map((ach: string, i: number) => (
-                  <li key={i} style={{ fontSize: '9.5px', color: '#4b5563', lineHeight: 1.5, marginBottom: '2px', fontFamily }}>
-                    {isAr && <span style={{ marginRight: '4px' }}>◂</span>}
-                    {ach}
+                  <li key={i} style={{ fontSize: '9px', color: '#4b5563', lineHeight: 1.5, marginBottom: '1px', fontFamily, wordWrap: 'break-word', overflowWrap: 'break-word', display: 'flex', gap: '4px', flexDirection: isAr ? 'row-reverse' : 'row' }}>
+                    <span style={{ color: themeColor, flexShrink: 0, fontSize: '8px', lineHeight: '1.6' }}>▸</span>
+                    <span>{ach}</span>
                   </li>
                 ))}
               </ul>
             )}
             {item.technologies?.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '3px' }}>
                 {item.technologies.map((tech: string) => (
                   <span key={tech} style={{
-                    fontSize: '8px',
-                    padding: '1px 6px',
-                    borderRadius: '3px',
+                    fontSize: '7.5px',
+                    padding: '1px 5px',
+                    borderRadius: '2px',
                     backgroundColor: `${themeColor}12`,
                     color: themeColor,
                     fontWeight: 500,
@@ -993,22 +993,22 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     if (items.length === 0) return null
     return (
       <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'التعليم' : 'Education'} themeColor={themeColor} isAr={isAr} />
+        <SectionTitle title={isAr ? 'التعليم' : 'Education'} themeColor={themeColor} />
         {items.map((item: any) => (
-          <div key={item.id} style={{ marginBottom: '8px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
-              <h3 style={{ fontSize: '11px', fontWeight: 700, color: '#111827', margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <div key={item.id} style={{ marginBottom: '6px', pageBreakInside: 'avoid' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+              <h3 style={{ fontSize: '10px', fontWeight: 700, color: '#111827', margin: 0, fontFamily: 'Inter, system-ui, sans-serif', flexShrink: 1, minWidth: 0 }}>
                 {item.degree}{item.field ? ` in ${item.field}` : ''}
               </h3>
-              <span style={{ fontSize: '9px', color: '#9ca3af', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              <span style={{ fontSize: '8.5px', color: '#9ca3af', fontFamily: 'Inter, system-ui, sans-serif', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 {item.start_date} — {item.end_date || (isAr ? 'الحالي' : 'Present')}
               </span>
             </div>
-            <p style={{ fontSize: '10px', color: '#6b7280', margin: '1px 0', fontFamily: 'Inter, system-ui, sans-serif' }}>
+            <p style={{ fontSize: '9px', color: '#6b7280', margin: '1px 0', fontFamily: 'Inter, system-ui, sans-serif' }}>
               {item.institution}
             </p>
             {item.grade && (
-              <p style={{ fontSize: '9px', color: '#9ca3af', margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+              <p style={{ fontSize: '8.5px', color: '#9ca3af', margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {isAr ? 'التقدير' : 'Grade'}: {item.grade}
               </p>
             )}
@@ -1024,10 +1024,10 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     if (categories.length === 0) return null
     return (
       <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'المهارات التقنية' : 'Technical Skills'} themeColor={themeColor} isAr={isAr} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px' }}>
+        <SectionTitle title={isAr ? 'المهارات التقنية' : 'Technical Skills'} themeColor={themeColor} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px' }}>
           {categories.map((cat: any) => (
-            <div key={cat.id} style={{ fontSize: '10px' }}>
+            <div key={cat.id} style={{ fontSize: '9px', wordWrap: 'break-word', overflowWrap: 'break-word' }}>
               <span style={{ fontWeight: 700, color: '#111827', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {cat.name}:
               </span>{' '}
@@ -1047,33 +1047,33 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     if (items.length === 0) return null
     return (
       <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'المشاريع' : 'Projects'} themeColor={themeColor} isAr={isAr} />
+        <SectionTitle title={isAr ? 'المشاريع' : 'Projects'} themeColor={themeColor} />
         {items.map((item: any) => (
-          <div key={item.id} style={{ marginBottom: '8px' }}>
+          <div key={item.id} style={{ marginBottom: '6px', pageBreakInside: 'avoid' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-              <h3 style={{ fontSize: '11px', fontWeight: 700, color: '#111827', margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+              <h3 style={{ fontSize: '10px', fontWeight: 700, color: '#111827', margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {item.name}
               </h3>
               {item.url && (
-                <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '8px', color: themeColor, display: 'inline-flex', alignItems: 'center', gap: '2px', textDecoration: 'none' }}>
-                  <ExternalLink size={8} /> {isAr ? 'معاينة' : 'Live'}
+                <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '7.5px', color: themeColor, display: 'inline-flex', alignItems: 'center', gap: '2px', textDecoration: 'none' }}>
+                  <ExternalLink size={7} /> {isAr ? 'معاينة' : 'Live'}
                 </a>
               )}
               {item.github_url && (
-                <a href={item.github_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '8px', color: '#6b7280', display: 'inline-flex', alignItems: 'center', gap: '2px', textDecoration: 'none' }}>
-                  <Github size={8} /> GitHub
+                <a href={item.github_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '7.5px', color: '#6b7280', display: 'inline-flex', alignItems: 'center', gap: '2px', textDecoration: 'none' }}>
+                  <Github size={7} /> GitHub
                 </a>
               )}
             </div>
-            <p style={{ fontSize: '9.5px', color: '#4b5563', margin: '2px 0', lineHeight: 1.5, fontFamily }}>
+            <p style={{ fontSize: '9px', color: '#4b5563', margin: '2px 0', lineHeight: 1.5, fontFamily, wordWrap: 'break-word', overflowWrap: 'break-word' }}>
               {isAr && item.description_ar ? item.description_ar : item.description_en}
             </p>
             {item.technologies?.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '3px' }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '2px' }}>
                 {item.technologies.map((tech: string) => (
                   <span key={tech} style={{
-                    fontSize: '7.5px',
-                    padding: '1px 5px',
+                    fontSize: '7px',
+                    padding: '1px 4px',
                     borderRadius: '2px',
                     backgroundColor: '#f3f4f6',
                     color: '#6b7280',
@@ -1100,8 +1100,8 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
 
     return (
       <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'اللغات' : 'Languages'} themeColor={themeColor} isAr={isAr} />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '10px' }}>
+        <SectionTitle title={isAr ? 'اللغات' : 'Languages'} themeColor={themeColor} />
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', fontSize: '9px' }}>
           {items.map((item: any) => (
             <span key={item.id} style={{ color: '#374151', fontFamily: 'Inter, system-ui, sans-serif' }}>
               <strong>{item.language}</strong>
@@ -1121,18 +1121,18 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     if (items.length === 0) return null
     return (
       <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'الشهادات' : 'Certifications'} themeColor={themeColor} isAr={isAr} />
+        <SectionTitle title={isAr ? 'الشهادات' : 'Certifications'} themeColor={themeColor} />
         {items.map((item: any) => (
-          <div key={item.id} style={{ marginBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <div>
-              <span style={{ fontSize: '10.5px', fontWeight: 600, color: '#111827', fontFamily: 'Inter, system-ui, sans-serif' }}>
+          <div key={item.id} style={{ marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+            <div style={{ flexShrink: 1, minWidth: 0 }}>
+              <span style={{ fontSize: '9.5px', fontWeight: 600, color: '#111827', fontFamily: 'Inter, system-ui, sans-serif' }}>
                 {item.name}
               </span>
-              <span style={{ fontSize: '9.5px', color: '#6b7280', marginLeft: isAr ? 0 : '6px', marginRight: isAr ? '6px' : 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+              <span style={{ fontSize: '9px', color: '#6b7280', marginLeft: isAr ? 0 : '6px', marginRight: isAr ? '6px' : 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
                 — {item.issuer}
               </span>
             </div>
-            <span style={{ fontSize: '9px', color: '#9ca3af', fontFamily: 'Inter, system-ui, sans-serif', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '8.5px', color: '#9ca3af', fontFamily: 'Inter, system-ui, sans-serif', whiteSpace: 'nowrap', flexShrink: 0 }}>
               {item.date}
             </span>
           </div>
@@ -1147,8 +1147,8 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     if (!content) return null
     return (
       <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'قسم مخصص' : 'Additional Information'} themeColor={themeColor} isAr={isAr} />
-        <div style={{ fontSize: '10px', color: '#374151', lineHeight: 1.6, fontFamily }} dangerouslySetInnerHTML={{ __html: content }} />
+        <SectionTitle title={isAr ? 'قسم مخصص' : 'Additional Information'} themeColor={themeColor} />
+        <div style={{ fontSize: '9px', color: '#374151', lineHeight: 1.6, fontFamily, wordWrap: 'break-word', overflowWrap: 'break-word' }} dangerouslySetInnerHTML={{ __html: content }} />
       </div>
     )
   }
