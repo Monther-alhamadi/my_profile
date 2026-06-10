@@ -27,12 +27,12 @@ INSERT INTO projects (id, locale, sort_order, number, title, category, problem, 
 '["Flutter","Dart","BLoC","Clean Architecture","Drift (SQLite)","Hardware Integration"]',
 '["Multi-environment sandboxing for isolated, role-specific employee workspaces via QR login","High-speed omnidirectional camera barcode scanning & external hardware scanner integration","Versatile invoicing: Bluetooth thermal printing & automated PDF generation sent via WhatsApp","Offline-First Sovereign Database with complex SQL triggers for automated ledger reconciliation","Native device integrations including deep contact imports and background data synchronization","Strict Domain-Driven Clean Architecture ensuring enterprise-grade scalability and maintainability"]'),
 
-('heic-converter', 'en', 2, '02', 'Privacy-First Image Conversion Engine', 'Web Application / WebAssembly',
-'Users frequently face upload failures on critical government portals (e.g., Absher, Najiz) due to HEIC image format incompatibilities, while existing online tools compromise privacy by uploading sensitive documents to external servers.',
-'Engineered a highly optimized, 100% client-side HEIC-to-JPG conversion platform utilizing WebAssembly. The system processes heavy image payloads directly within the browser, ensuring absolute privacy, zero data retention, and instant conversion speeds without server wait times.',
+('heic-converter', 'en', 2, '02', 'HEIC Converter → Image Conversion SaaS (Product Evolution)', 'Web Application / WebAssembly → SaaS Platform',
+'Phase 1 (Free Tool): Users face upload failures on government portals (Absher, Najiz) due to HEIC incompatibility, while online tools compromise privacy by uploading sensitive documents. Phase 2 (SaaS Platform): Businesses need compliant image formats for international markets with varying technical requirements — HEIC and 20+ global format standards.',
+'Phase 1: Engineered a highly optimized, 100% client-side HEIC-to-JPG conversion platform utilizing WebAssembly. Zero-upload, GDPR/CCPA compliant, PWA-ready, SEO-optimized for MENA government portal users. Phase 2: Created a global image conversion SaaS supporting HEIC and 20+ international format standards with batch processing, multi-country compliance engine (US, UK, UAE), SEO-driven content system (30+ articles), and CDN-optimized delivery.',
 'High',
-'["Next.js","React","WebAssembly","Web Workers","PWA","SEO Strategy"]',
-'["Implemented WebAssembly (heic2any) for robust, local browser-based image processing","Architected a privacy-first (Zero-Upload) ecosystem, ensuring GDPR/CCPA compliance","Developed advanced SEO content silos and localized targeting for MENA government portal users","Engineered a scalable Monetization-AdSense funnel with smart tier-based processing limits","Full PWA readiness for native-like offline capabilities and localized i18n support"]'),
+'["Next.js","React","WebAssembly","Web Workers","PWA","SEO Strategy","Python","ImageMagick","AWS Lambda","Elasticsearch","CDN"]',
+'["Phase 1: WebAssembly (heic2any) for local browser-based processing","Phase 1: Privacy-first Zero-Upload ecosystem (GDPR/CCPA)","Phase 1: SEO content silos for MENA government portals","Phase 1: Monetization-AdSense funnel with tier-based limits","Phase 1: Full PWA readiness with i18n support","Phase 2: 20+ global compliance formats supported","Phase 2: High-performance batch processing","Phase 2: Multi-country compliance engine (US, UK, UAE)","Phase 2: SEO-driven content system (30+ articles)","Phase 2: CDN-optimized global delivery"]'),
 
 ('university-scheduler', 'en', 3, '03', 'University Scheduling Engine (AI)', 'AI / Hybrid Algorithms',
 'University administration spent weeks manually resolving complex scheduling conflicts for thousands of students across limited classrooms and faculty availability.',
@@ -41,14 +41,7 @@ INSERT INTO projects (id, locale, sort_order, number, title, category, problem, 
 '["TypeScript","Genetic Algorithms","Google OR-Tools","PostgreSQL"]',
 '["Engineered a hybrid solver combining Genetic Algorithms and Google OR-Tools (CP-SAT)","Reduced schedule generation time from 3 weeks to 4 minutes","Handled hard constraints (clashes) and soft constraints (preferences)","Optimized memory usage for processing 10,000+ variables concurrently"]'),
 
-('ai-image-platform', 'en', 4, '03', 'AI-Powered Image Conversion Platform', 'SaaS Platform',
-'Users worldwide struggled with HEIC image format compatibility across different devices and platforms. Businesses needed compliant image formats for various international markets with different technical requirements.',
-'Created a global image conversion platform supporting HEIC and 20+ international format standards. Built SEO-optimized blog system with 30+ technical articles driving organic traffic. Implemented multi-country compliance engine for US, UK, UAE, and other markets with automated format recommendations.',
-'High',
-'["Next.js","Python","ImageMagick","AWS Lambda","Elasticsearch","CDN"]',
-'["HEIC conversion with quality preservation","Support for 20+ global compliance formats","SEO-driven content system (30+ articles)","Multi-country format recommendations","High-performance batch processing","CDN-optimized delivery"]'),
-
-('nextvendors-ecommerce', 'en', 5, '04', 'NextVendors E-Commerce Platform', 'SaaS Platform',
+('nextvendors-ecommerce', 'en', 4, '04', 'NextVendors E-Commerce Platform', 'SaaS Platform',
 'Yemen lacked reliable centralized digital marketplaces. Additionally, strict API constraints and financial infrastructure limitations made standard payment gateways unviable for local businesses.',
 'Architected and deployed a decoupled multi-vendor SaaS platform from scratch. Designed a custom, borderless payment module to handle manual/ledger transactions, eliminating geographical restrictions and enabling immediate local adoption.',
 'High',
@@ -62,12 +55,12 @@ INSERT INTO projects (id, locale, sort_order, number, title, category, problem, 
 '["React","Node.js","OpenAI API","Anthropic API","MongoDB","Bull Queue","WebSocket"]',
 '["Multi-provider AI integration","Intelligent prompt template system","Automated workflow orchestration","A/B testing for prompt optimization","Cost tracking & analytics","Real-time result streaming"]'),
 
-('kayany7', 'en', 7, '06', 'Kayany7 E-Commerce & Management System', 'Multi-Purpose Business Platform',
-'Small to medium businesses needed an affordable, all-in-one platform combining e-commerce storefront, inventory management, order tracking, and customer communication — without the complexity of enterprise solutions.',
-'Built a comprehensive multi-purpose business platform with integrated e-commerce, real-time inventory management, order workflow automation, and built-in customer messaging. Features a modern storefront with dynamic product catalogs, streamlined checkout, and an admin dashboard for end-to-end business operations.',
-'High',
-'["React","Node.js","PostgreSQL","Stripe","Redis","Docker","WebSocket"]',
-'["Full e-commerce storefront with dynamic product catalogs and search","Real-time inventory tracking with automated low-stock alerts","Order management workflow from placement to fulfillment","Built-in customer communication and notification system","Admin dashboard with sales analytics and reporting","Responsive design optimized for mobile and desktop"]');
+('kayany', 'en', 6, '06', 'Kayany — Tax Compliance SaaS for GCC Freelancers', 'SaaS / FinTech / Tax Compliance',
+'Over 300% growth in GCC freelancers since 2020, yet most unaware of tax obligations. Penalties: 10,000 SAR (KSA), 20,000 AED (UAE), 20,000 OMR (Oman). No Arabic SaaS targets freelancers — existing solutions target SMEs.',
+'Integrated platform: multi-country tax calculator (6 GCC), ZATCA-compliant e-invoicing with QR codes, multi-currency income/expense tracking, smart threshold reminders, PDF/Excel tax reports. Free tier + Basic 49 SAR/mo + Pro 99 SAR/mo.',
+'Advanced',
+'["TypeScript 5.x","Next.js 15.x","Tailwind CSS 4.x","shadcn/ui","Supabase","Prisma 6.x","next-intl 3.x","Zod 3.x","Stripe","Recharts 2.x","IBM Plex Arabic","Open Exchange Rates API","Sonner","Sentry","react-hook-form","Radix UI","Lucide React"]',
+'["6 GCC countries with official tax rules","ZATCA Wave 24 QR codes","Real-time tax calculator (4 states)","Multi-currency with auto-conversion","Full Arabic RTL + IBM Plex Arabic","RLS for data isolation","Free/Basic/Pro tiers","Public invoice sharing via secure tokens","Automated threshold reminders (80%/100%)","5-step onboarding wizard","PDF/Excel tax reports","Server-side cron jobs"]');
 
 -- 3. PROJECTS (AR)
 INSERT INTO projects (id, locale, sort_order, number, title, category, problem, solution, complexity, technologies, highlights) VALUES
@@ -78,12 +71,12 @@ INSERT INTO projects (id, locale, sort_order, number, title, category, problem, 
 '["Flutter","Dart","BLoC","Clean Architecture","Drift (SQLite)","Hardware Integration"]',
 '["نظام بيئات معزولة متعددة للموظفين عبر مسح QR، مع واجهات وإشعارات مخصصة لكل دور وظيفي","محرك مسح باركود فائق الذكاء عبر الكاميرا (بجميع الاتجاهات) مع دعم أجهزة المسح الطرفية","تصدير كشوفات الحساب والفواتير كملفات PDF وإرسالها آلياً عبر واتساب، أو طباعتها حرارياً","تكامل عميق مع النظام لسحب جهات الاتصال، وتتبع مالي دقيق للسجلات مع نظام مزامنة متطور","قاعدة بيانات سيادية ومحفزات SQL معقدة (Triggers) لأتمتة المبيعات والمخزون دون إنترنت","بنية معمارية صارمة (Clean Architecture) تضمن قابلية التوسع لربط النظام بلوحات تحكم مستقبلاً"]'),
 
-('heic-converter', 'ar', 2, '02', 'محرك تحويل الصور الآمن (Client-Side)', 'تطبيق ويب / WebAssembly',
-'معاناة المستخدمين الدائمة من رفض صيغة HEIC في البوابات الحكومية (مثل أبشر وناجز)، وتخوفهم من رفع مستنداتهم الحساسة لمواقع التحويل التي تنتهك الخصوصية.',
-'هندسة منصة ويب تعتمد بنسبة 100% على معالجة الصور داخل متصفح المستخدم (Client-Side) باستخدام WebAssembly. لا يتم رفع أي صورة لأي خادم، مما يضمن أقصى درجات الخصوصية والأمان، بالإضافة إلى سرعة تحويل فورية.',
+('heic-converter', 'ar', 2, '02', 'محول HEIC → منصة تحويل صور SaaS (تطور المنتج)', 'تطبيق ويب / WebAssembly → منصة SaaS',
+'المرحلة 1 (أداة مجانية): يواجه المستخدمون رفض صيغة HEIC في البوابات الحكومية (أبشر، ناجز)، بينما تنتهك أدوات التحويل عبر الإنترنت الخصوصية برفع المستندات الحساسة. المرحلة 2 (منصة SaaS): تحتاج الشركات لتنسيقات صور متوافقة للأسواق الدولية بمتطلبات تقنية متنوعة — HEIC و 20+ معيار عالمي.',
+'المرحلة 1: هندسة منصة محسنة 100% من جانب العميل لتحويل HEIC إلى JPG باستخدام WebAssembly. صفر رفع، امتثال GDPR/CCPA، جاهز لـ PWA، محسن SEO لمستخدمي البوابات الحكومية في MENA. المرحلة 2: إنشاء منصة SaaS عالمية لتحويل الصور تدعم HEIC و 20+ معيار دولي مع معالجة دفعات، محرك امتثال متعدد الدول (الولايات المتحدة، المملكة المتحدة، الإمارات)، نظام محتوى محسن SEO (30+ مقال)، وتوصيل محسن عبر CDN.',
 'High',
-'["Next.js","React","WebAssembly","Web Workers","PWA","SEO Strategy"]',
-'["استخدام تقنية WebAssembly لمعالجة وتحويل الصور الثقيلة محلياً داخل المتصفح","هندسة نظام صفر-رفع (Zero-Upload) لضمان الخصوصية التامة والامتثال لقوانين حماية البيانات","تطبيق استراتيجية SEO عميقة وموجهة لحل مشاكل رفع الملفات في البوابات الحكومية العربية","بناء مسارات تحويل ذكية لتحقيق الأرباح (Monetization Funnel) عبر دمج إعلانات AdSense","دعم كامل لتطبيقات الويب التقدمية (PWA) وتوطين ثنائي اللغة (عربي/إنجليزي)"]'),
+'["Next.js","React","WebAssembly","Web Workers","PWA","SEO Strategy","Python","ImageMagick","AWS Lambda","Elasticsearch","CDN"]',
+'["المرحلة 1: WebAssembly (heic2any) لمعالجة المتصفح المحلي","المرحلة 1: نظام صفر-رفع يركز على الخصوصية (GDPR/CCPA)","المرحلة 1: صوامع محتوى SEO للبوابات الحكومية في MENA","المرحلة 1: مسار تحقيق أرباح AdSense مع حدود متدرجة","المرحلة 1: جاهزية PWA كاملة مع دعم i18n","المرحلة 2: دعم 20+ تنسيق امتثال عالمي","المرحلة 2: معالجة دفعات عالية الأداء","المرحلة 2: محرك امتثال متعدد الدول (الولايات المتحدة، المملكة المتحدة، الإمارات)","المرحلة 2: نظام محتوى محسن SEO (30+ مقال)","المرحلة 2: توصيل عالمي محسن عبر CDN"]'),
 
 ('university-scheduler', 'ar', 3, '03', 'محرك الجدولة الجامعي (AI)', 'الذكاء الاصطناعي / خوارزميات هجينة',
 'كانت إدارة الجامعة تقضي أسابيع في حل تعارضات الجدولة المعقدة يدوياً لآلاف الطلاب عبر قاعات دراسية محدودة وتوافر أعضاء هيئة التدريس.',
@@ -92,14 +85,7 @@ INSERT INTO projects (id, locale, sort_order, number, title, category, problem, 
 '["TypeScript","Genetic Algorithms","Google OR-Tools","PostgreSQL"]',
 '["هندسة محرك هجين يدمج بين الخوارزميات الجينية ودقة Google OR-Tools (CP-SAT)","تقليل وقت إنشاء الجدول من 3 أسابيع إلى 4 دقائق","التعامل مع القيود الصارمة (التعارضات) والقيود المرنة (التفضيلات)","تحسين استخدام الذاكرة لمعالجة أكثر من 10,000 متغير رياضي في وقت واحد"]'),
 
-('ai-image-platform', 'ar', 4, '03', 'منصة تحويل الصور بالذكاء الاصطناعي', 'منصة SaaS',
-'يعاني المستخدمون حول العالم من توافق تنسيق صور HEIC عبر الأجهزة والمنصات المختلفة. احتاجت الشركات إلى تنسيقات صور متوافقة للأسواق الدولية المختلفة مع متطلبات تقنية متنوعة.',
-'إنشاء منصة عالمية لتحويل الصور تدعم HEIC وأكثر من 20 معياراً دولياً. تم بناء نظام مدونة محسن لمحركات البحث مع 30+ مقال تقني لجذب الزيارات. تم تنفيذ محرك امتثال متعدد الدول للولايات المتحدة والمملكة المتحدة والإمارات وغيرها مع توصيات آليّة للتنسيق.',
-'High',
-'["Next.js","Python","ImageMagick","AWS Lambda","Elasticsearch","CDN"]',
-'["تحويل HEIC مع الحفاظ على الجودة الأصلية","دعم أكثر من 20 تنسيق امتثال عالمي","نظام محتوى محسن لـ SEO (30+ مقال)","توصيات تنسيق مخصصة لكل دولة","معالجة دفعات عالية الأداء","توصيل محتوى محسن عبر الـ CDN"]'),
-
-('nextvendors-ecommerce', 'ar', 5, '04', 'منصة NextVendors للتجارة الإلكترونية', 'منصة SaaS متكاملة',
+('nextvendors-ecommerce', 'ar', 4, '04', 'منصة NextVendors للتجارة الإلكترونية', 'منصة SaaS متكاملة',
 'غياب المتاجر المركزية الموثوقة في السوق المحلي، بالإضافة إلى القيود المعقدة وشروط بوابات الدفع المحلية التي تعيق تبني حلول التجارة الإلكترونية التقليدية.',
 'هندسة وبناء منصة SaaS متعددة البائعين من الصفر. تم تصميم نظام دفع مرن ومستقل يعتمد على المعالجة اليدوية وسجلات الأستاذ لتجاوز تعقيدات البنوك، مما كسر القيود الجغرافية وسمح باستقطاب البائعين بحرية.',
 'High',
@@ -113,26 +99,28 @@ INSERT INTO projects (id, locale, sort_order, number, title, category, problem, 
 '["React","Node.js","OpenAI API","Anthropic API","MongoDB","Bull Queue","WebSocket"]',
 '["دمج مزودي ذكاء اصطناعي متعددين","نظام ذكي لقوالب الأوامر","تنسيق آلي لسير العمل (Orchestration)","اختبار A/B لتحسين الأوامر","تتبع التكاليف والتحليلات","بث النتائج في الوقت الفعلي"]'),
 
-('kayany7', 'ar', 7, '06', 'نظام Kayany7 للتجارة والإدارة', 'منصة أعمال متعددة الأغراض',
-'احتاجت الشركات الصغيرة والمتوسطة إلى منصة شاملة بأسعار معقولة تجمع بين متجر إلكتروني، وإدارة المخزون، وتتبع الطلبات، والتواصل مع العملاء — دون تعقيد حلول المؤسسات الكبيرة.',
-'بناء منصة أعمال شاملة متعددة الأغراض مع متجر إلكتروني متكامل، وإدارة مخزون في الوقت الفعلي، وأتمتة سير عمل الطلبات، ونظام رسائل مدمج مع العملاء. تتميز بواجهة متجر حديثة مع كتالوجات منتجات ديناميكية، وعملية دفع مبسطة، ولوحة تحكم إدارية لإدارة العمليات من البداية إلى النهاية.',
-'High',
-'["React","Node.js","PostgreSQL","Stripe","Redis","Docker","WebSocket"]',
-'["متجر إلكتروني متكامل مع كتالوجات منتجات ديناميكية وبحث متقدم","تتبع المخزون في الوقت الفعلي مع تنبيهات آليّة لنفاد المخزون","سير عمل لإدارة الطلبات من التقديم إلى التنفيذ","نظام تواصل مدمج مع العملاء وإشعارات ذكية","لوحة تحكم إدارية مع تحليلات المبيعات والتقارير","تصميم متجاوب محسّن للجوال وسطح المكتب"]');
+('kayany', 'ar', 6, '06', 'كياني — منصة الامتثال الضريبي لمستقلين الخليج', 'SaaS / فين تك / امتثال ضريبي',
+'أكثر من 300% نمو في فريلانسر الخليج منذ 2020، ومعظمهم لا يعلمون بالتزاماتهم الضريبية. غرامات: 10,000 ر.س (السعودية)، 20,000 درهم (الإمارات)، 20,000 ريال عُماني. لا يوجد حل SaaS عربي يستهدف الفريلانسر.',
+'منصة متكاملة: حاسبة ضريبية لـ 6 دول خليجية، فواتير ZATCA مع QR، تتبع دخل/مصروفات متعدد العملات، تذكيرات ذكية، تقارير PDF/Excel. خطة مجانية + أساسية 49 ر.س/شهر + برو 99 ر.س/شهر.',
+'Advanced',
+'["TypeScript 5.x","Next.js 15.x","Tailwind CSS 4.x","shadcn/ui","Supabase","Prisma 6.x","next-intl 3.x","Zod 3.x","Stripe","Recharts 2.x","IBM Plex Arabic","Open Exchange Rates API","Sonner","Sentry","react-hook-form","Radix UI","Lucide React"]',
+'["6 دول خليجية بقواعد ضريبية رسمية","فواتير ZATCA Wave 24 مع QR","حاسبة ضريبية فورية (4 حالات)","متعدد العملات مع تحويل تلقائي","عربي RTL كامل + IBM Plex Arabic","RLS لعزل البيانات","خطط مجانية/أساسية/برو","مشاركة فواتير عامة برموز آمنة","تذكيرات حدود آلية (80%/100%)","معالج تسجيل 5 خطوات","تقارير ضريبية PDF/Excel","مهام cron من جانب الخادم"]');
 
 -- 4. SKILLS (EN)
 INSERT INTO skills (locale, sort_order, category, icon, description, technologies) VALUES
-('en', 1, 'Engineering Systems', 'cpu', 'Architecting scalable, high-performance systems with focus on reliability, security, and maintainability.', '["System Design","Microservices","API Architecture","Database Design","Cloud Infrastructure","DevOps"]'),
-('en', 2, 'Web Development', 'code', 'Building modern, responsive web applications with cutting-edge frameworks and best practices.', '["React","Next.js","TypeScript","Node.js","Laravel","PostgreSQL","Tailwind CSS"]'),
-('en', 3, 'AI & Data Processing', 'brain', 'Implementing intelligent systems with machine learning, automation, and advanced data pipelines.', '["Machine Learning","Data Cleaning","Preprocessing","Automation","Python","Genetic Algorithms"]'),
-('en', 4, 'Mobile Development', 'smartphone', 'Creating native-quality mobile experiences with cross-platform frameworks and native integrations.', '["React Native","Mobile UI/UX","Native Modules","Push Notifications","Offline-First"]');
+('en', 1, 'Engineering Systems', 'cpu', 'Architecting scalable, high-performance systems with focus on reliability, security, and maintainability. Designing distributed architectures, API contracts, and cloud-native infrastructure.', '["System Design","Microservices","API Architecture","Database Design","Cloud Infrastructure","DevOps","CI/CD","Observability"]'),
+('en', 2, 'Full-Stack Web Development', 'code', 'Building modern, responsive web applications with cutting-edge frameworks and best practices. End-to-end development from database to UI with type-safe tooling.', '["React 18/19","Next.js 15 (App Router)","TypeScript 5.x","Node.js","Tailwind CSS 4.x","shadcn/ui","Radix UI","React Hook Form","Zod","Prisma ORM","PostgreSQL","Supabase","Stripe","Next-Intl (i18n)"]'),
+('en', 3, 'AI & Data Processing', 'brain', 'Implementing intelligent systems with machine learning, automation, and advanced data pipelines. Integrating LLMs, building custom ML models, and creating intelligent workflows.', '["Machine Learning","LLM Integration (OpenAI, Anthropic)","Prompt Engineering","RAG Systems","Vector Databases","Data Cleaning","Preprocessing","Automation","Python","Genetic Algorithms","Constraint Programming (OR-Tools)"]'),
+('en', 4, 'Mobile Development', 'smartphone', 'Creating native-quality mobile experiences with cross-platform frameworks and native integrations. Offline-first architecture with background sync.', '["React Native","Expo","Mobile UI/UX","Native Modules","Push Notifications","Offline-First","SQLite (Drift/Expo SQLite)","Background Tasks"]'),
+('en', 5, 'FinTech & SaaS Platforms', 'credit-card', 'Building compliant financial platforms with multi-currency support, tax calculations, invoicing, and subscription billing. Regulatory-ready architecture for GCC markets.', '["Multi-Currency & Exchange Rates","Tax Compliance (ZATCA, GCC)","E-Invoicing (QR Codes)","Stripe Billing","Subscription Management","Role-Based Access (RLS)","Audit Logging","PDF/Excel Report Generation"]');
 
 -- 5. SKILLS (AR)
 INSERT INTO skills (locale, sort_order, category, icon, description, technologies) VALUES
-('ar', 1, 'أنظمة الهندسة', 'cpu', 'تصميم أنظمة قابلة للتوسع وعالية الأداء مع التركيز على الموثوقية والأمان وسهولة الصيانة.', '["System Design","Microservices","API Architecture","Database Design","Cloud Infrastructure","DevOps"]'),
-('ar', 2, 'تطوير الويب', 'code', 'بناء تطبيقات ويب حديثة ومتجاوبة باستخدام أحدث الأطر البرمجية وأفضل الممارسات.', '["React","Next.js","TypeScript","Node.js","Laravel","PostgreSQL","Tailwind CSS"]'),
-('ar', 3, 'الذكاء الاصطناعي ومعالجة البيانات', 'brain', 'تنفيذ أنظمة ذكية مع تعلم الآلة، والأتمتة، ومسارات معالجة البيانات المتقدمة.', '["Machine Learning","Data Cleaning","Preprocessing","Automation","Python","Genetic Algorithms"]'),
-('ar', 4, 'تطوير الموبايل', 'smartphone', 'إنشاء تجارب تطبيقات موبايل بجودة النيتف (Native) مع أطر عمل متعددة المنصات وتكاملات أصيلة.', '["React Native","Mobile UI/UX","Native Modules","Push Notifications","Offline-First"]');
+('ar', 1, 'أنظمة الهندسة', 'cpu', 'تصميم أنظمة قابلة للتوسع وعالية الأداء مع التركيز على الموثوقية والأمان وسهولة الصيانة. تصميم بنى موزعة، عقود APIs، وبنية تحتية سحابية أصلية.', '["System Design","Microservices","API Architecture","Database Design","Cloud Infrastructure","DevOps","CI/CD","Observability"]'),
+('ar', 2, 'تطوير الويب الشامل (Full-Stack)', 'code', 'بناء تطبيقات ويب حديثة ومتجاوبة بأحدث الأطر والممارسات. تطوير شامل من قاعدة البيانات إلى الواجهة مع أدوات آمنة من حيث الأنواع (Type-Safe).', '["React 18/19","Next.js 15 (App Router)","TypeScript 5.x","Node.js","Tailwind CSS 4.x","shadcn/ui","Radix UI","React Hook Form","Zod","Prisma ORM","PostgreSQL","Supabase","Stripe","Next-Intl (i18n)"]'),
+('ar', 3, 'الذكاء الاصطناعي ومعالجة البيانات', 'brain', 'تنفيذ أنظمة ذكية مع تعلم الآلة، والأتمتة، ومسارات البيانات المتقدمة. دمج LLMs، بناء نماذج ML مخصصة، وإنشاء سير عمل ذكية.', '["Machine Learning","LLM Integration (OpenAI, Anthropic)","Prompt Engineering","RAG Systems","Vector Databases","Data Cleaning","Preprocessing","Automation","Python","Genetic Algorithms","Constraint Programming (OR-Tools)"]'),
+('ar', 4, 'تطوير الموبايل', 'smartphone', 'إنشاء تجارب موبايل بجودة النيتف (Native) مع أطر عمل متعددة المنصات وتكاملات أصيلة. معمارية Offline-First مع مزامنة خلفية.', '["React Native","Expo","Mobile UI/UX","Native Modules","Push Notifications","Offline-First","SQLite (Drift/Expo SQLite)","Background Tasks"]'),
+('ar', 5, 'منصات فين تك و SaaS', 'credit-card', 'بناء منصات مالية ملتزمة مع دعم متعدد العملات، حسابات ضريبية، فواتير إلكترونية، واشتراكات. معمارية جاهزة للامتثال التنظيمي في أسواق الخليج.', '["Multi-Currency & Exchange Rates","Tax Compliance (ZATCA, GCC)","E-Invoicing (QR Codes)","Stripe Billing","Subscription Management","Role-Based Access (RLS)","Audit Logging","PDF/Excel Report Generation"]');
 
 -- 6. SERVICES (EN)
 INSERT INTO services (id, locale, sort_order, icon, title, description, pricing, features) VALUES

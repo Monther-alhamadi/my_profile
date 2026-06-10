@@ -11,10 +11,6 @@ export const PROJECT_IMAGES: Record<string, { desktop: string; mobile: string }>
     desktop: '/images/projects/unischeduler-desktop.png',
     mobile: '/images/projects/unischeduler-mobile.png',
   },
-  'ai-image-platform': {
-    desktop: '/images/projects/aibridge-desktop.png',
-    mobile: '/images/projects/aibridge-mobile.png',
-  },
   'nextvendors-ecommerce': {
     desktop: '/images/projects/nextvendors-desktop.png',
     mobile: '/images/projects/nextvendors-mobile.png',
@@ -23,8 +19,8 @@ export const PROJECT_IMAGES: Record<string, { desktop: string; mobile: string }>
     desktop: '/images/projects/aitoolshub-desktop.png',
     mobile: '/images/projects/aitoolshub-mobile.png',
   },
-  'kayany7': {
-    desktop: '/images/projects/kayany7-desktop.png',
-    mobile: '/images/projects/kayany7-mobile.png',
+  'kayany': {
+    desktop: '/images/projects/kayany-desktop.png',
+    mobile: '/images/projects/kayany-mobile.png',
   },
 };

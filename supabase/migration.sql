@@ -114,6 +114,19 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   created_at timestamptz DEFAULT now()
 );
 
+-- 9. cvs (CV Builder data)
+CREATE TABLE IF NOT EXISTS cvs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  locale text NOT NULL DEFAULT 'en' CHECK (locale IN ('en', 'ar')),
+  sections jsonb NOT NULL DEFAULT '[]',
+  template text NOT NULL DEFAULT 'modern',
+  settings jsonb NOT NULL DEFAULT '{}',
+  created_at timestamptz DEFAULT now(),
+  updated_at timestamptz DEFAULT now(),
+  UNIQUE (user_id)
+);
+
 -- ============================================================
 -- RLS Policies
 -- ============================================================
@@ -127,6 +140,7 @@ ALTER TABLE experience ENABLE ROW LEVEL SECURITY;
 ALTER TABLE stats ENABLE ROW LEVEL SECURITY;
 ALTER TABLE testimonials ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE cvs ENABLE ROW LEVEL SECURITY;
 
 -- Public read access for portfolio tables
 CREATE POLICY "Public read profile" ON profile FOR SELECT USING (true);
@@ -139,6 +153,12 @@ CREATE POLICY "Public read testimonials" ON testimonials FOR SELECT USING (true)
 
 -- Public insert for contact_messages (anyone can submit)
 CREATE POLICY "Public insert contact" ON contact_messages FOR INSERT WITH CHECK (true);
+
+-- CV policies: authenticated users manage their own CVs
+CREATE POLICY "Users read own cv" ON cvs FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users insert own cv" ON cvs FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users update own cv" ON cvs FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users delete own cv" ON cvs FOR DELETE USING (auth.uid() = user_id);
 
 -- Only service_role can write/update portfolio tables
 CREATE POLICY "Service role manage profile" ON profile USING (auth.role() = 'service_role');

@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion'
 import {
   LayoutDashboard, Mail, FolderKanban, Wrench, Briefcase,
-  FileText, BarChart3, Star, User, LogOut,
+  FileText, BarChart3, Star, User, FileSpreadsheet, LogOut,
 } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 
 export type TabId = 'overview' | 'messages' | 'projects' | 'skills' | 'services'
-  | 'experience' | 'stats' | 'testimonials' | 'profile'
+  | 'experience' | 'stats' | 'testimonials' | 'profile' | 'cv'
 
 interface SidebarTab {
   id: TabId
@@ -34,6 +34,7 @@ export default function Sidebar({ active, onSelect, unreadCount = 0, onSignOut }
     { id: 'experience', icon: FileText, label: language === 'ar' ? 'الخبرات' : 'Experience' },
     { id: 'stats', icon: BarChart3, label: language === 'ar' ? 'الإحصائيات' : 'Stats' },
     { id: 'testimonials', icon: Star, label: language === 'ar' ? 'الآراء' : 'Testimonials' },
+    { id: 'cv', icon: FileSpreadsheet, label: language === 'ar' ? 'السيرة الذاتية' : 'CV Builder' },
     { id: 'profile', icon: User, label: language === 'ar' ? 'الملف الشخصي' : 'Profile' },
   ]
 

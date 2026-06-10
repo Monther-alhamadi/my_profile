@@ -18,6 +18,7 @@ import ExperienceTab from '@/components/dashboard/ExperienceTab'
 import StatsTab from '@/components/dashboard/StatsTab'
 import TestimonialsTab from '@/components/dashboard/TestimonialsTab'
 import ProfileTab from '@/components/dashboard/ProfileTab'
+import CVBuilder from '@/components/dashboard/CVBuilder'
 
 export default function Dashboard() {
   useNoIndex()
@@ -76,6 +77,7 @@ export default function Dashboard() {
       case 'experience': return <motion.div key="experience" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><ExperienceTab /></motion.div>
       case 'stats': return <motion.div key="stats" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><StatsTab /></motion.div>
       case 'testimonials': return <motion.div key="testimonials" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><TestimonialsTab /></motion.div>
+      case 'cv': return <motion.div key="cv" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><CVBuilder /></motion.div>
       case 'profile': return <motion.div key="profile" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><ProfileTab /></motion.div>
     }
   }
@@ -112,7 +114,7 @@ export default function Dashboard() {
         {/* Mobile tabs */}
         <div className="lg:hidden w-full">
           <div className="flex overflow-x-auto gap-1 px-3 py-2 border-b border-border/40 bg-white scrollbar-none">
-            {(['overview', 'messages', 'projects', 'skills', 'services', 'experience', 'stats', 'testimonials', 'profile'] as TabId[]).map(tab => (
+            {(['overview', 'messages', 'projects', 'skills', 'services', 'experience', 'stats', 'testimonials', 'cv', 'profile'] as TabId[]).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -128,6 +130,7 @@ export default function Dashboard() {
                   : tab === 'experience' ? (language === 'ar' ? 'خبرات' : 'Experience')
                   : tab === 'stats' ? (language === 'ar' ? 'إحصائيات' : 'Stats')
                   : tab === 'testimonials' ? (language === 'ar' ? 'آراء' : 'Testimonials')
+                  : tab === 'cv' ? (language === 'ar' ? 'السيرة' : 'CV')
                   : (language === 'ar' ? 'بروفايل' : 'Profile')}
               </button>
             ))}
