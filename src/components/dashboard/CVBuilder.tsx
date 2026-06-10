@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react'
-import { FileText, Plus, Save, Eye, Download, GripVertical, Trash2, ChevronDown, ChevronUp, Settings, ToggleLeft, ToggleRight, RotateCcw } from 'lucide-react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { FileText, Plus, Save, Eye, Download, GripVertical, Trash2, ChevronDown, ChevronUp, Settings, ToggleLeft, ToggleRight, RotateCcw, ArrowLeft, Mail, Phone, MapPin, Globe, Linkedin, Github, ExternalLink } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { supabase } from '@/services/api'
+import html2canvas from 'html2canvas'
+import { jsPDF } from 'jspdf'
 import type { CVData, CVSection } from '@/lib'
 import { PROFILE_STATIC, EXPERIENCE_EN, EXPERIENCE_AR, SKILLS_EN, SKILLS_AR, PROJECTS_EN, PROJECTS_AR } from '@/lib/data-static'
 
@@ -27,6 +29,42 @@ const DEFAULT_SETTINGS = {
   show_icons: true,
   show_borders: true,
   rtl: false,
+}
+
+const PROJECT_CV_DESCRIPTIONS: Record<string, { en: string; ar: string }> = {
+  'cachear-pos': {
+    en: 'Offline-first enterprise POS with QR-sandboxed workspaces, omnidirectional barcode scanning, Bluetooth thermal printing, and sovereign SQLite database with SQL triggers.',
+    ar: 'نظام POS مؤسسي يعمل بدون إنترنت مع بيئات معزولة عبر QR، مسح باركود ذكي، طباعة حرارية، وقاعدة بيانات سيادية مع محفزات SQL.',
+  },
+  'heic-converter': {
+    en: 'Privacy-first HEIC-to-JPG converter using WebAssembly (zero-upload). Evolved into SaaS with 20+ format standards, multi-country compliance, and SEO content system.',
+    ar: 'محول HEIC إلى JPG يعمل محلياً بالكامل عبر WebAssembly بدون رفع. تطور إلى منصة SaaS مع 20+ تنسيق دولي ونظام محتوى SEO.',
+  },
+  'university-scheduler': {
+    en: 'Hybrid scheduling engine combining Genetic Algorithms with Google OR-Tools (CP-SAT). Reduced generation time from 3 weeks to 4 minutes for 10,000+ variables.',
+    ar: 'محرك جدولة هجين يجمع بين الخوارزميات الجينية وGoogle OR-Tools. قلّل وقت الإنشاء من 3 أسابيع إلى 4 دقائق لأكثر من 10,000 متغير.',
+  },
+  'nextvendors-ecommerce': {
+    en: 'Multi-vendor SaaS with custom borderless payment engine, Alembic migrations, Zustand/React Query state management, and Docker/Nginx deployment.',
+    ar: 'منصة SaaS متعددة البائعين مع محرك دفع مخصص مستقل، إدارة حالة Zustand، ونشر Docker/Nginx.',
+  },
+  'ai-tools-hub': {
+    en: 'AI orchestration platform unifying GPT, Claude, and Midjourney with prompt templates, A/B testing, cost tracking, and real-time streaming.',
+    ar: 'منصة تنسيق ذكاء اصطناعي توحد GPT وClaude وMidjourney مع قوالب أوامر واختبار A/B وتتبع التكلفة.',
+  },
+  'kayany': {
+    en: 'Tax compliance SaaS for GCC freelancers — 6-country calculator, ZATCA e-invoicing with QR codes, multi-currency tracking, and subscription billing.',
+    ar: 'منصة امتثال ضريبي لمستقلين الخليج — حاسبة 6 دول، فواتير ZATCA مع QR، تتبع متعدد العملات، واشتراكات.',
+  },
+}
+
+const PROJECT_LINKS: Record<string, { url?: string; github_url?: string }> = {
+  'cachear-pos': { github_url: 'https://github.com/Monther-alhamadi/cachear' },
+  'heic-converter': { url: 'https://heiconverts.vercel.app' },
+  'university-scheduler': { github_url: 'https://github.com/Monther-alhamadi/Timetabling_v2' },
+  'nextvendors-ecommerce': { url: 'https://next-vendors.vercel.app' },
+  'ai-tools-hub': {},
+  'kayany': { url: 'https://kayany7.vercel.app' },
 }
 
 function buildInitialSections(): CVSection[] {
@@ -84,40 +122,6 @@ function buildInitialSections(): CVSection[] {
   }
 
   const projects = sections.find(s => s.id === 'projects')!
-  const PROJECT_CV_DESCRIPTIONS: Record<string, { en: string; ar: string }> = {
-    'cachear-pos': {
-      en: 'Offline-first enterprise POS with QR-sandboxed workspaces, omnidirectional barcode scanning, Bluetooth thermal printing, and sovereign SQLite database with SQL triggers.',
-      ar: 'نظام POS مؤسسي يعمل بدون إنترنت مع بيئات معزولة عبر QR، مسح باركود ذكي، طباعة حرارية، وقاعدة بيانات سيادية مع محفزات SQL.',
-    },
-    'heic-converter': {
-      en: 'Privacy-first HEIC-to-JPG converter using WebAssembly (zero-upload). Evolved into SaaS with 20+ format standards, multi-country compliance, and SEO content system.',
-      ar: 'محول HEIC إلى JPG يعمل محلياً بالكامل عبر WebAssembly بدون رفع. تطور إلى منصة SaaS مع 20+ تنسيق دولي ونظام محتوى SEO.',
-    },
-    'university-scheduler': {
-      en: 'Hybrid scheduling engine combining Genetic Algorithms with Google OR-Tools (CP-SAT). Reduced generation time from 3 weeks to 4 minutes for 10,000+ variables.',
-      ar: 'محرك جدولة هجين يجمع بين الخوارزميات الجينية وGoogle OR-Tools. قلّل وقت الإنشاء من 3 أسابيع إلى 4 دقائق لأكثر من 10,000 متغير.',
-    },
-    'nextvendors-ecommerce': {
-      en: 'Multi-vendor SaaS with custom borderless payment engine, Alembic migrations, Zustand/React Query state management, and Docker/Nginx deployment.',
-      ar: 'منصة SaaS متعددة البائعين مع محرك دفع مخصص مستقل، إدارة حالة Zustand، ونشر Docker/Nginx.',
-    },
-    'ai-tools-hub': {
-      en: 'AI orchestration platform unifying GPT, Claude, and Midjourney with prompt templates, A/B testing, cost tracking, and real-time streaming.',
-      ar: 'منصة تنسيق ذكاء اصطناعي توحد GPT وClaude وMidjourney مع قوالب أوامر واختبار A/B وتتبع التكلفة.',
-    },
-    'kayany': {
-      en: 'Tax compliance SaaS for GCC freelancers — 6-country calculator, ZATCA e-invoicing with QR codes, multi-currency tracking, and subscription billing.',
-      ar: 'منصة امتثال ضريبي لمستقلين الخليج — حاسبة 6 دول، فواتير ZATCA مع QR، تتبع متعدد العملات، واشتراكات.',
-    },
-  }
-  const PROJECT_LINKS: Record<string, { url?: string; github_url?: string }> = {
-    'cachear-pos': { github_url: 'https://github.com/Monther-alhamadi/cachear' },
-    'heic-converter': { url: 'https://heiconverts.vercel.app' },
-    'university-scheduler': { github_url: 'https://github.com/Monther-alhamadi/Timetabling_v2' },
-    'nextvendors-ecommerce': { url: 'https://next-vendors.vercel.app' },
-    'ai-tools-hub': {},
-    'kayany': { url: 'https://kayany7.vercel.app' },
-  }
   projects.data = {
     project_items: PROJECTS_EN.map((p, i) => {
       const ar = PROJECTS_AR[i]
@@ -150,7 +154,9 @@ export default function CVBuilder() {
   }))
   const [saving, setSaving] = useState(false)
   const [preview, setPreview] = useState(false)
+  const [previewLang, setPreviewLang] = useState<'en' | 'ar'>(language as 'en' | 'ar')
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     if (!user) return
@@ -235,14 +241,6 @@ export default function CVBuilder() {
     })
   }
 
-  const generatePreview = () => {
-    setPreview(true)
-  }
-
-  const downloadPDF = () => {
-    window.print()
-  }
-
   const isAr = language === 'ar'
 
   return (
@@ -255,13 +253,9 @@ export default function CVBuilder() {
           </h2>
         </div>
         <div className="flex gap-2">
-          <button onClick={generatePreview} className="btn-outline text-xs py-2 px-3">
+          <button onClick={() => setPreview(true)} className="btn-outline text-xs py-2 px-3">
             <Eye className="w-3.5 h-3.5" />
             <span className="hidden xs:inline ml-1">{isAr ? 'معاينة' : 'Preview'}</span>
-          </button>
-          <button onClick={downloadPDF} className="btn-outline text-xs py-2 px-3">
-            <Download className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline ml-1">PDF</span>
           </button>
           <button onClick={refreshFromPortfolio} className="btn-outline text-xs py-2 px-3" title={isAr ? 'تحديث من الملف الشخصي' : 'Refresh from portfolio'}>
             <RotateCcw className="w-3.5 h-3.5" />
@@ -269,13 +263,20 @@ export default function CVBuilder() {
           </button>
           <button onClick={saveCV} disabled={saving} className="btn-emerald text-xs py-2 px-3">
             <Save className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline ml-1">{isAr ? 'حفظ' : 'Save'}</span>
+            <span className="hidden xs:inline ml-1">{saving ? (isAr ? 'جاري الحفظ...' : 'Saving...') : (isAr ? 'حفظ' : 'Save')}</span>
           </button>
         </div>
       </div>
 
       {preview ? (
-        <PreviewPane cv={cv} language={language} onClose={() => setPreview(false)} />
+        <PreviewPane
+          cv={cv}
+          previewLang={previewLang}
+          setPreviewLang={setPreviewLang}
+          onClose={() => setPreview(false)}
+          exporting={exporting}
+          setExporting={setExporting}
+        />
       ) : (
         <>
           <SettingsPanel cv={cv} setCv={setCv} isAr={isAr} />
@@ -302,6 +303,8 @@ export default function CVBuilder() {
     </div>
   )
 }
+
+/* ── Settings Panel ─────────────────────────────────────── */
 
 function SettingsPanel({ cv, setCv, isAr }: { cv: CVData; setCv: (c: CVData) => void; isAr: boolean }) {
   return (
@@ -363,6 +366,8 @@ function SettingsPanel({ cv, setCv, isAr }: { cv: CVData; setCv: (c: CVData) => 
   )
 }
 
+/* ── Section Card ───────────────────────────────────────── */
+
 function SectionCard({ section, index, total, isActive, isAr, onToggle, onMoveUp, onMoveDown, onToggleActive, onUpdate }: {
   section: CVSection; index: number; total: number; isActive: boolean; isAr: boolean;
   onToggle: () => void; onMoveUp: () => void; onMoveDown: () => void; onToggleActive: () => void; onUpdate: (data: any) => void;
@@ -402,6 +407,8 @@ function SectionCard({ section, index, total, isActive, isAr, onToggle, onMoveUp
     </div>
   )
 }
+
+/* ── Section Editor ─────────────────────────────────────── */
 
 function SectionEditor({ section, onUpdate, isAr }: { section: CVSection; onUpdate: (data: any) => void; isAr: boolean }) {
   switch (section.type) {
@@ -676,6 +683,8 @@ function CustomEditor({ data, onUpdate, isAr }: { data: any; onUpdate: (d: any) 
   )
 }
 
+/* ── Shared Form Fields ─────────────────────────────────── */
+
 function Field({ label, value, onChange, isAr, className }: { label: string; value: string; onChange: (v: string) => void; isAr: boolean; className?: string }) {
   return (
     <div className={className}>
@@ -694,30 +703,113 @@ function TextAreaField({ label, value, onChange, isAr, rows = 3 }: { label: stri
   )
 }
 
-function PreviewPane({ cv, language, onClose }: { cv: CVData; language: string; onClose: () => void }) {
-  const isAr = language === 'ar'
+/* ── Professional CV Preview ────────────────────────────── */
+
+function PreviewPane({ cv, previewLang, setPreviewLang, onClose, exporting, setExporting }: {
+  cv: CVData; previewLang: 'en' | 'ar'; setPreviewLang: (l: 'en' | 'ar') => void; onClose: () => void; exporting: boolean; setExporting: (e: boolean) => void;
+}) {
+  const cvRef = useRef<HTMLDivElement>(null)
+  const isAr = previewLang === 'ar'
   const sections = cv.sections.filter(s => s.enabled).sort((a, b) => a.order - b.order)
-  const { theme_color, font_family, font_size, spacing, show_icons, show_borders, rtl } = cv.settings
-  const spacingClass = spacing === 'compact' ? 'space-y-2' : spacing === 'relaxed' ? 'space-y-6' : 'space-y-4'
-  const fontSizeClass = font_size === 'sm' ? 'text-xs' : font_size === 'lg' ? 'text-base' : 'text-sm'
-  const previewDir = rtl ? 'rtl' : 'ltr'
+  const { theme_color, font_family, spacing } = cv.settings
+
+  const spacingGap = spacing === 'compact' ? '6px' : spacing === 'relaxed' ? '16px' : '10px'
+  const fontFamily = font_family === 'ibm-plex' ? '"IBM Plex Sans Arabic", Inter, sans-serif' : font_family === 'geist' ? 'Geist, Inter, sans-serif' : 'Inter, system-ui, sans-serif'
+
+  const handleExportPDF = useCallback(async () => {
+    const el = cvRef.current
+    if (!el) return
+    setExporting(true)
+    try {
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        windowWidth: 794,
+      })
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pdfW = pdf.internal.pageSize.getWidth()
+      const pdfH = pdf.internal.pageSize.getHeight()
+      const imgW = pdfW
+      const imgH = (canvas.height * imgW) / canvas.width
+
+      let y = 0
+      while (y < imgH) {
+        pdf.addImage(imgData, 'PNG', 0, -y, imgW, imgH)
+        if (y + pdfH < imgH) pdf.addPage()
+        y += pdfH
+      }
+
+      const fileName = isAr ? 'السيرة_الذاتية.pdf' : 'cv.pdf'
+      pdf.save(fileName)
+      toast.success(isAr ? 'تم تحميل ملف PDF' : 'PDF downloaded')
+    } catch (err) {
+      console.error('PDF export error:', err)
+      toast.error(isAr ? 'فشل تصدير PDF' : 'PDF export failed')
+    } finally {
+      setExporting(false)
+    }
+  }, [isAr, setExporting])
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
-        <h3 className="text-sm font-bold text-obsidian">{isAr ? 'معاينة السيرة الذاتية' : 'CV Preview'}</h3>
-        <div className="flex gap-2">
-          <button onClick={() => window.print()} className="btn-emerald text-xs py-2 px-3">
-            <Download className="w-3.5 h-3.5" /> {isAr ? 'طباعة / PDF' : 'Print / PDF'}
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <button onClick={onClose} className="flex items-center gap-1.5 text-sm text-obsidian hover:text-emerald-brand transition-colors">
+          <ArrowLeft className="w-4 h-4" />
+          {isAr ? 'عودة للتحرير' : 'Back to Editor'}
+        </button>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Language Toggle */}
+          <div className="flex items-center border border-ivory/10 rounded-sm overflow-hidden">
+            <button
+              onClick={() => setPreviewLang('en')}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors ${previewLang === 'en' ? 'bg-emerald-brand text-white' : 'bg-white text-obsidian hover:bg-ivory/10'}`}
+            >
+              English
+            </button>
+            <button
+              onClick={() => setPreviewLang('ar')}
+              className={`px-3 py-1.5 text-xs font-medium transition-colors ${previewLang === 'ar' ? 'bg-emerald-brand text-white' : 'bg-white text-obsidian hover:bg-ivory/10'}`}
+            >
+              عربي
+            </button>
+          </div>
+
+          <button onClick={handleExportPDF} disabled={exporting} className="btn-emerald text-xs py-2 px-3 flex items-center gap-1.5">
+            <Download className="w-3.5 h-3.5" />
+            {exporting ? (isAr ? 'جاري التصدير...' : 'Exporting...') : (isAr ? 'تحميل PDF' : 'Download PDF')}
           </button>
-          <button onClick={onClose} className="btn-outline text-xs py-2 px-3">{isAr ? 'عودة' : 'Back'}</button>
         </div>
       </div>
-      <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-        <div id="cv-preview" className="bg-white border border-gray-200 shadow-lg max-w-[210mm] w-full mx-auto" style={{ fontFamily: font_family === 'inter' ? 'Inter, sans-serif' : font_family === 'ibm-plex' ? '"IBM Plex Sans Arabic", sans-serif' : 'system-ui, sans-serif' }}>
-          <div className={`p-4 sm:p-6 md:p-8 ${fontSizeClass} ${spacingClass}`} dir={previewDir}>
+
+      {/* CV Preview */}
+      <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 pb-4">
+        <div
+          ref={cvRef}
+          id="cv-preview"
+          className="bg-white shadow-lg mx-auto"
+          dir={isAr ? 'rtl' : 'ltr'}
+          style={{
+            width: '210mm',
+            maxWidth: '100%',
+            fontFamily,
+            color: '#1a1a1a',
+          }}
+        >
+          <div style={{ padding: '20px 24px' }}>
             {sections.map(section => (
-              <SectionPreview key={section.id} section={section} themeColor={theme_color} showIcons={show_icons} showBorders={show_borders} isAr={isAr || rtl} />
+              <CVSectionRender
+                key={section.id}
+                section={section}
+                themeColor={theme_color}
+                isAr={isAr}
+                spacingGap={spacingGap}
+                fontFamily={fontFamily}
+              />
             ))}
           </div>
         </div>
@@ -726,82 +818,222 @@ function PreviewPane({ cv, language, onClose }: { cv: CVData; language: string; 
   )
 }
 
-function SectionPreview({ section, themeColor, showIcons, showBorders, isAr }: { section: CVSection; themeColor: string; showIcons: boolean; showBorders: boolean; isAr: boolean }) {
+/* ── Professional Section Renderers ─────────────────────── */
+
+function SectionTitle({ title, themeColor, isAr }: { title: string; themeColor: string; isAr: boolean }) {
+  return (
+    <div style={{ marginBottom: '8px', borderBottom: `2px solid ${themeColor}`, paddingBottom: '4px' }}>
+      <h2
+        style={{
+          fontSize: '13px',
+          fontWeight: 700,
+          color: themeColor,
+          textTransform: 'uppercase',
+          letterSpacing: '0.08em',
+          margin: 0,
+          fontFamily: 'Inter, system-ui, sans-serif',
+        }}
+      >
+        {title}
+      </h2>
+    </div>
+  )
+}
+
+function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: {
+  section: CVSection; themeColor: string; isAr: boolean; spacingGap: string; fontFamily: string;
+}) {
   const data = section.data
 
+  /* ── Header ──────────────────────── */
   if (section.type === 'header') {
+    const contactItems: { icon: JSX.Element; value: string; href?: string }[] = []
+    if (data.email) contactItems.push({ icon: <Mail size={10} />, value: data.email, href: `mailto:${data.email}` })
+    if (data.phone) contactItems.push({ icon: <Phone size={10} />, value: data.phone, href: `tel:${data.phone}` })
+    if (data.location) contactItems.push({ icon: <MapPin size={10} />, value: data.location })
+    if (data.website) contactItems.push({ icon: <Globe size={10} />, value: data.website, href: data.website.startsWith('http') ? data.website : `https://${data.website}` })
+    if (data.linkedin) contactItems.push({ icon: <Linkedin size={10} />, value: data.linkedin.replace('https://linkedin.com/in/', ''), href: data.linkedin })
+    if (data.github) contactItems.push({ icon: <Github size={10} />, value: data.github.replace('https://github.com/', ''), href: data.github })
+
     return (
-      <div className="text-center mb-6 pb-4" style={{ borderBottom: showBorders ? `1px solid ${themeColor}33` : 'none' }}>
-        {data.name && <h1 className="text-2xl font-bold" style={{ color: themeColor }}>{data.name}</h1>}
-        {(data.title_en || data.title_ar) && <p className="text-sm mt-1 text-gray-600">{isAr && data.title_ar ? data.title_ar : data.title_en}</p>}
-        <div className="flex flex-wrap justify-center gap-3 mt-2 text-[10px] text-gray-500">
-          {data.email && <span>{data.email}</span>}
-          {data.phone && <span>{data.phone}</span>}
-          {data.location && <span>{data.location}</span>}
-          {data.linkedin && <span>{data.linkedin}</span>}
-          {data.github && <span>{data.github}</span>}
-        </div>
+      <div style={{ marginBottom: spacingGap, textAlign: isAr ? 'right' : 'center' }}>
+        {data.name && (
+          <h1 style={{
+            fontSize: '22px',
+            fontWeight: 800,
+            color: '#111827',
+            margin: 0,
+            lineHeight: 1.2,
+            fontFamily: 'Inter, system-ui, sans-serif',
+          }}>
+            {data.name}
+          </h1>
+        )}
+        {(data.title_en || data.title_ar) && (
+          <p style={{
+            fontSize: '12px',
+            color: themeColor,
+            fontWeight: 500,
+            margin: '2px 0 0',
+            fontFamily: 'Inter, system-ui, sans-serif',
+          }}>
+            {isAr && data.title_ar ? data.title_ar : data.title_en}
+          </p>
+        )}
+        {contactItems.length > 0 && (
+          <div style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '8px',
+            marginTop: '8px',
+            justifyContent: isAr ? 'flex-end' : 'center',
+            fontSize: '9px',
+            color: '#6b7280',
+            fontFamily: 'Inter, system-ui, sans-serif',
+          }}>
+            {contactItems.map((item, i) => (
+              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                <span style={{ color: themeColor, display: 'flex' }}>{item.icon}</span>
+                {item.href ? (
+                  <a href={item.href} target="_blank" rel="noopener noreferrer" style={{ color: '#374151', textDecoration: 'none' }}>
+                    {item.value}
+                  </a>
+                ) : (
+                  <span style={{ color: '#374151' }}>{item.value}</span>
+                )}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     )
   }
 
+  /* ── Summary ─────────────────────── */
   if (section.type === 'summary') {
+    const text = isAr && data.summary_ar ? data.summary_ar : data.summary_en
+    if (!text) return null
     return (
-      <div className="mb-4">
-        <h2 className="text-sm font-bold mb-2" style={{ color: themeColor }}>{isAr ? 'ملخص' : 'Summary'}</h2>
-        <p className="text-xs text-gray-600 leading-relaxed">{isAr && data.summary_ar ? data.summary_ar : data.summary_en}</p>
+      <div style={{ marginBottom: spacingGap }}>
+        <SectionTitle title={isAr ? 'الملخص Professional' : 'Professional Summary'} themeColor={themeColor} isAr={isAr} />
+        <p style={{
+          fontSize: '10.5px',
+          lineHeight: 1.6,
+          color: '#374151',
+          margin: 0,
+          fontFamily,
+        }}>
+          {text}
+        </p>
       </div>
     )
   }
 
+  /* ── Experience ──────────────────── */
   if (section.type === 'experience') {
     const items: any[] = data.items || []
+    if (items.length === 0) return null
     return (
-      <div className="mb-4">
-        <h2 className="text-sm font-bold mb-3" style={{ color: themeColor }}>{isAr ? 'الخبرة المهنية' : 'Experience'}</h2>
+      <div style={{ marginBottom: spacingGap }}>
+        <SectionTitle title={isAr ? 'الخبرة المهنية' : 'Professional Experience'} themeColor={themeColor} isAr={isAr} />
         {items.map((item: any) => (
-          <div key={item.id} className="mb-3 pb-3" style={{ borderBottom: showBorders ? '1px solid #e5e7eb' : 'none' }}>
-            <div className="flex justify-between items-baseline">
-              <h3 className="text-xs font-semibold">{item.role}</h3>
-              <span className="text-[10px] text-gray-400">{item.start_date} - {item.current ? (isAr ? 'حالياً' : 'Present') : item.end_date}</span>
+          <div key={item.id} style={{ marginBottom: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
+              <h3 style={{ fontSize: '11.5px', fontWeight: 700, color: '#111827', margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                {item.role}
+              </h3>
+              <span style={{ fontSize: '9px', color: '#9ca3af', fontFamily: 'Inter, system-ui, sans-serif', whiteSpace: 'nowrap' }}>
+                {item.start_date} — {item.current ? (isAr ? 'الحالي' : 'Present') : item.end_date}
+              </span>
             </div>
-            <p className="text-[10px] text-gray-500">{item.company}</p>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  if (section.type === 'education') {
-    const items: any[] = data.education_items || []
-    return (
-      <div className="mb-4">
-        <h2 className="text-sm font-bold mb-3" style={{ color: themeColor }}>{isAr ? 'التعليم' : 'Education'}</h2>
-        {items.map((item: any) => (
-          <div key={item.id} className="mb-2">
-            <h3 className="text-xs font-semibold">{item.degree} in {item.field}</h3>
-            <p className="text-[10px] text-gray-500">{item.institution} - {item.start_date} to {item.end_date || (isAr ? 'حالياً' : 'Present')}</p>
-            {item.grade && <p className="text-[10px] text-gray-400">{isAr ? 'التقدير' : 'Grade'}: {item.grade}</p>}
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  if (section.type === 'skills') {
-    const categories: any[] = data.skill_categories || []
-    return (
-      <div className="mb-4">
-        <h2 className="text-sm font-bold mb-3" style={{ color: themeColor }}>{isAr ? 'المهارات' : 'Skills'}</h2>
-        <div className="space-y-2">
-          {categories.map((cat: any) => (
-            <div key={cat.id}>
-              <h3 className="text-[11px] font-semibold text-gray-700">{cat.name}</h3>
-              <div className="flex flex-wrap gap-1 mt-1">
-                {cat.skills.map((skill: string) => (
-                  <span key={skill} className="text-[10px] bg-gray-100 px-2 py-0.5 rounded text-gray-600">{skill}</span>
+            <p style={{ fontSize: '10px', color: '#6b7280', margin: '1px 0 4px', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              {item.company}
+            </p>
+            {item.description_en || item.description_ar ? (
+              <p style={{ fontSize: '10px', color: '#4b5563', margin: '0 0 4px', lineHeight: 1.5, fontFamily }}>
+                {isAr && item.description_ar ? item.description_ar : item.description_en}
+              </p>
+            ) : null}
+            {((isAr ? item.achievements_ar : item.achievements_en)?.length > 0) && (
+              <ul style={{ margin: '4px 0 0', paddingLeft: isAr ? 0 : '16px', paddingRight: isAr ? '16px' : 0, listStyleType: isAr ? 'none' : 'disc' }}>
+                {(isAr ? item.achievements_ar : item.achievements_en).map((ach: string, i: number) => (
+                  <li key={i} style={{ fontSize: '9.5px', color: '#4b5563', lineHeight: 1.5, marginBottom: '2px', fontFamily }}>
+                    {isAr && <span style={{ marginRight: '4px' }}>◂</span>}
+                    {ach}
+                  </li>
+                ))}
+              </ul>
+            )}
+            {item.technologies?.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
+                {item.technologies.map((tech: string) => (
+                  <span key={tech} style={{
+                    fontSize: '8px',
+                    padding: '1px 6px',
+                    borderRadius: '3px',
+                    backgroundColor: `${themeColor}12`,
+                    color: themeColor,
+                    fontWeight: 500,
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                  }}>
+                    {tech}
+                  </span>
                 ))}
               </div>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  /* ── Education ───────────────────── */
+  if (section.type === 'education') {
+    const items: any[] = data.education_items || []
+    if (items.length === 0) return null
+    return (
+      <div style={{ marginBottom: spacingGap }}>
+        <SectionTitle title={isAr ? 'التعليم' : 'Education'} themeColor={themeColor} isAr={isAr} />
+        {items.map((item: any) => (
+          <div key={item.id} style={{ marginBottom: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap' }}>
+              <h3 style={{ fontSize: '11px', fontWeight: 700, color: '#111827', margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                {item.degree}{item.field ? ` in ${item.field}` : ''}
+              </h3>
+              <span style={{ fontSize: '9px', color: '#9ca3af', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                {item.start_date} — {item.end_date || (isAr ? 'الحالي' : 'Present')}
+              </span>
+            </div>
+            <p style={{ fontSize: '10px', color: '#6b7280', margin: '1px 0', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              {item.institution}
+            </p>
+            {item.grade && (
+              <p style={{ fontSize: '9px', color: '#9ca3af', margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                {isAr ? 'التقدير' : 'Grade'}: {item.grade}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  /* ── Skills ──────────────────────── */
+  if (section.type === 'skills') {
+    const categories: any[] = data.skill_categories || []
+    if (categories.length === 0) return null
+    return (
+      <div style={{ marginBottom: spacingGap }}>
+        <SectionTitle title={isAr ? 'المهارات التقنية' : 'Technical Skills'} themeColor={themeColor} isAr={isAr} />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 16px' }}>
+          {categories.map((cat: any) => (
+            <div key={cat.id} style={{ fontSize: '10px' }}>
+              <span style={{ fontWeight: 700, color: '#111827', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                {cat.name}:
+              </span>{' '}
+              <span style={{ color: '#4b5563', fontFamily }}>
+                {cat.skills.join(' · ')}
+              </span>
             </div>
           ))}
         </div>
@@ -809,57 +1041,114 @@ function SectionPreview({ section, themeColor, showIcons, showBorders, isAr }: {
     )
   }
 
-  if (section.type === 'languages') {
-    const items: any[] = data.language_items || []
-    const proficiencyLabels = isAr ? { native: 'أم', fluent: 'طلاقة', professional: 'احترافي', conversational: 'محادثة', basic: 'أساسي' } : { native: 'Native', fluent: 'Fluent', professional: 'Professional', conversational: 'Conversational', basic: 'Basic' }
-    return (
-      <div className="mb-4">
-        <h2 className="text-sm font-bold mb-2" style={{ color: themeColor }}>{isAr ? 'اللغات' : 'Languages'}</h2>
-        {items.map((item: any) => (
-          <div key={item.id} className="flex justify-between text-xs">
-            <span>{item.language}</span>
-            <span className="text-gray-500">{proficiencyLabels[item.proficiency as keyof typeof proficiencyLabels]}</span>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  if (section.type === 'certifications') {
-    const items: any[] = data.cert_items || []
-    return (
-      <div className="mb-4">
-        <h2 className="text-sm font-bold mb-3" style={{ color: themeColor }}>{isAr ? 'الشهادات' : 'Certifications'}</h2>
-        {items.map((item: any) => (
-          <div key={item.id} className="mb-2">
-            <h3 className="text-xs font-semibold">{item.name}</h3>
-            <p className="text-[10px] text-gray-500">{item.issuer} - {item.date}</p>
-          </div>
-        ))}
-      </div>
-    )
-  }
-
+  /* ── Projects ────────────────────── */
   if (section.type === 'projects') {
     const items: any[] = data.project_items || []
+    if (items.length === 0) return null
     return (
-      <div className="mb-4">
-        <h2 className="text-sm font-bold mb-3" style={{ color: themeColor }}>{isAr ? 'المشاريع' : 'Projects'}</h2>
+      <div style={{ marginBottom: spacingGap }}>
+        <SectionTitle title={isAr ? 'المشاريع' : 'Projects'} themeColor={themeColor} isAr={isAr} />
         {items.map((item: any) => (
-          <div key={item.id} className="mb-2">
-            <h3 className="text-xs font-semibold">{item.name}</h3>
-            <p className="text-[10px] text-gray-600">{isAr && item.description_ar ? item.description_ar : item.description_en}</p>
+          <div key={item.id} style={{ marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+              <h3 style={{ fontSize: '11px', fontWeight: 700, color: '#111827', margin: 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                {item.name}
+              </h3>
+              {item.url && (
+                <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '8px', color: themeColor, display: 'inline-flex', alignItems: 'center', gap: '2px', textDecoration: 'none' }}>
+                  <ExternalLink size={8} /> {isAr ? 'معاينة' : 'Live'}
+                </a>
+              )}
+              {item.github_url && (
+                <a href={item.github_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '8px', color: '#6b7280', display: 'inline-flex', alignItems: 'center', gap: '2px', textDecoration: 'none' }}>
+                  <Github size={8} /> GitHub
+                </a>
+              )}
+            </div>
+            <p style={{ fontSize: '9.5px', color: '#4b5563', margin: '2px 0', lineHeight: 1.5, fontFamily }}>
+              {isAr && item.description_ar ? item.description_ar : item.description_en}
+            </p>
+            {item.technologies?.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '3px' }}>
+                {item.technologies.map((tech: string) => (
+                  <span key={tech} style={{
+                    fontSize: '7.5px',
+                    padding: '1px 5px',
+                    borderRadius: '2px',
+                    backgroundColor: '#f3f4f6',
+                    color: '#6b7280',
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                  }}>
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
     )
   }
 
-  if (section.type === 'custom') {
+  /* ── Languages ───────────────────── */
+  if (section.type === 'languages') {
+    const items: any[] = data.language_items || []
+    if (items.length === 0) return null
+    const profLabels: Record<string, string> = isAr
+      ? { native: 'اللغة الأم', fluent: 'طلاقة', professional: 'احترافي', conversational: 'محادثة', basic: 'أساسي' }
+      : { native: 'Native', fluent: 'Fluent', professional: 'Professional', conversational: 'Conversational', basic: 'Basic' }
+
     return (
-      <div className="mb-4">
-        <h2 className="text-sm font-bold mb-2" style={{ color: themeColor }}>{isAr ? 'قسم مخصص' : 'Custom Section'}</h2>
-        <div className="text-xs text-gray-600" dangerouslySetInnerHTML={{ __html: isAr && data.custom_content_ar ? data.custom_content_ar : data.custom_content_en }} />
+      <div style={{ marginBottom: spacingGap }}>
+        <SectionTitle title={isAr ? 'اللغات' : 'Languages'} themeColor={themeColor} isAr={isAr} />
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '10px' }}>
+          {items.map((item: any) => (
+            <span key={item.id} style={{ color: '#374151', fontFamily: 'Inter, system-ui, sans-serif' }}>
+              <strong>{item.language}</strong>
+              <span style={{ color: '#9ca3af', marginLeft: isAr ? 0 : '4px', marginRight: isAr ? '4px' : 0 }}>
+                — {profLabels[item.proficiency] || item.proficiency}
+              </span>
+            </span>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  /* ── Certifications ──────────────── */
+  if (section.type === 'certifications') {
+    const items: any[] = data.cert_items || []
+    if (items.length === 0) return null
+    return (
+      <div style={{ marginBottom: spacingGap }}>
+        <SectionTitle title={isAr ? 'الشهادات' : 'Certifications'} themeColor={themeColor} isAr={isAr} />
+        {items.map((item: any) => (
+          <div key={item.id} style={{ marginBottom: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+            <div>
+              <span style={{ fontSize: '10.5px', fontWeight: 600, color: '#111827', fontFamily: 'Inter, system-ui, sans-serif' }}>
+                {item.name}
+              </span>
+              <span style={{ fontSize: '9.5px', color: '#6b7280', marginLeft: isAr ? 0 : '6px', marginRight: isAr ? '6px' : 0, fontFamily: 'Inter, system-ui, sans-serif' }}>
+                — {item.issuer}
+              </span>
+            </div>
+            <span style={{ fontSize: '9px', color: '#9ca3af', fontFamily: 'Inter, system-ui, sans-serif', whiteSpace: 'nowrap' }}>
+              {item.date}
+            </span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  /* ── Custom ──────────────────────── */
+  if (section.type === 'custom') {
+    const content = isAr && data.custom_content_ar ? data.custom_content_ar : data.custom_content_en
+    if (!content) return null
+    return (
+      <div style={{ marginBottom: spacingGap }}>
+        <SectionTitle title={isAr ? 'قسم مخصص' : 'Additional Information'} themeColor={themeColor} isAr={isAr} />
+        <div style={{ fontSize: '10px', color: '#374151', lineHeight: 1.6, fontFamily }} dangerouslySetInnerHTML={{ __html: content }} />
       </div>
     )
   }
