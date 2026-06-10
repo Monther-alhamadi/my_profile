@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { FileText, Plus, Save, Eye, Download, GripVertical, Trash2, ChevronDown, ChevronUp, Settings, ToggleLeft, ToggleRight } from 'lucide-react'
+import { FileText, Plus, Save, Eye, Download, GripVertical, Trash2, ChevronDown, ChevronUp, Settings, ToggleLeft, ToggleRight, RotateCcw } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { supabase } from '@/services/api'
 import type { CVData, CVSection } from '@/lib'
+import { PROFILE_STATIC, EXPERIENCE_EN, EXPERIENCE_AR, SKILLS_EN, SKILLS_AR, PROJECTS_EN, PROJECTS_AR } from '@/lib/data-static'
 
 const DEFAULT_SECTIONS: CVSection[] = [
   { id: 'header', type: 'header', title: 'Header', enabled: true, order: 0, data: {} },
@@ -26,6 +27,79 @@ const DEFAULT_SETTINGS = {
   show_icons: true,
   show_borders: true,
   rtl: false,
+}
+
+function buildInitialSections(): CVSection[] {
+  const sections = DEFAULT_SECTIONS.map(s => ({ ...s, data: { ...s.data } }))
+
+  const header = sections.find(s => s.id === 'header')!
+  header.data = {
+    name: PROFILE_STATIC.name,
+    title_en: PROFILE_STATIC.title_en,
+    title_ar: PROFILE_STATIC.title_ar,
+    email: PROFILE_STATIC.email,
+    phone: '',
+    location: PROFILE_STATIC.location,
+    linkedin: PROFILE_STATIC.linkedin_url || '',
+    github: PROFILE_STATIC.github_url || '',
+    website: '',
+  }
+
+  const summary = sections.find(s => s.id === 'summary')!
+  summary.data = {
+    summary_en: PROFILE_STATIC.bio_en,
+    summary_ar: PROFILE_STATIC.bio_ar,
+  }
+
+  const exp = sections.find(s => s.id === 'experience')!
+  exp.data = {
+    items: EXPERIENCE_EN.map((e, i) => {
+      const ar = EXPERIENCE_AR[i]
+      const parts = e.year.split(' - ')
+      const end = parts[1]
+      const current = end?.toLowerCase() === 'present'
+      return {
+        id: crypto.randomUUID(),
+        role: e.title,
+        company: e.company,
+        start_date: parts[0] || '',
+        end_date: current ? '' : (end || ''),
+        current,
+        description_en: e.description,
+        description_ar: ar?.description || '',
+        achievements_en: e.achievements,
+        achievements_ar: ar?.achievements || [],
+        technologies: [],
+      }
+    }),
+  }
+
+  const skills = sections.find(s => s.id === 'skills')!
+  skills.data = {
+    skill_categories: SKILLS_EN.map(s => ({
+      id: crypto.randomUUID(),
+      name: s.category,
+      skills: s.technologies,
+    })),
+  }
+
+  const projects = sections.find(s => s.id === 'projects')!
+  projects.data = {
+    project_items: PROJECTS_EN.map((p, i) => {
+      const ar = PROJECTS_AR[i]
+      return {
+        id: crypto.randomUUID(),
+        name: p.title,
+        description_en: p.solution,
+        description_ar: ar?.solution || '',
+        technologies: p.technologies,
+        url: (p as any).link_url || '',
+        github_url: '',
+      }
+    }),
+  }
+
+  return sections
 }
 
 export default function CVBuilder() {
@@ -58,8 +132,22 @@ export default function CVBuilder() {
     if (data) {
       setCv(data as unknown as CVData)
     } else {
-      setCv(prev => ({ ...prev, user_id: user.id }))
+      setCv({
+        user_id: user.id,
+        locale: language,
+        sections: buildInitialSections(),
+        template: 'modern',
+        settings: { ...DEFAULT_SETTINGS },
+      })
     }
+  }
+
+  const refreshFromPortfolio = () => {
+    setCv(prev => ({
+      ...prev,
+      sections: buildInitialSections(),
+    }))
+    toast.success(language === 'ar' ? 'تم تحديث البيانات من الملف الشخصي' : 'Data refreshed from portfolio')
   }
 
   const saveCV = async () => {
@@ -135,6 +223,10 @@ export default function CVBuilder() {
           <button onClick={downloadPDF} className="btn-outline text-xs py-2 px-3">
             <Download className="w-3.5 h-3.5" />
             <span className="hidden xs:inline ml-1">PDF</span>
+          </button>
+          <button onClick={refreshFromPortfolio} className="btn-outline text-xs py-2 px-3" title={isAr ? 'تحديث من الملف الشخصي' : 'Refresh from portfolio'}>
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span className="hidden xs:inline ml-1">{isAr ? 'تحديث' : 'Refresh'}</span>
           </button>
           <button onClick={saveCV} disabled={saving} className="btn-emerald text-xs py-2 px-3">
             <Save className="w-3.5 h-3.5" />
