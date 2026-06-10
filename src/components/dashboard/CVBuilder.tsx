@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef } from 'react'
-import { FileText, Plus, Save, Eye, Download, GripVertical, Trash2, ChevronDown, ChevronUp, Settings, ToggleLeft, ToggleRight, RotateCcw, ArrowLeft, Mail, Phone, MapPin, Globe, Linkedin, Github, ExternalLink } from 'lucide-react'
+import { FileText, Plus, Save, Eye, Download, GripVertical, Trash2, ChevronDown, ChevronUp, Settings, ToggleLeft, ToggleRight, RotateCcw, ArrowLeft } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { supabase } from '@/services/api'
+import html2canvas from 'html2canvas-pro'
+import { jsPDF } from 'jspdf'
 import type { CVData, CVSection } from '@/lib'
 import { PROFILE_STATIC, EXPERIENCE_EN, EXPERIENCE_AR, SKILLS_EN, SKILLS_AR, PROJECTS_EN, PROJECTS_AR } from '@/lib/data-static'
 
@@ -419,20 +421,45 @@ export default function CVBuilder() {
     })
   }
 
-  const printCV = () => {
-    const isAr = previewLang === 'ar'
-    const enabledSections = cv.sections.filter(s => s.enabled).sort((a, b) => a.order - b.order)
-    const html = generatePrintHTML(enabledSections, cv.settings.theme_color, cv.settings.font_family, isAr)
-    const w = window.open('', '_blank')
-    if (!w) {
-      toast.error(language === 'ar' ? 'فشل فتح نافذة الطباعة' : 'Failed to open print window')
-      return
+  const downloadPDF = async () => {
+    const el = document.getElementById('cv-preview')
+    if (!el) return
+    toast.info(language === 'ar' ? 'جاري إنشاء ملف PDF...' : 'Generating PDF...')
+    try {
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        allowTaint: true,
+      } as any)
+      const imgData = canvas.toDataURL('image/png', 1.0)
+      const pdf = new jsPDF('p', 'mm', 'a4')
+      const pdfW = pdf.internal.pageSize.getWidth()
+      const pdfH = pdf.internal.pageSize.getHeight()
+      const marginX = 0
+      const marginY = 0
+      const availW = pdfW - marginX * 2
+      const imgW = availW
+      const imgH = (canvas.height * imgW) / canvas.width
+      let remainingH = imgH
+      let position = 0
+
+      pdf.addImage(imgData, 'PNG', marginX, marginY, imgW, imgH)
+      while (remainingH > pdfH) {
+        pdf.addPage()
+        position -= pdfH
+        pdf.addImage(imgData, 'PNG', marginX, position + marginY, imgW, imgH)
+        remainingH -= pdfH
+      }
+
+      const fileName = previewLang === 'ar' ? 'السيرة_الذاتية.pdf' : 'cv.pdf'
+      pdf.save(fileName)
+      toast.success(language === 'ar' ? 'تم تحميل ملف PDF بنجاح' : 'PDF downloaded successfully')
+    } catch (err: any) {
+      console.error('PDF export error:', err)
+      toast.error(language === 'ar' ? 'فشل تصدير PDF: ' + (err?.message || 'خطأ غير معروف') : 'PDF export failed: ' + (err?.message || 'Unknown error'))
     }
-    w.document.write(html)
-    w.document.close()
-    setTimeout(() => {
-      w.print()
-    }, 500)
   }
 
   const isAr = language === 'ar'
@@ -468,7 +495,7 @@ export default function CVBuilder() {
           previewLang={previewLang}
           setPreviewLang={setPreviewLang}
           onClose={() => setPreview(false)}
-          onPrint={printCV}
+          onDownloadPDF={downloadPDF}
         />
       ) : (
         <>
@@ -792,8 +819,8 @@ function TextAreaField({ label, value, onChange, isAr, rows = 3 }: { label: stri
 
 /* ── Professional CV Preview ────────────────────────────── */
 
-function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onPrint }: {
-  cv: CVData; previewLang: 'en' | 'ar'; setPreviewLang: (l: 'en' | 'ar') => void; onClose: () => void; onPrint: () => void;
+function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onDownloadPDF }: {
+  cv: CVData; previewLang: 'en' | 'ar'; setPreviewLang: (l: 'en' | 'ar') => void; onClose: () => void; onDownloadPDF: () => void;
 }) {
   const cvRef = useRef<HTMLDivElement>(null)
   const isAr = previewLang === 'ar'
@@ -814,8 +841,8 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onPrint }: {
             <button onClick={() => setPreviewLang('en')} className={`px-3 py-1.5 text-xs font-medium transition-colors ${previewLang === 'en' ? 'bg-emerald-brand text-white' : 'bg-white text-obsidian hover:bg-ivory/10'}`}>English</button>
             <button onClick={() => setPreviewLang('ar')} className={`px-3 py-1.5 text-xs font-medium transition-colors ${previewLang === 'ar' ? 'bg-emerald-brand text-white' : 'bg-white text-obsidian hover:bg-ivory/10'}`}>عربي</button>
           </div>
-          <button onClick={onPrint} className="btn-emerald text-xs py-2 px-3 flex items-center gap-1.5">
-            <Download className="w-3.5 h-3.5" /> {isAr ? 'طباعة / PDF' : 'Print / PDF'}
+          <button onClick={onDownloadPDF} className="btn-emerald text-xs py-2 px-3 flex items-center gap-1.5">
+            <Download className="w-3.5 h-3.5" /> {isAr ? 'تحميل PDF' : 'Download PDF'}
           </button>
         </div>
       </div>
