@@ -150,7 +150,8 @@ export default function Home() {
     return ['all', ...cats] as const
   }, [projects])
   const [activeFilter, setActiveFilter] = useState('all')
-  const filteredProjects = activeFilter === 'all' ? projects : projects.filter(p => p.category === activeFilter)
+  const filteredProjects = (activeFilter === 'all' ? projects : projects.filter(p => p.category === activeFilter))
+    .sort((a, b) => (b.link_url ? 1 : 0) - (a.link_url ? 1 : 0))
   const skillsCarousel = useCarousel(skills.length)
   const servicesCarousel = useCarousel(services.length)
   const testimonialsCarousel = useCarousel(testimonials.length)

@@ -1,6 +1,6 @@
 export const PROJECT_IMAGES: Record<string, { desktop: string; mobile: string }> = {
   'cachear-pos': {
-    desktop: '/images/projects/cachear-desktop.png',
+    desktop: '/images/projects/cachear-mobile.png',
     mobile: '/images/projects/cachear-mobile.png',
   },
   'heic-converter': {

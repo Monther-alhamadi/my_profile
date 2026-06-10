@@ -41,11 +41,19 @@ export function mergeByLocale<T extends { id?: string }>(en: T[], ar: T[]): Bili
 // ── Queries (single locale, used by public site) ──
 
 export function useProjectsQuery(locale: Language) {
+  const staticData = selectByLocale(PROJECTS_EN, PROJECTS_AR, locale);
   return useQuery({
     queryKey: ['projects', locale],
     queryFn: () => fetchProjects(locale),
     staleTime: STALE_TIME, retry: 2, refetchOnWindowFocus: false,
-    placeholderData: () => selectByLocale(PROJECTS_EN, PROJECTS_AR, locale),
+    placeholderData: () => staticData,
+    select: (apiData) => {
+      const staticMap = new Map(staticData.map(p => [p.id, p]));
+      return apiData.map(p => ({
+        ...p,
+        link_url: p.link_url || staticMap.get(p.id)?.link_url || null,
+      }));
+    },
   });
 }
 
