@@ -80,6 +80,7 @@ export const PROJECTS_EN: Project[] = [
       "Engineered a scalable Monetization-AdSense funnel with smart tier-based processing limits",
       "Full PWA readiness for native-like offline capabilities and localized i18n support",
     ],
+    link_url: "https://heiconverts.vercel.app",
   },
   {
     id: "university-scheduler",
@@ -131,6 +132,7 @@ export const PROJECTS_EN: Project[] = [
       "Multi-language UI (i18next) with Tailwind CSS",
       "Containerized deployment pipeline with Docker & Nginx",
     ],
+    link_url: "https://next-vendors.vercel.app",
   },
   {
     id: "ai-tools-hub",
@@ -203,6 +205,7 @@ export const PROJECTS_EN: Project[] = [
       "PDF/Excel tax reports",
       "Server-side cron jobs",
     ],
+    link_url: "https://kayany7.vercel.app",
   },
 ];
 
@@ -259,6 +262,7 @@ export const PROJECTS_AR: Project[] = [
       "بناء مسارات تحويل ذكية لتحقيق الأرباح (Monetization Funnel) عبر دمج إعلانات AdSense",
       "دعم كامل لتطبيقات الويب التقدمية (PWA) وتوطين ثنائي اللغة (عربي/إنجليزي)",
     ],
+    link_url: "https://heiconverts.vercel.app",
   },
   {
     id: "university-scheduler",
@@ -310,6 +314,7 @@ export const PROJECTS_AR: Project[] = [
       "واجهة مستخدم تفاعلية تدعم تعدد اللغات (i18n)",
       "بيئة إنتاج مستقرة ومعبأة بالكامل باستخدام Docker و Nginx",
     ],
+    link_url: "https://next-vendors.vercel.app",
   },
   {
     id: "ai-tools-hub",
@@ -382,6 +387,7 @@ export const PROJECTS_AR: Project[] = [
       "تقارير ضريبية PDF/Excel",
       "مهام cron من جانب الخادم",
     ],
+    link_url: "https://kayany7.vercel.app",
   },
 ];
 
