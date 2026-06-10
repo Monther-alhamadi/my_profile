@@ -302,7 +302,7 @@ export interface CVData {
 
 export interface CVSettings {
   theme_color: string;
-  font_family: 'inter' | 'ibm-plex' | 'system' | 'geist';
+  font_family: 'inter' | 'ibm-plex' | 'system' | 'geist' | 'merriweather' | 'georgia';
   font_size: 'sm' | 'base' | 'lg';
   spacing: 'compact' | 'normal' | 'relaxed';
   show_icons: boolean;

@@ -31,6 +31,78 @@ const DEFAULT_SETTINGS = {
   rtl: false,
 }
 
+/* ── Template Style Configurations ─────────────────────── */
+
+interface TplCfg {
+  pagePad: string
+  name: { size: string; weight: number; align: string; color: string; spacing: string }
+  title: { size: string; weight: number }
+  contact: { size: string; justify: string; gap: string; sep: string }
+  sec: { size: string; spacing: string; transform: string; align: string; borderW: string; pb: string; mb: string; useColor: boolean; useBorder: boolean }
+  entry: { titleSize: string; weight: number; coSize: string; dateSize: string; dateColor: string }
+  body: { size: string; lh: number; color: string }
+  bullet: { ch: string; size: string; useTheme: boolean }
+  tech: { show: boolean; size: string; rad: string; pad: string }
+  skills: { layout: 'grid' | 'inline'; size: string }
+  gap: { sec: string; entry: string }
+  hFont: string; bFont: string
+  accentBar: boolean; entryBg: string | null
+}
+
+function getTplCfg(tpl: string, ff: string): TplCfg {
+  const serif = 'Merriweather, Georgia, "Times New Roman", serif'
+  const m: TplCfg = {
+    pagePad: '18mm 20mm',
+    name: { size: '20pt', weight: 800, align: 'center', color: '#111827', spacing: '0.02em' },
+    title: { size: '10.5pt', weight: 500 },
+    contact: { size: '8.5pt', justify: 'center', gap: '14px', sep: '' },
+    sec: { size: '10pt', spacing: '0.1em', transform: 'uppercase', align: 'left', borderW: '1.5pt', pb: '3pt', mb: '8pt', useColor: true, useBorder: true },
+    entry: { titleSize: '10.5pt', weight: 700, coSize: '9.5pt', dateSize: '8.5pt', dateColor: '#9ca3af' },
+    body: { size: '9.5pt', lh: 1.4, color: '#374151' },
+    bullet: { ch: '▸', size: '8pt', useTheme: true },
+    tech: { show: true, size: '7.5pt', rad: '2pt', pad: '1pt 5pt' },
+    skills: { layout: 'grid', size: '9pt' },
+    gap: { sec: '12pt', entry: '10pt' },
+    hFont: ff, bFont: ff,
+    accentBar: false, entryBg: null,
+  }
+  if (tpl === 'minimal') return { ...m,
+    pagePad: '20mm 22mm',
+    name: { size: '18pt', weight: 700, align: 'left', color: '#111827', spacing: '0' },
+    title: { size: '10pt', weight: 400 },
+    contact: { size: '8.5pt', justify: 'flex-start', gap: '6px', sep: '·' },
+    sec: { size: '9.5pt', spacing: '0.06em', transform: 'uppercase', align: 'left', borderW: '0.75pt', pb: '2pt', mb: '6pt', useColor: false, useBorder: false },
+    entry: { ...m.entry, titleSize: '10pt', coSize: '9pt', dateColor: '#6b7280' },
+    body: { ...m.body, lh: 1.35 },
+    bullet: { ch: '•', size: '9pt', useTheme: false },
+    tech: { ...m.tech, show: false },
+    skills: { layout: 'inline', size: '9pt' },
+    gap: { sec: '10pt', entry: '8pt' },
+  }
+  if (tpl === 'classic') return { ...m,
+    pagePad: '20mm 24mm',
+    name: { size: '22pt', weight: 700, align: 'center', color: '#111827', spacing: '0.04em' },
+    title: { size: '10.5pt', weight: 400 },
+    contact: { size: '8.5pt', justify: 'center', gap: '8px', sep: '|' },
+    sec: { ...m.sec, size: '10.5pt', spacing: '0.14em', align: 'center', borderW: '0.75pt', pb: '4pt', mb: '10pt' },
+    body: { size: '10pt', lh: 1.45, color: '#374151' },
+    bullet: { ch: '–', size: '9pt', useTheme: true },
+    tech: { ...m.tech, rad: '0', pad: '1pt 4pt' },
+    gap: { sec: '14pt', entry: '10pt' },
+    hFont: serif,
+  }
+  if (tpl === 'executive') return { ...m,
+    pagePad: '16mm 18mm',
+    name: { size: '22pt', weight: 800, align: 'left', color: '#111827', spacing: '0.02em' },
+    title: { size: '10pt', weight: 500 },
+    contact: { ...m.contact, justify: 'flex-start' },
+    sec: { ...m.sec, size: '10pt', spacing: '0.08em', borderW: '0', useBorder: false },
+    tech: { ...m.tech, rad: '3pt', pad: '1.5pt 6pt' },
+    accentBar: true, entryBg: '#f9fafb',
+  }
+  return m
+}
+
 const PROJECT_CV_DESCRIPTIONS: Record<string, { en: string; ar: string }> = {
   'cachear-pos': {
     en: 'Offline-first enterprise POS with QR-sandboxed workspaces, omnidirectional barcode scanning, Bluetooth thermal printing, and sovereign SQLite database with SQL triggers.',
@@ -544,6 +616,8 @@ function SettingsPanel({ cv, setCv, isAr }: { cv: CVData; setCv: (c: CVData) => 
             <option value="ibm-plex">IBM Plex</option>
             <option value="system">System</option>
             <option value="geist">Geist</option>
+            <option value="merriweather">Merriweather (Serif)</option>
+            <option value="georgia">Georgia (Serif)</option>
           </select>
         </div>
         <div>
@@ -828,7 +902,82 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onDownloadPDF }
   const { theme_color, font_family, spacing } = cv.settings
 
   const spacingGap = spacing === 'compact' ? '5px' : spacing === 'relaxed' ? '12px' : '8px'
-  const fontFamily = font_family === 'ibm-plex' ? '"IBM Plex Sans Arabic", Inter, sans-serif' : font_family === 'geist' ? 'Geist, Inter, sans-serif' : 'Inter, system-ui, sans-serif'
+  const fontFamily = font_family === 'ibm-plex' ? '"IBM Plex Sans Arabic", Inter, sans-serif' : font_family === 'geist' ? 'Geist, Inter, sans-serif' : font_family === 'merriweather' ? 'Merriweather, Georgia, serif' : font_family === 'georgia' ? 'Georgia, "Times New Roman", serif' : 'Inter, system-ui, sans-serif'
+
+  const downloadHTML = () => {
+    const el = cvRef.current
+    if (!el) return
+    const title = isAr ? 'السيرة الذاتية' : 'Resume'
+    const fontImports = `
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap');
+    `
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="${previewLang}" dir="${isAr ? 'rtl' : 'ltr'}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+  <style>
+    ${fontImports}
+    
+    body {
+      margin: 0;
+      padding: 20px 0;
+      background-color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Print styling to make it exactly A4 and remove margins/headers/footers */
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    @media print {
+      body {
+        background-color: #ffffff;
+        padding: 0;
+        margin: 0;
+      }
+      .cv-container {
+        box-shadow: none !important;
+        width: 210mm !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: ${getTplCfg(cv.template, fontFamily).pagePad} !important;
+      }
+    }
+
+    .cv-container {
+      background-color: #ffffff;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      width: 210mm;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+  <div class="cv-container" style="font-family: ${fontFamily}; color: #1a1a1a; padding: ${getTplCfg(cv.template, fontFamily).pagePad};">
+    ${el.innerHTML}
+  </div>
+</body>
+</html>`
+
+    const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = previewLang === 'ar' ? 'السيرة_الذاتية.html' : 'resume.html'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    toast.success(isAr ? 'تم تحميل ملف HTML بنجاح' : 'HTML file downloaded successfully')
+  }
 
   return (
     <div>
@@ -841,17 +990,20 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onDownloadPDF }
             <button onClick={() => setPreviewLang('en')} className={`px-3 py-1.5 text-xs font-medium transition-colors ${previewLang === 'en' ? 'bg-emerald-brand text-white' : 'bg-white text-obsidian hover:bg-ivory/10'}`}>English</button>
             <button onClick={() => setPreviewLang('ar')} className={`px-3 py-1.5 text-xs font-medium transition-colors ${previewLang === 'ar' ? 'bg-emerald-brand text-white' : 'bg-white text-obsidian hover:bg-ivory/10'}`}>عربي</button>
           </div>
+          <button onClick={downloadHTML} className="btn-outline text-xs py-2 px-3 flex items-center gap-1.5">
+            <Download className="w-3.5 h-3.5" /> {isAr ? 'تحميل HTML' : 'Download HTML'}
+          </button>
           <button onClick={onDownloadPDF} className="btn-emerald text-xs py-2 px-3 flex items-center gap-1.5">
-            <Download className="w-3.5 h-3.5" /> {isAr ? 'تحميل PDF' : 'Download PDF'}
+            <Download className="w-3.5 h-3.5" /> {isAr ? 'تحميل PDF (صورة)' : 'Download PDF (Image)'}
           </button>
         </div>
       </div>
 
       <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 pb-4">
         <div ref={cvRef} id="cv-preview" className="bg-white shadow-lg mx-auto" dir={isAr ? 'rtl' : 'ltr'}
-          style={{ width: '210mm', maxWidth: '100%', fontFamily, color: '#1a1a1a', padding: '20px 24px' }}>
+          style={{ width: '210mm', maxWidth: '100%', fontFamily, color: '#1a1a1a', padding: getTplCfg(cv.template, fontFamily).pagePad }}>
           {sections.map(section => (
-            <CVSectionRender key={section.id} section={section} themeColor={theme_color} isAr={isAr} spacingGap={spacingGap} fontFamily={fontFamily} />
+            <CVSectionRender key={section.id} section={section} themeColor={theme_color} isAr={isAr} fontFamily={fontFamily} template={cv.template} />
           ))}
         </div>
       </div>
@@ -861,18 +1013,30 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onDownloadPDF }
 
 /* ── Section Renderers ──────────────────────────────────── */
 
-function SectionTitle({ title, themeColor }: { title: string; themeColor: string }) {
+function SectionTitle({ title, themeColor, cfg }: { title: string; themeColor: string; cfg: TplCfg }) {
+  const color = cfg.sec.useColor ? themeColor : '#374151'
+  const borderColor = cfg.sec.useBorder ? themeColor : '#d1d5db'
+  const border = cfg.sec.borderW !== '0' ? `${cfg.sec.borderW} solid ${borderColor}` : 'none'
   return (
-    <div style={{ marginBottom: '6px', borderBottom: `2px solid ${themeColor}`, paddingBottom: '3px' }}>
-      <h2 style={{ fontSize: '11px', fontWeight: 700, color: themeColor, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{title}</h2>
+    <div style={{
+      marginBottom: cfg.sec.mb,
+      paddingBottom: cfg.sec.pb,
+      borderBottom: cfg.accentBar ? 'none' : border,
+      borderLeft: cfg.accentBar ? `3pt solid ${themeColor}` : 'none',
+      paddingLeft: cfg.accentBar ? '8pt' : '0',
+      textAlign: cfg.sec.align as any,
+    }}>
+      <h2 style={{ fontSize: cfg.sec.size, fontWeight: 700, color, textTransform: cfg.sec.transform as any, letterSpacing: cfg.sec.spacing, margin: 0, fontFamily: cfg.hFont }}>{title}</h2>
     </div>
   )
 }
 
-function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: {
-  section: CVSection; themeColor: string; isAr: boolean; spacingGap: string; fontFamily: string;
+function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
+  section: CVSection; themeColor: string; isAr: boolean; fontFamily: string; template: string;
 }) {
   const d = section.data as any
+  const cfg = getTplCfg(template, fontFamily)
+  const bColor = cfg.bullet.useTheme ? themeColor : '#6b7280'
 
   if (section.type === 'header') {
     const contacts: { icon: string; value: string; href?: string }[] = []
@@ -884,15 +1048,16 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     if (d.github) contacts.push({ icon: '⌘', value: d.github.replace('https://github.com/', ''), href: d.github })
 
     return (
-      <div style={{ marginBottom: spacingGap, textAlign: isAr ? 'right' : 'center' }}>
-        {d.name && <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#111827', margin: 0, lineHeight: 1.2 }}>{d.name}</h1>}
-        {(d.title_en || d.title_ar) && <p style={{ fontSize: '11px', color: themeColor, fontWeight: 500, margin: '2px 0 0' }}>{isAr && d.title_ar ? d.title_ar : d.title_en}</p>}
+      <div style={{ marginBottom: cfg.gap.sec, textAlign: (isAr ? 'right' : cfg.name.align) as any }}>
+        {d.name && <h1 style={{ fontSize: cfg.name.size, fontWeight: cfg.name.weight, color: cfg.name.color, margin: 0, lineHeight: 1.2, letterSpacing: cfg.name.spacing, fontFamily: cfg.hFont }}>{d.name}</h1>}
+        {(d.title_en || d.title_ar) && <p style={{ fontSize: cfg.title.size, color: themeColor, fontWeight: cfg.title.weight, margin: '2pt 0 0', fontFamily: cfg.bFont }}>{isAr && d.title_ar ? d.title_ar : d.title_en}</p>}
         {contacts.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '6px', justifyContent: isAr ? 'flex-end' : 'center', fontSize: '9px', color: '#6b7280' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: cfg.contact.gap, marginTop: '6pt', justifyContent: isAr ? 'flex-end' : cfg.contact.justify, fontSize: cfg.contact.size, color: '#6b7280', fontFamily: cfg.bFont }}>
             {contacts.map((c, i) => (
               <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                <span style={{ color: themeColor }}>{c.icon}</span>
+                <span style={{ color: cfg.sec.useColor ? themeColor : '#6b7280', fontWeight: 600, fontSize: '9pt' }}>{c.icon}</span>
                 {c.href ? <a href={c.href} target="_blank" rel="noopener noreferrer" style={{ color: '#374151', textDecoration: 'none' }}>{c.value}</a> : <span style={{ color: '#374151' }}>{c.value}</span>}
+                {i < contacts.length - 1 && cfg.contact.sep && <span style={{ color: '#d1d5db', marginLeft: '4px' }}>{cfg.contact.sep}</span>}
               </span>
             ))}
           </div>
@@ -904,32 +1069,37 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
   if (section.type === 'summary') {
     const text = isAr && d.summary_ar ? d.summary_ar : d.summary_en
     if (!text) return null
-    return <div style={{ marginBottom: spacingGap }}><SectionTitle title={isAr ? 'الملخص المهني' : 'Professional Summary'} themeColor={themeColor} /><p style={{ fontSize: '9.5px', lineHeight: 1.6, color: '#374151', margin: 0, fontFamily, wordWrap: 'break-word', overflowWrap: 'break-word' }}>{text}</p></div>
+    return (
+      <div style={{ marginBottom: cfg.gap.sec }}>
+        <SectionTitle title={isAr ? 'الملخص المهني' : 'Professional Summary'} themeColor={themeColor} cfg={cfg} />
+        <p style={{ fontSize: cfg.body.size, lineHeight: cfg.body.lh, color: cfg.body.color, margin: 0, fontFamily: cfg.bFont, wordWrap: 'break-word', overflowWrap: 'break-word' }}>{text}</p>
+      </div>
+    )
   }
 
   if (section.type === 'experience') {
     const items: any[] = d.items || []
     if (!items.length) return null
     return (
-      <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'الخبرة المهنية' : 'Professional Experience'} themeColor={themeColor} />
+      <div style={{ marginBottom: cfg.gap.sec }}>
+        <SectionTitle title={isAr ? 'الخبرة المهنية' : 'Professional Experience'} themeColor={themeColor} cfg={cfg} />
         {items.map((item: any) => (
-          <div key={item.id} style={{ marginBottom: '8px', pageBreakInside: 'avoid' }}>
+          <div key={item.id} style={{ marginBottom: cfg.gap.entry, pageBreakInside: 'avoid', background: cfg.entryBg || 'transparent', padding: cfg.entryBg ? '6pt 8pt' : '0', borderRadius: cfg.entryBg ? '2pt' : '0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
-              <h3 style={{ fontSize: '10.5px', fontWeight: 700, color: '#111827', margin: 0, flexShrink: 1, minWidth: 0, wordWrap: 'break-word', overflowWrap: 'break-word' }}>{item.role}</h3>
-              <span style={{ fontSize: '8.5px', color: '#9ca3af', whiteSpace: 'nowrap', flexShrink: 0 }}>{item.start_date} — {item.current ? (isAr ? 'الحالي' : 'Present') : item.end_date}</span>
+              <h3 style={{ fontSize: cfg.entry.titleSize, fontWeight: cfg.entry.weight, color: '#111827', margin: 0, flexShrink: 1, minWidth: 0, wordWrap: 'break-word', overflowWrap: 'break-word', fontFamily: cfg.hFont }}>{item.role}</h3>
+              <span style={{ fontSize: cfg.entry.dateSize, color: cfg.entry.dateColor, whiteSpace: 'nowrap', flexShrink: 0 }}>{item.start_date} — {item.current ? (isAr ? 'الحالي' : 'Present') : item.end_date}</span>
             </div>
-            <p style={{ fontSize: '9.5px', color: '#6b7280', margin: '1px 0 3px' }}>{item.company}</p>
+            <p style={{ fontSize: cfg.entry.coSize, color: '#6b7280', margin: '1pt 0 3pt', fontFamily: cfg.bFont }}>{item.company}</p>
             {((isAr ? item.achievements_ar : item.achievements_en)?.length > 0) && (
-              <ul style={{ margin: '3px 0 0', paddingLeft: isAr ? 0 : '14px', paddingRight: isAr ? '14px' : 0, listStyle: 'none' }}>
+              <ul style={{ margin: '3pt 0 0', paddingLeft: isAr ? 0 : '14pt', paddingRight: isAr ? '14pt' : 0, listStyle: 'none' }}>
                 {(isAr ? item.achievements_ar : item.achievements_en).map((ach: string, i: number) => (
-                  <li key={i} style={{ fontSize: '9px', color: '#4b5563', lineHeight: 1.5, marginBottom: '2px', wordWrap: 'break-word', overflowWrap: 'break-word', display: 'flex', gap: '4px', flexDirection: isAr ? 'row-reverse' : 'row' }}>
-                    <span style={{ color: themeColor, flexShrink: 0, fontSize: '8px', lineHeight: '1.6' }}>▸</span><span>{ach}</span>
+                  <li key={i} style={{ fontSize: cfg.body.size, color: cfg.body.color, lineHeight: cfg.body.lh, marginBottom: '2pt', wordWrap: 'break-word', overflowWrap: 'break-word', display: 'flex', gap: '4pt', flexDirection: isAr ? 'row-reverse' : 'row', fontFamily: cfg.bFont }}>
+                    <span style={{ color: bColor, flexShrink: 0, fontSize: cfg.bullet.size, lineHeight: String(cfg.body.lh) }}>{cfg.bullet.ch}</span><span>{ach}</span>
                   </li>
                 ))}
               </ul>
             )}
-            {item.technologies?.length > 0 && <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '3px' }}>{item.technologies.map((t: string) => <span key={t} style={{ fontSize: '7.5px', padding: '1px 5px', borderRadius: '2px', backgroundColor: `${themeColor}12`, color: themeColor, fontWeight: 500 }}>{t}</span>)}</div>}
+            {cfg.tech.show && item.technologies?.length > 0 && <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3pt', marginTop: '3pt' }}>{item.technologies.map((t: string) => <span key={t} style={{ fontSize: cfg.tech.size, padding: cfg.tech.pad, borderRadius: cfg.tech.rad, backgroundColor: `${themeColor}14`, color: themeColor, fontWeight: 500 }}>{t}</span>)}</div>}
           </div>
         ))}
       </div>
@@ -940,16 +1110,16 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     const items: any[] = d.education_items || []
     if (!items.length) return null
     return (
-      <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'التعليم' : 'Education'} themeColor={themeColor} />
+      <div style={{ marginBottom: cfg.gap.sec }}>
+        <SectionTitle title={isAr ? 'التعليم' : 'Education'} themeColor={themeColor} cfg={cfg} />
         {items.map((item: any) => (
-          <div key={item.id} style={{ marginBottom: '6px', pageBreakInside: 'avoid' }}>
+          <div key={item.id} style={{ marginBottom: cfg.gap.entry, pageBreakInside: 'avoid' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
-              <h3 style={{ fontSize: '10.5px', fontWeight: 700, color: '#111827', margin: 0, flexShrink: 1, minWidth: 0, wordWrap: 'break-word', overflowWrap: 'break-word' }}>{item.degree}{item.field ? ` in ${item.field}` : ''}</h3>
-              <span style={{ fontSize: '8.5px', color: '#9ca3af', whiteSpace: 'nowrap', flexShrink: 0 }}>{item.start_date} — {item.end_date || (isAr ? 'الحالي' : 'Present')}</span>
+              <h3 style={{ fontSize: cfg.entry.titleSize, fontWeight: cfg.entry.weight, color: '#111827', margin: 0, flexShrink: 1, minWidth: 0, wordWrap: 'break-word', overflowWrap: 'break-word', fontFamily: cfg.hFont }}>{item.degree}{item.field ? ` in ${item.field}` : ''}</h3>
+              <span style={{ fontSize: cfg.entry.dateSize, color: cfg.entry.dateColor, whiteSpace: 'nowrap', flexShrink: 0 }}>{item.start_date} — {item.end_date || (isAr ? 'الحالي' : 'Present')}</span>
             </div>
-            <p style={{ fontSize: '9.5px', color: '#6b7280', margin: '1px 0' }}>{item.institution}</p>
-            {item.grade && <p style={{ fontSize: '8.5px', color: '#9ca3af', margin: 0 }}>{isAr ? 'التقدير' : 'Grade'}: {item.grade}</p>}
+            <p style={{ fontSize: cfg.entry.coSize, color: '#6b7280', margin: '1pt 0', fontFamily: cfg.bFont }}>{item.institution}</p>
+            {item.grade && <p style={{ fontSize: cfg.entry.dateSize, color: '#9ca3af', margin: 0, fontFamily: cfg.bFont }}>{isAr ? 'التقدير' : 'Grade'}: {item.grade}</p>}
           </div>
         ))}
       </div>
@@ -960,11 +1130,17 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     const categories: any[] = d.skill_categories || []
     if (!categories.length) return null
     return (
-      <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'المهارات التقنية' : 'Technical Skills'} themeColor={themeColor} />
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px' }}>
-          {categories.map((cat: any) => <div key={cat.id} style={{ fontSize: '9.5px', wordWrap: 'break-word', overflowWrap: 'break-word' }}><strong style={{ color: '#111827' }}>{cat.name}:</strong> <span style={{ color: '#4b5563' }}>{cat.skills.join(' · ')}</span></div>)}
-        </div>
+      <div style={{ marginBottom: cfg.gap.sec }}>
+        <SectionTitle title={isAr ? 'المهارات التقنية' : 'Technical Skills'} themeColor={themeColor} cfg={cfg} />
+        {cfg.skills.layout === 'grid' ? (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4pt 16pt' }}>
+            {categories.map((cat: any) => <div key={cat.id} style={{ fontSize: cfg.skills.size, wordWrap: 'break-word', overflowWrap: 'break-word', fontFamily: cfg.bFont }}><strong style={{ color: '#111827' }}>{cat.name}:</strong> <span style={{ color: cfg.body.color }}>{cat.skills.join(' · ')}</span></div>)}
+          </div>
+        ) : (
+          <div style={{ fontSize: cfg.skills.size, fontFamily: cfg.bFont }}>
+            {categories.map((cat: any, i: number) => <div key={cat.id} style={{ marginBottom: i < categories.length - 1 ? '3pt' : '0' }}><strong style={{ color: '#111827' }}>{cat.name}:</strong> <span style={{ color: cfg.body.color }}>{cat.skills.join(', ')}</span></div>)}
+          </div>
+        )}
       </div>
     )
   }
@@ -973,17 +1149,17 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     const items: any[] = d.project_items || []
     if (!items.length) return null
     return (
-      <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'المشاريع' : 'Projects'} themeColor={themeColor} />
+      <div style={{ marginBottom: cfg.gap.sec }}>
+        <SectionTitle title={isAr ? 'المشاريع' : 'Projects'} themeColor={themeColor} cfg={cfg} />
         {items.map((item: any) => (
-          <div key={item.id} style={{ marginBottom: '6px', pageBreakInside: 'avoid' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-              <h3 style={{ fontSize: '10.5px', fontWeight: 700, color: '#111827', margin: 0, wordWrap: 'break-word', overflowWrap: 'break-word' }}>{item.name}</h3>
-              {item.url && <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '8px', color: themeColor, textDecoration: 'none' }}>↗ {isAr ? 'معاينة' : 'Live'}</a>}
-              {item.github_url && <a href={item.github_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '8px', color: '#6b7280', textDecoration: 'none' }}>⌘ GitHub</a>}
+          <div key={item.id} style={{ marginBottom: cfg.gap.entry, pageBreakInside: 'avoid', background: cfg.entryBg || 'transparent', padding: cfg.entryBg ? '6pt 8pt' : '0', borderRadius: cfg.entryBg ? '2pt' : '0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6pt', flexWrap: 'wrap' }}>
+              <h3 style={{ fontSize: cfg.entry.titleSize, fontWeight: cfg.entry.weight, color: '#111827', margin: 0, wordWrap: 'break-word', overflowWrap: 'break-word', fontFamily: cfg.hFont }}>{item.name}</h3>
+              {item.url && <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '8pt', color: themeColor, textDecoration: 'none' }}>↗ {isAr ? 'معاينة' : 'Live'}</a>}
+              {item.github_url && <a href={item.github_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '8pt', color: '#6b7280', textDecoration: 'none' }}>⌘ GitHub</a>}
             </div>
-            <p style={{ fontSize: '9.5px', color: '#4b5563', margin: '2px 0', lineHeight: 1.5, wordWrap: 'break-word', overflowWrap: 'break-word' }}>{isAr && item.description_ar ? item.description_ar : item.description_en}</p>
-            {item.technologies?.length > 0 && <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', marginTop: '2px' }}>{item.technologies.map((t: string) => <span key={t} style={{ fontSize: '7.5px', padding: '1px 4px', borderRadius: '2px', backgroundColor: '#f3f4f6', color: '#6b7280' }}>{t}</span>)}</div>}
+            <p style={{ fontSize: cfg.body.size, color: cfg.body.color, margin: '2pt 0', lineHeight: cfg.body.lh, wordWrap: 'break-word', overflowWrap: 'break-word', fontFamily: cfg.bFont }}>{isAr && item.description_ar ? item.description_ar : item.description_en}</p>
+            {cfg.tech.show && item.technologies?.length > 0 && <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3pt', marginTop: '2pt' }}>{item.technologies.map((t: string) => <span key={t} style={{ fontSize: cfg.tech.size, padding: cfg.tech.pad, borderRadius: cfg.tech.rad, backgroundColor: '#f3f4f6', color: '#6b7280' }}>{t}</span>)}</div>}
           </div>
         ))}
       </div>
@@ -995,9 +1171,9 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     if (!items.length) return null
     const profLabels: Record<string, string> = isAr ? { native: 'اللغة الأم', fluent: 'طلاقة', professional: 'احترافي', conversational: 'محادثة', basic: 'أساسي' } : { native: 'Native', fluent: 'Fluent', professional: 'Professional', conversational: 'Conversational', basic: 'Basic' }
     return (
-      <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'اللغات' : 'Languages'} themeColor={themeColor} />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', fontSize: '9.5px' }}>
+      <div style={{ marginBottom: cfg.gap.sec }}>
+        <SectionTitle title={isAr ? 'اللغات' : 'Languages'} themeColor={themeColor} cfg={cfg} />
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10pt', fontSize: cfg.body.size, fontFamily: cfg.bFont }}>
           {items.map((item: any) => <span key={item.id} style={{ color: '#374151' }}><strong>{item.language}</strong> <span style={{ color: '#9ca3af' }}>— {profLabels[item.proficiency] || item.proficiency}</span></span>)}
         </div>
       </div>
@@ -1008,15 +1184,15 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
     const items: any[] = d.cert_items || []
     if (!items.length) return null
     return (
-      <div style={{ marginBottom: spacingGap }}>
-        <SectionTitle title={isAr ? 'الشهادات' : 'Certifications'} themeColor={themeColor} />
+      <div style={{ marginBottom: cfg.gap.sec }}>
+        <SectionTitle title={isAr ? 'الشهادات' : 'Certifications'} themeColor={themeColor} cfg={cfg} />
         {items.map((item: any) => (
-          <div key={item.id} style={{ marginBottom: '4px', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
+          <div key={item.id} style={{ marginBottom: '4pt', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
             <div style={{ flexShrink: 1, minWidth: 0, wordWrap: 'break-word', overflowWrap: 'break-word' }}>
-              <span style={{ fontSize: '10px', fontWeight: 600, color: '#111827' }}>{item.name}</span>
-              <span style={{ fontSize: '9.5px', color: '#6b7280', marginLeft: isAr ? 0 : '6px', marginRight: isAr ? '6px' : 0 }}>— {item.issuer}</span>
+              <span style={{ fontSize: cfg.entry.titleSize, fontWeight: 600, color: '#111827', fontFamily: cfg.hFont }}>{item.name}</span>
+              <span style={{ fontSize: cfg.entry.coSize, color: '#6b7280', marginLeft: isAr ? 0 : '6pt', marginRight: isAr ? '6pt' : 0 }}>— {item.issuer}</span>
             </div>
-            <span style={{ fontSize: '9px', color: '#9ca3af', whiteSpace: 'nowrap', flexShrink: 0 }}>{item.date}</span>
+            <span style={{ fontSize: cfg.entry.dateSize, color: cfg.entry.dateColor, whiteSpace: 'nowrap', flexShrink: 0 }}>{item.date}</span>
           </div>
         ))}
       </div>
@@ -1026,7 +1202,12 @@ function CVSectionRender({ section, themeColor, isAr, spacingGap, fontFamily }: 
   if (section.type === 'custom') {
     const content = isAr && d.custom_content_ar ? d.custom_content_ar : d.custom_content_en
     if (!content) return null
-    return <div style={{ marginBottom: spacingGap }}><SectionTitle title={isAr ? 'قسم مخصص' : 'Additional Information'} themeColor={themeColor} /><div style={{ fontSize: '9.5px', color: '#374151', lineHeight: 1.6, fontFamily, wordWrap: 'break-word', overflowWrap: 'break-word' }} dangerouslySetInnerHTML={{ __html: content }} /></div>
+    return (
+      <div style={{ marginBottom: cfg.gap.sec }}>
+        <SectionTitle title={isAr ? 'قسم مخصص' : 'Additional Information'} themeColor={themeColor} cfg={cfg} />
+        <div style={{ fontSize: cfg.body.size, color: cfg.body.color, lineHeight: cfg.body.lh, fontFamily: cfg.bFont, wordWrap: 'break-word', overflowWrap: 'break-word' }} dangerouslySetInnerHTML={{ __html: content }} />
+      </div>
+    )
   }
 
   return null
