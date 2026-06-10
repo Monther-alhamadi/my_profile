@@ -522,7 +522,7 @@ export default function Home() {
                           href={project.link_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="btn-outline-dark inline-flex items-center gap-2 text-sm"
+                          className="btn-outline-light inline-flex items-center gap-2 text-sm"
                         >
                           <Globe className="w-4 h-4" />
                           {language === 'ar' ? 'زيارة الموقع' : 'Visit Website'}
