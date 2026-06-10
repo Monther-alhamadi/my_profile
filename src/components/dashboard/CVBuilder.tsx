@@ -190,20 +190,23 @@ export default function CVBuilder() {
     if (!user) return
     setSaving(true)
     try {
+      const payload: Record<string, unknown> = {
+        user_id: user.id,
+        locale: cv.locale,
+        sections: cv.sections,
+        template: cv.template,
+        settings: cv.settings,
+        updated_at: new Date().toISOString(),
+      }
+      if (cv.id) payload.id = cv.id
       const { error } = await supabase
         .from('cvs')
-        .upsert({
-          user_id: user.id,
-          locale: cv.locale,
-          sections: cv.sections,
-          template: cv.template,
-          settings: cv.settings,
-          updated_at: new Date().toISOString(),
-        })
+        .upsert(payload, { onConflict: 'user_id' })
       if (error) throw error
-      toast.success(language === 'ar' ? 'تم حفظ السيرة الذاتية' : 'CV saved')
-    } catch {
-      toast.error(language === 'ar' ? 'فشل الحفظ' : 'Save failed')
+      toast.success(language === 'ar' ? 'تم حفظ السيرة الذاتية بنجاح' : 'CV saved successfully')
+    } catch (err: any) {
+      console.error('CV save error:', err)
+      toast.error(language === 'ar' ? `فشل الحفظ: ${err?.message || 'خطأ غير معروف'}` : `Save failed: ${err?.message || 'Unknown error'}`)
     } finally {
       setSaving(false)
     }
