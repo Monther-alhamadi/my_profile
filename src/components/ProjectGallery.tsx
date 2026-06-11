@@ -265,7 +265,7 @@ export default function ProjectGallery({ images, title, projectId }: ProjectGall
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-8 cursor-zoom-out"
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-xl flex items-center justify-center p-4 md:p-8 cursor-zoom-out"
           onClick={() => setZoomed(false)}
         >
           <motion.img

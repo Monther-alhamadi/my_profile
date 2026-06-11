@@ -141,7 +141,7 @@ export function Layout({ children }: LayoutProps) {
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 aria-label={language === 'ar' ? 'القائمة' : 'Menu'}
-                className="md:hidden p-2 text-foreground rounded-sm hover:bg-muted transition-colors"
+                className="md:hidden p-3 text-foreground rounded-sm hover:bg-muted transition-colors"
               >
                 {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </button>
@@ -200,7 +200,7 @@ export function Layout({ children }: LayoutProps) {
                     key={link.href}
                     initial={{ opacity: 0, x: -16 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: (isHome ? navLinks.length : 0 + i) * 0.04 }}
+                    transition={{ delay: ((isHome ? navLinks.length : 0) + i) * 0.04 }}
                   >
                     <Link
                       to={link.href}
@@ -247,7 +247,7 @@ export function Layout({ children }: LayoutProps) {
       {/* ── Footer ── */}
       <footer className="bg-obsidian text-ivory">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 py-16">
-          <div className="grid md:grid-cols-3 gap-12 mb-12">
+          <div className="grid md:grid-cols-3 gap-8 md:gap-12 mb-12">
 
             <div>
               <div className="flex items-center gap-3 mb-4">

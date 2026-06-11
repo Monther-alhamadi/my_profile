@@ -14,7 +14,7 @@ interface SectionHeaderProps {
 
 export function SectionHeader({ number, title, subtitle, light = false, className = "" }: SectionHeaderProps) {
   return (
-    <div className={`mb-16 ${className}`}>
+    <div className={`mb-10 md:mb-16 ${className}`}>
       <motion.div
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -153,7 +153,7 @@ export function StatCard({ value, label, suffix = "", dark = false }: StatCardPr
       transition={{ duration: 0.5, ease }}
       className="text-center"
     >
-      <div className={`text-5xl md:text-6xl font-bold font-heading mb-2 ${dark ? 'text-ivory' : 'text-foreground'}`}>
+      <div className={`text-4xl md:text-5xl lg:text-6xl font-bold font-heading mb-2 ${dark ? 'text-ivory' : 'text-foreground'}`}>
         {count}
         <span className="text-emerald-brand">{suffix}</span>
       </div>

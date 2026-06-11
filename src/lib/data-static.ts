@@ -318,7 +318,7 @@ export const PROJECTS_AR: Project[] = [
   },
   {
     id: "ai-tools-hub",
-    number: "06",
+    number: "05",
     title: "مركز تنسيق أدوات الذكاء الاصطناعي",
     category: "منصة دمج الذكاء الاصطناعي",
     problem:

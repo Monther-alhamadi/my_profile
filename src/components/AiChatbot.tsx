@@ -151,7 +151,7 @@ export default function AiChatbot() {
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
                 aria-label={isArabic ? 'إغلاق' : 'Close'}
-                className="relative z-10 w-8 h-8 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-sm flex items-center justify-center transition-colors"
+                className="relative z-10 w-9 h-9 rounded-lg bg-white/20 hover:bg-white/30 backdrop-blur-sm flex items-center justify-center transition-colors"
               >
                 <X className="w-4 h-4" />
               </motion.button>
@@ -260,7 +260,7 @@ export default function AiChatbot() {
                   disabled={loading || !input.trim()}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.92 }}
-                  className="w-8 h-8 rounded-lg bg-emerald-brand text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-600 transition-colors flex-shrink-0"
+                  className="w-9 h-9 rounded-lg bg-emerald-brand text-white flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed hover:bg-emerald-600 transition-colors flex-shrink-0"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </motion.button>

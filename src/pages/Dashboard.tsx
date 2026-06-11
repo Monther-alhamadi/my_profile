@@ -98,7 +98,7 @@ export default function Dashboard() {
           <span className="text-xs text-muted-foreground font-mono hidden sm:block">{user.email}</span>
           <button
             onClick={signOut}
-            className="text-[10px] font-mono text-red-400 hover:text-red-500 px-2 py-1 border border-red-200 rounded-sm hover:bg-red-50 transition-colors"
+            className="text-xs font-mono text-red-400 hover:text-red-500 px-3 py-2 border border-red-200 rounded-sm hover:bg-red-50 transition-colors"
           >
             {language === 'ar' ? 'خروج' : 'Sign Out'}
           </button>
@@ -118,7 +118,7 @@ export default function Dashboard() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`text-[11px] font-mono whitespace-nowrap px-3 py-[11px] rounded-sm transition-colors ${
+                className={`text-xs font-mono whitespace-nowrap px-3 py-3 rounded-sm transition-colors ${
                   activeTab === tab ? 'bg-emerald-brand/10 text-emerald-brand font-semibold' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >

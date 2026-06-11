@@ -31,7 +31,7 @@ export default function DashboardLogin() {
   }
 
   return (
-    <div className="section-obsidian min-h-screen flex items-center justify-center py-20">
+    <div className="section-obsidian min-h-screen flex items-center justify-center py-12 md:py-20">
       <div className="max-w-md mx-auto px-6 w-full">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

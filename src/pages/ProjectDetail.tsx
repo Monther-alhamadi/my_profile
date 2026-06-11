@@ -12,6 +12,15 @@ export default function ProjectDetail() {
   const { language } = useLanguage()
   const projects = useProjects()
   const t = translations[language]
+
+  if (projects.isLoading) {
+    return (
+      <div className="section-ivory min-h-screen flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-emerald-brand/30 border-t-emerald-brand rounded-full animate-spin" />
+      </div>
+    )
+  }
+
   const project = projects.data?.find(p => p.id === id)
 
   if (!project) {
@@ -52,7 +61,7 @@ export default function ProjectDetail() {
           <div className="grid lg:grid-cols-[1fr_1fr] gap-10 md:gap-16 items-start">
             <RevealWrapper direction="left">
               <div className="flex items-baseline gap-4 mb-6">
-                <span className="font-mono text-7xl font-bold text-emerald-brand opacity-[0.18] leading-none select-none">
+                <span className="font-mono text-5xl md:text-7xl font-bold text-emerald-brand opacity-[0.18] leading-none select-none">
                   {project.number}
                 </span>
                 <div>
@@ -108,7 +117,7 @@ export default function ProjectDetail() {
             </RevealWrapper>
 
             <RevealWrapper delay={0.1}>
-              <div className="ruled-card p-8">
+              <div className="ruled-card p-5 md:p-8">
                 <h3 className="text-[11px] font-mono font-semibold text-emerald-brand uppercase tracking-widest mb-5">
                   {t.projects.highlights}
                 </h3>

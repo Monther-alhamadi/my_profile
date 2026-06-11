@@ -50,7 +50,7 @@ export default function Assistant() {
   }
 
   return (
-    <div className="section-ivory min-h-screen py-20 flex flex-col">
+    <div className="section-ivory min-h-screen py-12 md:py-20 flex flex-col">
       <div className="max-w-3xl mx-auto px-6 lg:px-12 w-full flex-1 flex flex-col">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -68,7 +68,7 @@ export default function Assistant() {
             : 'Ask about Monther\'s skills, experience, and projects'}
         </p>
 
-        <div className="flex-1 bg-white/50 border border-border rounded-sm p-6 mb-4 overflow-y-auto max-h-[60vh] space-y-4">
+        <div className="flex-1 bg-white/50 border border-border rounded-sm p-4 md:p-6 mb-4 overflow-y-auto max-h-[60vh] space-y-4">
           <AnimatePresence>
             {messages.map((msg, i) => (
               <motion.div

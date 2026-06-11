@@ -35,7 +35,7 @@ export default function Links() {
   ]
 
   return (
-    <div className="min-h-screen section-ivory flex items-center justify-center py-20">
+    <div className="min-h-screen section-ivory flex items-center justify-center py-12 md:py-20">
       <div className="max-w-md mx-auto px-6 w-full text-center">
         {/* Avatar / Logo */}
         <div className="w-20 h-20 bg-obsidian rounded-sm flex items-center justify-center mx-auto mb-5">
@@ -60,7 +60,7 @@ export default function Links() {
                 className="flex items-center gap-4 p-[13px] md:p-4 rounded-sm border border-border bg-white/50 hover:border-emerald-brand hover:bg-emerald-brand/5 transition-all group"
               >
                 <Icon className="w-6 h-6 text-muted-foreground group-hover:text-emerald-brand transition-colors flex-shrink-0" />
-                <div className="flex-1 text-left">
+                <div className="flex-1 text-left rtl:text-right">
                   <p className="text-sm font-semibold text-foreground">{link.label}</p>
                   <p className="text-xs text-muted-foreground">{link.subtitle}</p>
                 </div>

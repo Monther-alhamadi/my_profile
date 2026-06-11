@@ -24,7 +24,7 @@ export default function CV() {
           <RevealWrapper>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
-                <h1 className="text-4xl font-bold text-ivory mb-2">
+                <h1 className="text-3xl md:text-4xl font-bold text-ivory mb-2">
                   Monther Alhamadi
                 </h1>
                 <p className="text-emerald-brand font-mono text-sm mb-4">
@@ -47,7 +47,7 @@ export default function CV() {
                   </span>
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <a
                   href={CONTACT_INFO.github}
                   target="_blank"

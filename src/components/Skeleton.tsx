@@ -20,13 +20,13 @@ export function HeroSkeleton() {
     <div className="section-ivory min-h-screen flex flex-col justify-center relative overflow-hidden px-6 lg:px-12">
       <div className="max-w-7xl mx-auto w-full">
         <SkeletonBlock className="h-3 w-24 mb-8" />
-        <SkeletonBlock className="h-14 w-3/4 mb-3" />
-        <SkeletonBlock className="h-14 w-1/2 mb-6" />
+        <SkeletonBlock className="h-8 md:h-12 lg:h-14 w-3/4 mb-3" />
+        <SkeletonBlock className="h-8 md:h-12 lg:h-14 w-1/2 mb-6" />
         <SkeletonBlock className="h-5 w-96 max-w-full mb-4" />
         <SkeletonBlock className="h-5 w-80 max-w-full mb-10" />
-        <div className="flex gap-4">
-          <SkeletonBlock className="h-12 w-40" />
-          <SkeletonBlock className="h-12 w-40" />
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
+          <SkeletonBlock className="h-12 w-full sm:w-40" />
+          <SkeletonBlock className="h-12 w-full sm:w-40" />
         </div>
       </div>
     </div>
@@ -115,7 +115,7 @@ export function ServicesSkeleton() {
 
 export function StatsSkeleton() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 my-16">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 my-16">
       {[1, 2, 3, 4].map(i => (
         <div key={i} className="text-center">
           <SkeletonBlock className="h-14 w-24 mx-auto mb-2" />

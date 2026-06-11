@@ -24,13 +24,13 @@ const NotFound = () => {
       </div>
 
       <div className="text-center relative z-10 px-6">
-        <div className="font-mono text-[10rem] font-bold text-emerald-brand opacity-[0.08] leading-none select-none mb-[-3rem]">
+        <div className="font-mono text-[clamp(5rem,15vw,10rem)] font-bold text-emerald-brand opacity-[0.08] leading-none select-none mb-[-3rem]">
           404
         </div>
         <h1 className="text-4xl font-bold text-ivory mb-4">
           {language === 'ar' ? 'الصفحة غير موجودة' : 'Page Not Found'}
         </h1>
-        <p className="text-ivory/45 text-sm mb-10 font-mono max-w-md mx-auto">
+        <p className="text-ivory/45 text-sm mb-6 md:mb-10 font-mono max-w-md mx-auto">
           {language === 'ar'
             ? 'عذراً، الصفحة التي تبحث عنها غير موجودة أو تم نقلها.'
             : 'Sorry, the page you are looking for does not exist or has been moved.'}

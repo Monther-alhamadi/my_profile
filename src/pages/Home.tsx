@@ -1,8 +1,9 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+import { toast } from 'sonner'
 import {
-  Code2, Cpu, Brain, Smartphone, Layers, Sparkles, Network,
+  Code2, Cpu, Brain, Smartphone, Layers, Sparkles, Network, CreditCard,
   Mail, MapPin, Clock, Star, ArrowUpRight, ArrowRight,
   Send, Download, CheckCircle2, ChevronDown, Globe
 } from 'lucide-react'
@@ -34,6 +35,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   cpu: Cpu, code: Code2, brain: Brain,
   smartphone: Smartphone, layers: Layers,
   sparkles: Sparkles, network: Network,
+  'credit-card': CreditCard,
 }
 
 function resolveIcon(name: string | undefined): React.ComponentType<{ className?: string }> {
@@ -137,7 +139,7 @@ export default function Home() {
         setForm({ name: '', email: '', projectType: 'none', message: '', _hp: '', _t: 0 })
       }
     } catch {
-      alert(language === 'ar' ? 'حدث خطأ. يرجى المحاولة لاحقاً.' : 'An error occurred. Please try again later.')
+      toast.error(language === 'ar' ? 'حدث خطأ. يرجى المحاولة لاحقاً.' : 'An error occurred. Please try again later.')
     } finally {
       setSubmitting(false)
     }
@@ -191,8 +193,8 @@ export default function Home() {
         </motion.div>
 
         {/* Subtle emerald orbs */}
-        <div className="absolute top-1/4 right-[8%]  w-[550px] h-[550px] rounded-full bg-emerald-brand opacity-[0.04] blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-1/4 left-[4%] w-[380px] h-[380px] rounded-full bg-emerald-brand opacity-[0.03] blur-[80px]  pointer-events-none" />
+        <div className="absolute top-1/4 right-[8%] w-[280px] h-[280px] md:w-[550px] md:h-[550px] rounded-full bg-emerald-brand opacity-[0.04] blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/4 left-[4%] w-[200px] h-[200px] md:w-[380px] md:h-[380px] rounded-full bg-emerald-brand opacity-[0.03] blur-[80px]  pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10 w-full py-16 md:py-24">
           <div className="grid lg:grid-cols-[1fr_400px] gap-12 md:gap-16 items-start">
@@ -255,7 +257,7 @@ export default function Home() {
                   href="/cv.pdf" download
                   whileHover={{ scale: 1.03 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 15 }}
-                  className="hidden md:inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border-b border-dashed border-border hover:border-emerald-brand pb-0.5"
+                  className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border-b border-dashed border-border hover:border-emerald-brand pb-0.5"
                 >
                   <Download className="w-3.5 h-3.5" />
                   {language === 'ar' ? 'تحميل السيرة الذاتية' : 'Download CV'}
@@ -282,7 +284,7 @@ export default function Home() {
             >
               <TiltCard className="!p-0">
                 <div className="relative aspect-[4/5] overflow-hidden">
-                  <img src={profile?.avatar_url || IMAGES.ABOUT_BG_8} alt="Developer at work" loading="lazy" className="w-full h-full object-cover" />
+                  <img src={profile?.avatar_url || IMAGES.ABOUT_BG_8} alt="Developer at work" loading="eager" className="w-full h-full object-cover" />
                   <div className="absolute bottom-4 left-4 right-4 bg-obsidian/88 backdrop-blur-sm rounded-sm p-4">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="available-dot" />
@@ -312,14 +314,14 @@ export default function Home() {
       {/* ── Status banner ── */}
       {isLoading && (
         <div className="bg-obsidian border-b border-obsidian/10">
-          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-2 text-xs text-ivory/40 font-mono text-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-2 text-xs text-ivory/40 font-mono text-center">
             {language === 'ar' ? 'جاري تحميل البيانات من الخادم...' : 'Loading live data...'}
           </div>
         </div>
       )}
       {isError && (
         <div className="bg-red-950/20 border-b border-red-500/20">
-          <div className="max-w-7xl mx-auto px-6 lg:px-12 py-2 text-xs text-red-400 font-mono text-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-2 text-xs text-red-400 font-mono text-center">
             {language === 'ar'
               ? 'تعذر الاتصال بالخادم. يتم عرض البيانات المحفوظة.'
               : 'Could not connect to server. Showing cached data.'}
@@ -361,7 +363,7 @@ export default function Home() {
             </RevealWrapper>
 
             <RevealWrapper delay={0.3} direction="right">
-              <div className="grid grid-cols-2 gap-5 mb-8">
+              <div className="grid grid-cols-2 gap-3 md:gap-5 mb-8">
                 {stats.map(stat => (
                   <div key={stat.id} className="border border-ivory/10 rounded-sm p-6">
                     <StatCard value={parseInt(stat.value)} label={stat.label} suffix={stat.suffix} dark />
@@ -446,7 +448,7 @@ export default function Home() {
                 <button
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
-                  className={`px-5 py-[11px] rounded-sm text-sm font-mono font-medium transition-all duration-300 ${
+                  className={`px-5 py-3 rounded-sm text-sm font-mono font-medium transition-all duration-300 ${
                     activeFilter === cat
                       ? 'bg-emerald-brand text-white shadow-lg shadow-emerald-brand/25'
                       : 'text-ivory/45 hover:text-ivory hover:bg-ivory/5 border border-ivory/8'
@@ -471,12 +473,12 @@ export default function Home() {
             >
             {filteredProjects.map((project, i) => (
               <RevealWrapper key={project.id} delay={0.05}>
-                <div className={`grid lg:grid-cols-2 gap-12 items-start`}>
+                <div               className="grid lg:grid-cols-2 gap-8 md:gap-12 items-start">
 
                   {/* Info */}
                   <div className={i % 2 === 1 ? 'lg:order-2' : ''}>
                     <div className="flex items-baseline gap-4 mb-6">
-                      <span className="font-mono text-7xl font-bold text-emerald-brand opacity-[0.18] leading-none select-none">
+                      <span className="font-mono text-5xl md:text-7xl font-bold text-emerald-brand opacity-[0.18] leading-none select-none">
                         {project.number}
                       </span>
                       <div>
@@ -538,7 +540,7 @@ export default function Home() {
                     {PROJECT_IMAGES[project.id] && (
                       <ProjectGallery images={PROJECT_IMAGES[project.id]} title={project.title} />
                     )}
-                    <div className="ruled-card-dark p-8">
+                    <div className="ruled-card-dark p-5 md:p-8">
                       <h4 className="text-[11px] font-mono font-semibold text-ivory/35 uppercase tracking-widest mb-5">{t.projects.highlights}</h4>
                       <ul className="space-y-4">
                         {project.highlights.map((h, idx) => (
@@ -646,7 +648,7 @@ export default function Home() {
           <div className="space-y-5">
             {experience.map((exp, i) => (
               <RevealWrapper key={exp.id} delay={0.08 * i}>
-                <div className="ruled-card-dark p-8">
+                <div className="ruled-card-dark p-5 md:p-8">
                   <div className="flex flex-col md:flex-row md:items-start gap-6">
                     <div className="flex-shrink-0 md:w-28">
                       <span className="font-mono text-sm font-semibold text-emerald-brand">{exp.year}</span>
@@ -803,7 +805,7 @@ export default function Home() {
                         value={form[key]}
                         onChange={e => setForm({ ...form, [key]: e.target.value })}
                         required
-                        className="border-border focus:border-emerald-brand rounded-sm h-[48px] md:h-12 bg-obsidian text-ivory placeholder:text-ivory/30"
+                        className="border-border focus:border-emerald-brand rounded-sm h-11 md:h-12 bg-obsidian text-ivory placeholder:text-ivory/30"
                       />
                     </div>
                   ))}
@@ -811,7 +813,7 @@ export default function Home() {
                   <div>
                     <label className="block text-xs font-mono font-semibold text-muted-foreground uppercase tracking-widest mb-2">{t.contact.form.projectType}</label>
                     <Select value={form.projectType} onValueChange={v => setForm({ ...form, projectType: v })}>
-                      <SelectTrigger className="border-border rounded-sm h-[48px] md:h-12 bg-obsidian text-ivory">
+                      <SelectTrigger className="border-border rounded-sm h-11 md:h-12 bg-obsidian text-ivory">
                         <SelectValue placeholder={t.contact.form.projectType} />
                       </SelectTrigger>
                       <SelectContent>

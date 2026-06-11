@@ -27,13 +27,16 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
+      const isArabic = document.documentElement.dir === 'rtl'
       return (
         <div className="section-obsidian min-h-screen flex items-center justify-center">
           <div className="text-center max-w-md px-6">
             <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-6" />
-            <h1 className="text-2xl font-bold text-ivory mb-3">Something went wrong</h1>
+            <h1 className="text-2xl font-bold text-ivory mb-3">
+              {isArabic ? 'حدث خطأ ما' : 'Something went wrong'}
+            </h1>
             <p className="text-ivory/52 text-sm mb-8 font-mono">
-              {this.state.error?.message || 'An unexpected error occurred'}
+              {this.state.error?.message || (isArabic ? 'حدث خطأ غير متوقع' : 'An unexpected error occurred')}
             </p>
             <div className="flex gap-4 justify-center">
               <button
@@ -41,10 +44,10 @@ export class ErrorBoundary extends Component<Props, State> {
                 className="btn-emerald px-5 py-2.5 text-sm"
               >
                 <RefreshCw className="w-4 h-4" />
-                Reload
+                {isArabic ? 'إعادة تحميل' : 'Reload'}
               </button>
               <Link to="/" className="btn-ghost px-5 py-2.5 text-sm text-ivory/70 hover:text-ivory">
-                Back to Home
+                {isArabic ? 'العودة للرئيسية' : 'Back to Home'}
               </Link>
             </div>
           </div>
