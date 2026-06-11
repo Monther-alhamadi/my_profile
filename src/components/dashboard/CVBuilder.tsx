@@ -31,6 +31,94 @@ const DEFAULT_SETTINGS = {
   rtl: false,
 }
 
+/* ── Helper Functions and SVG Icons for Contacts ────────── */
+
+const cleanUrlText = (url: string, type: 'linkedin' | 'github' | 'website') => {
+  if (!url) return ''
+  let cleaned = url.trim()
+  cleaned = cleaned.replace(/^https?:\/\//i, '')
+  cleaned = cleaned.replace(/^www\./i, '')
+  if (type === 'linkedin') {
+    cleaned = cleaned.split('?')[0]
+    if (cleaned.endsWith('/')) cleaned = cleaned.slice(0, -1)
+    if (!cleaned.includes('linkedin.com/in/')) {
+      cleaned = 'linkedin.com/in/' + cleaned
+    }
+    return cleaned
+  }
+  if (type === 'github') {
+    cleaned = cleaned.split('?')[0]
+    if (cleaned.endsWith('/')) cleaned = cleaned.slice(0, -1)
+    if (!cleaned.includes('github.com/')) {
+      cleaned = 'github.com/' + cleaned
+    }
+    return cleaned
+  }
+  if (type === 'website') {
+    if (cleaned.endsWith('/')) cleaned = cleaned.slice(0, -1)
+    return cleaned
+  }
+  return cleaned
+}
+
+const getFullUrl = (val: string, type: 'linkedin' | 'github' | 'website') => {
+  if (!val) return ''
+  const trimmed = val.trim()
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed
+  }
+  if (type === 'linkedin') {
+    return `https://linkedin.com/in/${trimmed}`
+  }
+  if (type === 'github') {
+    return `https://github.com/${trimmed}`
+  }
+  return `https://${trimmed}`
+}
+
+const MailIcon = ({ color }: { color: string }) => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <rect width="20" height="16" x="2" y="4" rx="2" />
+    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+  </svg>
+)
+
+const PhoneIcon = ({ color }: { color: string }) => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+  </svg>
+)
+
+const MapPinIcon = ({ color }: { color: string }) => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+)
+
+const GlobeIcon = ({ color }: { color: string }) => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+    <path d="M2 12h20" />
+  </svg>
+)
+
+const LinkedInIcon = ({ color }: { color: string }) => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect width="4" height="12" x="2" y="9" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+)
+
+const GitHubIcon = ({ color }: { color: string }) => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle' }}>
+    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+    <path d="M9 18c-4.51 2-5-2-7-2" />
+  </svg>
+)
+
 /* ── Template Style Configurations ─────────────────────── */
 
 interface TplCfg {
@@ -1039,25 +1127,83 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
   const bColor = cfg.bullet.useTheme ? themeColor : '#6b7280'
 
   if (section.type === 'header') {
-    const contacts: { icon: string; value: string; href?: string }[] = []
-    if (d.email) contacts.push({ icon: '✉', value: d.email, href: `mailto:${d.email}` })
-    if (d.phone) contacts.push({ icon: '☎', value: d.phone, href: `tel:${d.phone}` })
-    if (d.location) contacts.push({ icon: '⌂', value: d.location })
-    if (d.website) contacts.push({ icon: '⊕', value: d.website, href: d.website.startsWith('http') ? d.website : `https://${d.website}` })
-    if (d.linkedin) contacts.push({ icon: 'in', value: d.linkedin.replace('https://linkedin.com/in/', ''), href: d.linkedin })
-    if (d.github) contacts.push({ icon: '⌘', value: d.github.replace('https://github.com/', ''), href: d.github })
+    const iconColor = cfg.sec.useColor ? themeColor : '#6b7280'
+
+    const row1: { icon: React.ReactNode; value: string; href?: string }[] = []
+    if (d.location) row1.push({ icon: <MapPinIcon color={iconColor} />, value: d.location })
+    if (d.email) row1.push({ icon: <MailIcon color={iconColor} />, value: d.email, href: `mailto:${d.email}` })
+    if (d.phone) row1.push({ icon: <PhoneIcon color={iconColor} />, value: d.phone, href: `tel:${d.phone}` })
+
+    const row2: { icon: React.ReactNode; value: string; href?: string }[] = []
+    if (d.website) {
+      row2.push({
+        icon: <GlobeIcon color={iconColor} />,
+        value: cleanUrlText(d.website, 'website'),
+        href: getFullUrl(d.website, 'website')
+      })
+    }
+    if (d.linkedin) {
+      row2.push({
+        icon: <LinkedInIcon color={iconColor} />,
+        value: cleanUrlText(d.linkedin, 'linkedin'),
+        href: getFullUrl(d.linkedin, 'linkedin')
+      })
+    }
+    if (d.github) {
+      row2.push({
+        icon: <GitHubIcon color={iconColor} />,
+        value: cleanUrlText(d.github, 'github'),
+        href: getFullUrl(d.github, 'github')
+      })
+    }
+
+    const alignment = isAr ? 'right' : cfg.name.align
+    const justify = isAr ? 'flex-end' : cfg.contact.justify
 
     return (
-      <div style={{ marginBottom: cfg.gap.sec, textAlign: (isAr ? 'right' : cfg.name.align) as any }}>
+      <div style={{ marginBottom: cfg.gap.sec, textAlign: alignment as any }}>
         {d.name && <h1 style={{ fontSize: cfg.name.size, fontWeight: cfg.name.weight, color: cfg.name.color, margin: 0, lineHeight: 1.2, letterSpacing: cfg.name.spacing, fontFamily: cfg.hFont }}>{d.name}</h1>}
         {(d.title_en || d.title_ar) && <p style={{ fontSize: cfg.title.size, color: themeColor, fontWeight: cfg.title.weight, margin: '2pt 0 0', fontFamily: cfg.bFont }}>{isAr && d.title_ar ? d.title_ar : d.title_en}</p>}
-        {contacts.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: cfg.contact.gap, marginTop: '6pt', justifyContent: isAr ? 'flex-end' : cfg.contact.justify, fontSize: cfg.contact.size, color: '#6b7280', fontFamily: cfg.bFont }}>
-            {contacts.map((c, i) => (
-              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                <span style={{ color: cfg.sec.useColor ? themeColor : '#6b7280', fontWeight: 600, fontSize: '9pt' }}>{c.icon}</span>
-                {c.href ? <a href={c.href} target="_blank" rel="noopener noreferrer" style={{ color: '#374151', textDecoration: 'none' }}>{c.value}</a> : <span style={{ color: '#374151' }}>{c.value}</span>}
-                {i < contacts.length - 1 && cfg.contact.sep && <span style={{ color: '#d1d5db', marginLeft: '4px' }}>{cfg.contact.sep}</span>}
+        
+        {/* Row 1: Location, Email, Phone */}
+        {row1.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: cfg.contact.gap, marginTop: '6pt', justifyContent: justify as any, fontSize: cfg.contact.size, color: '#6b7280', fontFamily: cfg.bFont }}>
+            {row1.map((c, i) => (
+              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                {c.href ? (
+                  <a href={c.href} target="_blank" rel="noopener noreferrer" style={{ color: '#374151', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '12px', height: '12px' }}>{c.icon}</span>
+                    <span>{c.value}</span>
+                  </a>
+                ) : (
+                  <span style={{ color: '#374151', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '12px', height: '12px' }}>{c.icon}</span>
+                    <span>{c.value}</span>
+                  </span>
+                )}
+                {i < row1.length - 1 && cfg.contact.sep && <span style={{ color: '#d1d5db', marginLeft: '6px', marginRight: '2px' }}>{cfg.contact.sep}</span>}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Row 2: Website, LinkedIn, GitHub */}
+        {row2.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: cfg.contact.gap, marginTop: '4pt', justifyContent: justify as any, fontSize: cfg.contact.size, color: '#6b7280', fontFamily: cfg.bFont }}>
+            {row2.map((c, i) => (
+              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                {c.href ? (
+                  <a href={c.href} target="_blank" rel="noopener noreferrer" style={{ color: '#374151', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '12px', height: '12px' }}>{c.icon}</span>
+                    <span>{c.value}</span>
+                  </a>
+                ) : (
+                  <span style={{ color: '#374151', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '12px', height: '12px' }}>{c.icon}</span>
+                    <span>{c.value}</span>
+                  </span>
+                )}
+                {i < row2.length - 1 && cfg.contact.sep && <span style={{ color: '#d1d5db', marginLeft: '6px', marginRight: '2px' }}>{cfg.contact.sep}</span>}
               </span>
             ))}
           </div>
