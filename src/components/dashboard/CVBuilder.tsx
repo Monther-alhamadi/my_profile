@@ -137,17 +137,17 @@ interface TplCfg {
   accentBar: boolean; entryBg: string | null
 }
 
-function getTplCfg(tpl: string, ff: string): TplCfg {
+function getTplCfg(tpl: string, ff: string, isAr: boolean = false): TplCfg {
   const serif = 'Merriweather, Georgia, "Times New Roman", serif'
   const m: TplCfg = {
     pagePad: '18mm 20mm',
-    name: { size: '20pt', weight: 800, align: 'center', color: '#111827', spacing: '0.02em' },
+    name: { size: '20pt', weight: 800, align: isAr ? 'right' : 'center', color: '#111827', spacing: isAr ? '0' : '0.02em' },
     title: { size: '10.5pt', weight: 500 },
-    contact: { size: '8.5pt', justify: 'center', gap: '14px', sep: '' },
-    sec: { size: '10pt', spacing: '0.1em', transform: 'uppercase', align: 'left', borderW: '1.5pt', pb: '3pt', mb: '8pt', useColor: true, useBorder: true },
+    contact: { size: '8.5pt', justify: isAr ? 'flex-end' : 'center', gap: '14px', sep: '' },
+    sec: { size: '10pt', spacing: isAr ? '0.04em' : '0.1em', transform: 'none', align: isAr ? 'right' : 'left', borderW: '1.5pt', pb: '3pt', mb: '8pt', useColor: true, useBorder: true },
     entry: { titleSize: '10.5pt', weight: 700, coSize: '9.5pt', dateSize: '8.5pt', dateColor: '#9ca3af' },
-    body: { size: '9.5pt', lh: 1.4, color: '#374151' },
-    bullet: { ch: '▸', size: '8pt', useTheme: true },
+    body: { size: '9.5pt', lh: isAr ? 1.6 : 1.4, color: '#374151' },
+    bullet: { ch: isAr ? '◂' : '▸', size: '8pt', useTheme: true },
     tech: { show: true, size: '7.5pt', rad: '2pt', pad: '1pt 5pt' },
     skills: { layout: 'grid', size: '9pt' },
     gap: { sec: '12pt', entry: '10pt' },
@@ -156,35 +156,35 @@ function getTplCfg(tpl: string, ff: string): TplCfg {
   }
   if (tpl === 'minimal') return { ...m,
     pagePad: '20mm 22mm',
-    name: { size: '18pt', weight: 700, align: 'left', color: '#111827', spacing: '0' },
+    name: { size: '18pt', weight: 700, align: isAr ? 'right' : 'left', color: '#111827', spacing: '0' },
     title: { size: '10pt', weight: 400 },
-    contact: { size: '8.5pt', justify: 'flex-start', gap: '6px', sep: '·' },
-    sec: { size: '9.5pt', spacing: '0.06em', transform: 'uppercase', align: 'left', borderW: '0.75pt', pb: '2pt', mb: '6pt', useColor: false, useBorder: false },
+    contact: { size: '8.5pt', justify: isAr ? 'flex-end' : 'flex-start', gap: '6px', sep: '·' },
+    sec: { size: '9.5pt', spacing: isAr ? '0.02em' : '0.06em', transform: 'none', align: isAr ? 'right' : 'left', borderW: '0.75pt', pb: '2pt', mb: '6pt', useColor: false, useBorder: false },
     entry: { ...m.entry, titleSize: '10pt', coSize: '9pt', dateColor: '#6b7280' },
-    body: { ...m.body, lh: 1.35 },
-    bullet: { ch: '•', size: '9pt', useTheme: false },
+    body: { ...m.body, lh: isAr ? 1.55 : 1.35 },
+    bullet: { ch: isAr ? '•' : '•', size: '9pt', useTheme: false },
     tech: { ...m.tech, show: false },
     skills: { layout: 'inline', size: '9pt' },
     gap: { sec: '10pt', entry: '8pt' },
   }
   if (tpl === 'classic') return { ...m,
     pagePad: '20mm 24mm',
-    name: { size: '22pt', weight: 700, align: 'center', color: '#111827', spacing: '0.04em' },
+    name: { size: '22pt', weight: 700, align: isAr ? 'right' : 'center', color: '#111827', spacing: isAr ? '0' : '0.04em' },
     title: { size: '10.5pt', weight: 400 },
-    contact: { size: '8.5pt', justify: 'center', gap: '8px', sep: '|' },
-    sec: { ...m.sec, size: '10.5pt', spacing: '0.14em', align: 'center', borderW: '0.75pt', pb: '4pt', mb: '10pt' },
-    body: { size: '10pt', lh: 1.45, color: '#374151' },
-    bullet: { ch: '–', size: '9pt', useTheme: true },
+    contact: { size: '8.5pt', justify: isAr ? 'flex-end' : 'center', gap: '8px', sep: '|' },
+    sec: { ...m.sec, size: '10.5pt', spacing: isAr ? '0.06em' : '0.14em', transform: 'none', align: 'center', borderW: '0.75pt', pb: '4pt', mb: '10pt' },
+    body: { size: '10pt', lh: isAr ? 1.6 : 1.45, color: '#374151' },
+    bullet: { ch: isAr ? '–' : '–', size: '9pt', useTheme: true },
     tech: { ...m.tech, rad: '0', pad: '1pt 4pt' },
     gap: { sec: '14pt', entry: '10pt' },
     hFont: serif,
   }
   if (tpl === 'executive') return { ...m,
     pagePad: '16mm 18mm',
-    name: { size: '22pt', weight: 800, align: 'left', color: '#111827', spacing: '0.02em' },
+    name: { size: '22pt', weight: 800, align: isAr ? 'right' : 'left', color: '#111827', spacing: isAr ? '0' : '0.02em' },
     title: { size: '10pt', weight: 500 },
-    contact: { ...m.contact, justify: 'flex-start' },
-    sec: { ...m.sec, size: '10pt', spacing: '0.08em', borderW: '0', useBorder: false },
+    contact: { ...m.contact, justify: isAr ? 'flex-end' : 'flex-start' },
+    sec: { ...m.sec, size: '10pt', spacing: isAr ? '0.03em' : '0.08em', borderW: '0', useBorder: false },
     tech: { ...m.tech, rad: '3pt', pad: '1.5pt 6pt' },
     accentBar: true, entryBg: '#f9fafb',
   }
@@ -315,18 +315,54 @@ function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily
     const d = section.data as any
 
     if (section.type === 'header') {
-      const contacts: string[] = []
-      if (d.email) contacts.push(`<span style="display:inline-flex;align-items:center;gap:3px"><span style="color:${themeColor}">✉</span> <a href="mailto:${d.email}" style="color:#374151;text-decoration:none">${d.email}</a></span>`)
-      if (d.phone) contacts.push(`<span style="display:inline-flex;align-items:center;gap:3px"><span style="color:${themeColor}">☎</span> <a href="tel:${d.phone}" style="color:#374151;text-decoration:none">${d.phone}</a></span>`)
-      if (d.location) contacts.push(`<span style="display:inline-flex;align-items:center;gap:3px"><span style="color:${themeColor}">⌂</span> ${d.location}</span>`)
-      if (d.website) contacts.push(`<span style="display:inline-flex;align-items:center;gap:3px"><span style="color:${themeColor}">⊕</span> <a href="${d.website.startsWith('http') ? d.website : 'https://' + d.website}" target="_blank" style="color:#374151;text-decoration:none">${d.website}</a></span>`)
-      if (d.linkedin) contacts.push(`<span style="display:inline-flex;align-items:center;gap:3px"><span style="color:${themeColor}">in</span> <a href="${d.linkedin}" target="_blank" style="color:#374151;text-decoration:none">${d.linkedin.replace('https://linkedin.com/in/', '')}</a></span>`)
-      if (d.github) contacts.push(`<span style="display:inline-flex;align-items:center;gap:3px"><span style="color:${themeColor}">⌘</span> <a href="${d.github}" target="_blank" style="color:#374151;text-decoration:none">${d.github.replace('https://github.com/', '')}</a></span>`)
+      const iconColor = themeColor
+      const svgIcon = (path: string, extra?: string) => `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="${iconColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle">${extra || ''}${path}</svg>`
+
+      const mailSvg = svgIcon('<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>')
+      const phoneSvg = svgIcon('<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>')
+      const mapSvg = svgIcon('<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>')
+      const globeSvg = svgIcon('<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>')
+      const linkedinSvg = svgIcon('<path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/>')
+      const githubSvg = svgIcon('<path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/>')
+
+      const buildContactItem = (icon: string, value: string, href?: string) => {
+        const iconSpan = `<span style="display:inline-flex;align-items:center;justify-content:center;width:12px;height:12px">${icon}</span>`
+        const textSpan = `<span>${value}</span>`
+        if (href) return `<span style="display:inline-flex;align-items:center;gap:4px"><a href="${href}" target="_blank" rel="noopener noreferrer" style="color:#374151;text-decoration:none;display:inline-flex;align-items:center;gap:4px">${iconSpan}${textSpan}</a></span>`
+        return `<span style="display:inline-flex;align-items:center;gap:4px;color:#374151">${iconSpan}${textSpan}</span>`
+      }
+
+      const row1: string[] = []
+      if (d.location) row1.push(buildContactItem(mapSvg, d.location))
+      if (d.email) row1.push(buildContactItem(mailSvg, d.email, `mailto:${d.email}`))
+      if (d.phone) row1.push(buildContactItem(phoneSvg, d.phone, `tel:${d.phone}`))
+
+      const row2: string[] = []
+      if (d.website) {
+        const cleanUrl = cleanUrlText(d.website, 'website')
+        const fullUrl = getFullUrl(d.website, 'website')
+        row2.push(buildContactItem(globeSvg, cleanUrl, fullUrl))
+      }
+      if (d.linkedin) {
+        const cleanUrl = cleanUrlText(d.linkedin, 'linkedin')
+        const fullUrl = getFullUrl(d.linkedin, 'linkedin')
+        row2.push(buildContactItem(linkedinSvg, cleanUrl, fullUrl))
+      }
+      if (d.github) {
+        const cleanUrl = cleanUrlText(d.github, 'github')
+        const fullUrl = getFullUrl(d.github, 'github')
+        row2.push(buildContactItem(githubSvg, cleanUrl, fullUrl))
+      }
+
+      const justify = isAr ? 'flex-end' : 'center'
+      const sep = ''
+      const renderRow = (items: string[]) => items.map((c, i) => c + (i < items.length - 1 && sep ? `<span style="color:#d1d5db;margin-${isAr ? 'right' : 'left'}:6px;margin-${isAr ? 'left' : 'right'}:2px">${sep}</span>` : '')).join('')
 
       body += `<div style="margin-bottom:10px;text-align:${isAr ? 'right' : 'center'}">
         <h1 style="font-size:22px;font-weight:800;color:#111827;margin:0;line-height:1.2">${d.name || ''}</h1>
         ${(d.title_en || d.title_ar) ? `<p style="font-size:11px;color:${themeColor};font-weight:500;margin:2px 0 0">${isAr && d.title_ar ? d.title_ar : d.title_en}</p>` : ''}
-        ${contacts.length ? `<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;justify-content:${isAr ? 'flex-end' : 'center'};font-size:9px;color:#6b7280">${contacts.join('')}</div>` : ''}
+        ${row1.length ? `<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;justify-content:${justify};font-size:9px;color:#6b7280">${renderRow(row1)}</div>` : ''}
+        ${row2.length ? `<div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px;justify-content:${justify};font-size:9px;color:#6b7280">${renderRow(row2)}</div>` : ''}
       </div>`
     }
 
@@ -334,7 +370,7 @@ function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily
       const text = isAr && d.summary_ar ? d.summary_ar : d.summary_en
       if (!text) continue
       body += `<div style="margin-bottom:8px">
-        <h2 style="font-size:11px;font-weight:700;color:${themeColor};text-transform:uppercase;letter-spacing:0.1em;margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor}">${isAr ? 'الملخص المهني' : 'Professional Summary'}</h2>
+        <h2 style="font-size:11px;font-weight:700;color:${themeColor};${isAr ? '' : 'text-transform:uppercase;'}letter-spacing:${isAr ? '0.04em' : '0.1em'};margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor};text-align:${isAr ? 'right' : 'left'}">${isAr ? 'الملخص المهني' : 'Professional Summary'}</h2>
         <p style="font-size:10px;line-height:1.6;color:#374151;margin:0;word-wrap:break-word;overflow-wrap:break-word">${text}</p>
       </div>`
     }
@@ -343,7 +379,7 @@ function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily
       const items: any[] = d.items || []
       if (!items.length) continue
       body += `<div style="margin-bottom:8px">
-        <h2 style="font-size:11px;font-weight:700;color:${themeColor};text-transform:uppercase;letter-spacing:0.1em;margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor}">${isAr ? 'الخبرة المهنية' : 'Professional Experience'}</h2>`
+        <h2 style="font-size:11px;font-weight:700;color:${themeColor};${isAr ? '' : 'text-transform:uppercase;'}letter-spacing:${isAr ? '0.04em' : '0.1em'};margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor};text-align:${isAr ? 'right' : 'left'}">${isAr ? 'الخبرة المهنية' : 'Professional Experience'}</h2>`
       for (const item of items) {
         body += `<div style="margin-bottom:8px;page-break-inside:avoid">
           <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
@@ -353,7 +389,7 @@ function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily
           <p style="font-size:10px;color:#6b7280;margin:1px 0 4px">${item.company}</p>
           ${item.description_en || item.description_ar ? `<p style="font-size:9.5px;color:#4b5563;margin:0 0 4px;line-height:1.55;word-wrap:break-word;overflow-wrap:break-word">${isAr && item.description_ar ? item.description_ar : item.description_en}</p>` : ''}
           ${(isAr ? item.achievements_ar : item.achievements_en)?.length ? `<ul style="margin:3px 0 0;padding-${isAr ? 'right' : 'left'}:14px;list-style:none">
-            ${(isAr ? item.achievements_ar : item.achievements_en).map((ach: string) => `<li style="font-size:9.5px;color:#4b5563;line-height:1.5;margin-bottom:2px;word-wrap:break-word;overflow-wrap:break-word;display:flex;gap:4px;flex-direction:${isAr ? 'row-reverse' : 'row'}"><span style="color:${themeColor};flex-shrink:0;font-size:8px;line-height:1.6">▸</span><span>${ach}</span></li>`).join('')}
+            ${(isAr ? item.achievements_ar : item.achievements_en).map((ach: string) => `<li style="font-size:9.5px;color:#4b5563;line-height:1.5;margin-bottom:2px;word-wrap:break-word;overflow-wrap:break-word;display:flex;gap:4px;flex-direction:${isAr ? 'row-reverse' : 'row'}"><span style="color:${themeColor};flex-shrink:0;font-size:8px;line-height:1.6">${isAr ? '◂' : '▸'}</span><span>${ach}</span></li>`).join('')}
           </ul>` : ''}
           ${item.technologies?.length ? `<div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:3px">${item.technologies.map((t: string) => `<span style="font-size:8px;padding:1px 5px;border-radius:2px;background:${themeColor}12;color:${themeColor};font-weight:500">${t}</span>`).join('')}</div>` : ''}
         </div>`
@@ -365,7 +401,7 @@ function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily
       const items: any[] = d.education_items || []
       if (!items.length) continue
       body += `<div style="margin-bottom:8px">
-        <h2 style="font-size:11px;font-weight:700;color:${themeColor};text-transform:uppercase;letter-spacing:0.1em;margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor}">${isAr ? 'التعليم' : 'Education'}</h2>`
+        <h2 style="font-size:11px;font-weight:700;color:${themeColor};${isAr ? '' : 'text-transform:uppercase;'}letter-spacing:${isAr ? '0.04em' : '0.1em'};margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor};text-align:${isAr ? 'right' : 'left'}">${isAr ? 'التعليم' : 'Education'}</h2>`
       for (const item of items) {
         body += `<div style="margin-bottom:6px;page-break-inside:avoid">
           <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px">
@@ -395,7 +431,7 @@ function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily
       const items: any[] = d.project_items || []
       if (!items.length) continue
       body += `<div style="margin-bottom:8px">
-        <h2 style="font-size:11px;font-weight:700;color:${themeColor};text-transform:uppercase;letter-spacing:0.1em;margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor}">${isAr ? 'المشاريع' : 'Projects'}</h2>`
+        <h2 style="font-size:11px;font-weight:700;color:${themeColor};${isAr ? '' : 'text-transform:uppercase;'}letter-spacing:${isAr ? '0.04em' : '0.1em'};margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor};text-align:${isAr ? 'right' : 'left'}">${isAr ? 'المشاريع' : 'Projects'}</h2>`
       for (const item of items) {
         const links: string[] = []
         if (item.url) links.push(`<a href="${item.url}" target="_blank" style="font-size:8px;color:${themeColor};text-decoration:none">↗ ${isAr ? 'معاينة' : 'Live'}</a>`)
@@ -419,7 +455,7 @@ function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily
         ? { native: 'اللغة الأم', fluent: 'طلاقة', professional: 'احترافي', conversational: 'محادثة', basic: 'أساسي' }
         : { native: 'Native', fluent: 'Fluent', professional: 'Professional', conversational: 'Conversational', basic: 'Basic' }
       body += `<div style="margin-bottom:8px">
-        <h2 style="font-size:11px;font-weight:700;color:${themeColor};text-transform:uppercase;letter-spacing:0.1em;margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor}">${isAr ? 'اللغات' : 'Languages'}</h2>
+        <h2 style="font-size:11px;font-weight:700;color:${themeColor};${isAr ? '' : 'text-transform:uppercase;'}letter-spacing:${isAr ? '0.04em' : '0.1em'};margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor};text-align:${isAr ? 'right' : 'left'}">${isAr ? 'اللغات' : 'Languages'}</h2>
         <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:9.5px">
           ${items.map((item: any) => `<span style="color:#374151"><strong>${item.language}</strong> <span style="color:#9ca3af">— ${profLabels[item.proficiency] || item.proficiency}</span></span>`).join('')}
         </div>
@@ -430,7 +466,7 @@ function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily
       const items: any[] = d.cert_items || []
       if (!items.length) continue
       body += `<div style="margin-bottom:8px">
-        <h2 style="font-size:11px;font-weight:700;color:${themeColor};text-transform:uppercase;letter-spacing:0.1em;margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor}">${isAr ? 'الشهادات' : 'Certifications'}</h2>`
+        <h2 style="font-size:11px;font-weight:700;color:${themeColor};${isAr ? '' : 'text-transform:uppercase;'}letter-spacing:${isAr ? '0.04em' : '0.1em'};margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor};text-align:${isAr ? 'right' : 'left'}">${isAr ? 'الشهادات' : 'Certifications'}</h2>`
       for (const item of items) {
         body += `<div style="margin-bottom:4px;display:flex;justify-content:space-between;align-items:baseline;gap:8px">
           <div style="flex-shrink:1;min-width:0;word-wrap:break-word;overflow-wrap:break-word">
@@ -447,7 +483,7 @@ function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily
       const content = isAr && d.custom_content_ar ? d.custom_content_ar : d.custom_content_en
       if (!content) continue
       body += `<div style="margin-bottom:8px">
-        <h2 style="font-size:11px;font-weight:700;color:${themeColor};text-transform:uppercase;letter-spacing:0.1em;margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor}">${isAr ? 'قسم مخصص' : 'Additional Information'}</h2>
+        <h2 style="font-size:11px;font-weight:700;color:${themeColor};${isAr ? '' : 'text-transform:uppercase;'}letter-spacing:${isAr ? '0.04em' : '0.1em'};margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor};text-align:${isAr ? 'right' : 'left'}">${isAr ? 'قسم مخصص' : 'Additional Information'}</h2>
         <div style="font-size:9.5px;color:#374151;line-height:1.6;word-wrap:break-word;overflow-wrap:break-word">${content}</div>
       </div>`
     }
@@ -1036,7 +1072,7 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onDownloadPDF }
         width: 210mm !important;
         height: auto !important;
         margin: 0 !important;
-        padding: ${getTplCfg(cv.template, fontFamily).pagePad} !important;
+        padding: ${getTplCfg(cv.template, fontFamily, isAr).pagePad} !important;
       }
     }
 
@@ -1049,7 +1085,7 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onDownloadPDF }
   </style>
 </head>
 <body>
-  <div class="cv-container" style="font-family: ${fontFamily}; color: #1a1a1a; padding: ${getTplCfg(cv.template, fontFamily).pagePad};">
+  <div class="cv-container" style="font-family: ${fontFamily}; color: #1a1a1a; padding: ${getTplCfg(cv.template, fontFamily, isAr).pagePad};">
     ${el.innerHTML}
   </div>
 </body>
@@ -1089,7 +1125,7 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onDownloadPDF }
 
       <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 pb-4">
         <div ref={cvRef} id="cv-preview" className="bg-white shadow-lg mx-auto" dir={isAr ? 'rtl' : 'ltr'}
-          style={{ width: '210mm', maxWidth: '100%', fontFamily, color: '#1a1a1a', padding: getTplCfg(cv.template, fontFamily).pagePad }}>
+          style={{ width: '210mm', maxWidth: '100%', fontFamily, color: '#1a1a1a', padding: getTplCfg(cv.template, fontFamily, isAr).pagePad }}>
           {sections.map(section => (
             <CVSectionRender key={section.id} section={section} themeColor={theme_color} isAr={isAr} fontFamily={fontFamily} template={cv.template} />
           ))}
@@ -1101,18 +1137,19 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onDownloadPDF }
 
 /* ── Section Renderers ──────────────────────────────────── */
 
-function SectionTitle({ title, themeColor, cfg }: { title: string; themeColor: string; cfg: TplCfg }) {
+function SectionTitle({ title, themeColor, cfg, isAr }: { title: string; themeColor: string; cfg: TplCfg; isAr: boolean }) {
   const color = cfg.sec.useColor ? themeColor : '#374151'
   const borderColor = cfg.sec.useBorder ? themeColor : '#d1d5db'
   const border = cfg.sec.borderW !== '0' ? `${cfg.sec.borderW} solid ${borderColor}` : 'none'
+  const secAlign = isAr ? 'right' : cfg.sec.align
   return (
     <div style={{
       marginBottom: cfg.sec.mb,
       paddingBottom: cfg.sec.pb,
       borderBottom: cfg.accentBar ? 'none' : border,
-      borderLeft: cfg.accentBar ? `3pt solid ${themeColor}` : 'none',
-      paddingLeft: cfg.accentBar ? '8pt' : '0',
-      textAlign: cfg.sec.align as any,
+      [isAr ? 'borderRight' : 'borderLeft']: cfg.accentBar ? `3pt solid ${themeColor}` : 'none',
+      [isAr ? 'paddingRight' : 'paddingLeft']: cfg.accentBar ? '8pt' : '0',
+      textAlign: secAlign as any,
     }}>
       <h2 style={{ fontSize: cfg.sec.size, fontWeight: 700, color, textTransform: cfg.sec.transform as any, letterSpacing: cfg.sec.spacing, margin: 0, fontFamily: cfg.hFont }}>{title}</h2>
     </div>
@@ -1123,7 +1160,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
   section: CVSection; themeColor: string; isAr: boolean; fontFamily: string; template: string;
 }) {
   const d = section.data as any
-  const cfg = getTplCfg(template, fontFamily)
+  const cfg = getTplCfg(template, fontFamily, isAr)
   const bColor = cfg.bullet.useTheme ? themeColor : '#6b7280'
 
   if (section.type === 'header') {
@@ -1181,7 +1218,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
                     <span>{c.value}</span>
                   </span>
                 )}
-                {i < row1.length - 1 && cfg.contact.sep && <span style={{ color: '#d1d5db', marginLeft: '6px', marginRight: '2px' }}>{cfg.contact.sep}</span>}
+                {i < row1.length - 1 && cfg.contact.sep && <span style={{ color: '#d1d5db', [isAr ? 'marginRight' : 'marginLeft']: '6px', [isAr ? 'marginLeft' : 'marginRight']: '2px' }}>{cfg.contact.sep}</span>}
               </span>
             ))}
           </div>
@@ -1203,7 +1240,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
                     <span>{c.value}</span>
                   </span>
                 )}
-                {i < row2.length - 1 && cfg.contact.sep && <span style={{ color: '#d1d5db', marginLeft: '6px', marginRight: '2px' }}>{cfg.contact.sep}</span>}
+                {i < row2.length - 1 && cfg.contact.sep && <span style={{ color: '#d1d5db', [isAr ? 'marginRight' : 'marginLeft']: '6px', [isAr ? 'marginLeft' : 'marginRight']: '2px' }}>{cfg.contact.sep}</span>}
               </span>
             ))}
           </div>
@@ -1217,7 +1254,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
     if (!text) return null
     return (
       <div style={{ marginBottom: cfg.gap.sec }}>
-        <SectionTitle title={isAr ? 'الملخص المهني' : 'Professional Summary'} themeColor={themeColor} cfg={cfg} />
+        <SectionTitle title={isAr ? 'الملخص المهني' : 'Professional Summary'} themeColor={themeColor} cfg={cfg} isAr={isAr} />
         <p style={{ fontSize: cfg.body.size, lineHeight: cfg.body.lh, color: cfg.body.color, margin: 0, fontFamily: cfg.bFont, wordWrap: 'break-word', overflowWrap: 'break-word' }}>{text}</p>
       </div>
     )
@@ -1228,7 +1265,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
     if (!items.length) return null
     return (
       <div style={{ marginBottom: cfg.gap.sec }}>
-        <SectionTitle title={isAr ? 'الخبرة المهنية' : 'Professional Experience'} themeColor={themeColor} cfg={cfg} />
+        <SectionTitle title={isAr ? 'الخبرة المهنية' : 'Professional Experience'} themeColor={themeColor} cfg={cfg} isAr={isAr} />
         {items.map((item: any) => (
           <div key={item.id} style={{ marginBottom: cfg.gap.entry, pageBreakInside: 'avoid', background: cfg.entryBg || 'transparent', padding: cfg.entryBg ? '6pt 8pt' : '0', borderRadius: cfg.entryBg ? '2pt' : '0' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
@@ -1237,7 +1274,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
             </div>
             <p style={{ fontSize: cfg.entry.coSize, color: '#6b7280', margin: '1pt 0 3pt', fontFamily: cfg.bFont }}>{item.company}</p>
             {((isAr ? item.achievements_ar : item.achievements_en)?.length > 0) && (
-              <ul style={{ margin: '3pt 0 0', paddingLeft: isAr ? 0 : '14pt', paddingRight: isAr ? '14pt' : 0, listStyle: 'none' }}>
+              <ul style={{ margin: '3pt 0 0', paddingLeft: isAr ? 0 : '14pt', paddingRight: isAr ? '14pt' : 0, listStyle: 'none', padding: 0 }}>
                 {(isAr ? item.achievements_ar : item.achievements_en).map((ach: string, i: number) => (
                   <li key={i} style={{ fontSize: cfg.body.size, color: cfg.body.color, lineHeight: cfg.body.lh, marginBottom: '2pt', wordWrap: 'break-word', overflowWrap: 'break-word', display: 'flex', gap: '4pt', flexDirection: isAr ? 'row-reverse' : 'row', fontFamily: cfg.bFont }}>
                     <span style={{ color: bColor, flexShrink: 0, fontSize: cfg.bullet.size, lineHeight: String(cfg.body.lh) }}>{cfg.bullet.ch}</span><span>{ach}</span>
@@ -1257,7 +1294,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
     if (!items.length) return null
     return (
       <div style={{ marginBottom: cfg.gap.sec }}>
-        <SectionTitle title={isAr ? 'التعليم' : 'Education'} themeColor={themeColor} cfg={cfg} />
+        <SectionTitle title={isAr ? 'التعليم' : 'Education'} themeColor={themeColor} cfg={cfg} isAr={isAr} />
         {items.map((item: any) => (
           <div key={item.id} style={{ marginBottom: cfg.gap.entry, pageBreakInside: 'avoid' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
@@ -1277,7 +1314,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
     if (!categories.length) return null
     return (
       <div style={{ marginBottom: cfg.gap.sec }}>
-        <SectionTitle title={isAr ? 'المهارات التقنية' : 'Technical Skills'} themeColor={themeColor} cfg={cfg} />
+        <SectionTitle title={isAr ? 'المهارات التقنية' : 'Technical Skills'} themeColor={themeColor} cfg={cfg} isAr={isAr} />
         {cfg.skills.layout === 'grid' ? (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4pt 16pt' }}>
             {categories.map((cat: any) => <div key={cat.id} style={{ fontSize: cfg.skills.size, wordWrap: 'break-word', overflowWrap: 'break-word', fontFamily: cfg.bFont }}><strong style={{ color: '#111827' }}>{cat.name}:</strong> <span style={{ color: cfg.body.color }}>{cat.skills.join(' · ')}</span></div>)}
@@ -1296,7 +1333,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
     if (!items.length) return null
     return (
       <div style={{ marginBottom: cfg.gap.sec }}>
-        <SectionTitle title={isAr ? 'المشاريع' : 'Projects'} themeColor={themeColor} cfg={cfg} />
+        <SectionTitle title={isAr ? 'المشاريع' : 'Projects'} themeColor={themeColor} cfg={cfg} isAr={isAr} />
         {items.map((item: any) => (
           <div key={item.id} style={{ marginBottom: cfg.gap.entry, pageBreakInside: 'avoid', background: cfg.entryBg || 'transparent', padding: cfg.entryBg ? '6pt 8pt' : '0', borderRadius: cfg.entryBg ? '2pt' : '0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '6pt', flexWrap: 'wrap' }}>
@@ -1318,7 +1355,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
     const profLabels: Record<string, string> = isAr ? { native: 'اللغة الأم', fluent: 'طلاقة', professional: 'احترافي', conversational: 'محادثة', basic: 'أساسي' } : { native: 'Native', fluent: 'Fluent', professional: 'Professional', conversational: 'Conversational', basic: 'Basic' }
     return (
       <div style={{ marginBottom: cfg.gap.sec }}>
-        <SectionTitle title={isAr ? 'اللغات' : 'Languages'} themeColor={themeColor} cfg={cfg} />
+        <SectionTitle title={isAr ? 'اللغات' : 'Languages'} themeColor={themeColor} cfg={cfg} isAr={isAr} />
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10pt', fontSize: cfg.body.size, fontFamily: cfg.bFont }}>
           {items.map((item: any) => <span key={item.id} style={{ color: '#374151' }}><strong>{item.language}</strong> <span style={{ color: '#9ca3af' }}>— {profLabels[item.proficiency] || item.proficiency}</span></span>)}
         </div>
@@ -1331,12 +1368,12 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
     if (!items.length) return null
     return (
       <div style={{ marginBottom: cfg.gap.sec }}>
-        <SectionTitle title={isAr ? 'الشهادات' : 'Certifications'} themeColor={themeColor} cfg={cfg} />
+        <SectionTitle title={isAr ? 'الشهادات' : 'Certifications'} themeColor={themeColor} cfg={cfg} isAr={isAr} />
         {items.map((item: any) => (
           <div key={item.id} style={{ marginBottom: '4pt', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '8px' }}>
             <div style={{ flexShrink: 1, minWidth: 0, wordWrap: 'break-word', overflowWrap: 'break-word' }}>
               <span style={{ fontSize: cfg.entry.titleSize, fontWeight: 600, color: '#111827', fontFamily: cfg.hFont }}>{item.name}</span>
-              <span style={{ fontSize: cfg.entry.coSize, color: '#6b7280', marginLeft: isAr ? 0 : '6pt', marginRight: isAr ? '6pt' : 0 }}>— {item.issuer}</span>
+              <span style={{ fontSize: cfg.entry.coSize, color: '#6b7280', [isAr ? 'marginRight' : 'marginLeft']: '6pt', [isAr ? 'marginLeft' : 'marginRight']: 0 }}>— {item.issuer}</span>
             </div>
             <span style={{ fontSize: cfg.entry.dateSize, color: cfg.entry.dateColor, whiteSpace: 'nowrap', flexShrink: 0 }}>{item.date}</span>
           </div>
@@ -1350,7 +1387,7 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
     if (!content) return null
     return (
       <div style={{ marginBottom: cfg.gap.sec }}>
-        <SectionTitle title={isAr ? 'قسم مخصص' : 'Additional Information'} themeColor={themeColor} cfg={cfg} />
+        <SectionTitle title={isAr ? 'قسم مخصص' : 'Additional Information'} themeColor={themeColor} cfg={cfg} isAr={isAr} />
         <div style={{ fontSize: cfg.body.size, color: cfg.body.color, lineHeight: cfg.body.lh, fontFamily: cfg.bFont, wordWrap: 'break-word', overflowWrap: 'break-word' }} dangerouslySetInnerHTML={{ __html: content }} />
       </div>
     )
