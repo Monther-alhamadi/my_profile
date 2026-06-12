@@ -52,14 +52,14 @@ async function askGemini(
 
   if (GEMINI_API_KEY.startsWith("AIzaSy")) {
     if (!genAI) throw new Error("Gemini SDK not initialized");
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
     const result = await model.generateContent(prompt);
     return result.response.text();
   }
 
   // New key format (AQ....) - use REST API directly
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
