@@ -66,7 +66,7 @@ export default function DashboardLogin() {
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
-                className="w-full h-12 px-4 rounded-sm border border-ivory/15 bg-obsidian text-ivory placeholder:text-ivory/30 focus:border-emerald-brand focus:outline-none transition-colors text-sm"
+                className="w-full h-12 px-4 rounded-sm border border-ivory/15 bg-obsidian text-ivory placeholder:text-ivory/30 focus:border-emerald-brand focus:outline-none transition-colors text-base sm:text-sm"
                 placeholder="monther@example.com"
               />
             </div>
@@ -80,7 +80,7 @@ export default function DashboardLogin() {
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
-                className="w-full h-12 px-4 rounded-sm border border-ivory/15 bg-obsidian text-ivory placeholder:text-ivory/30 focus:border-emerald-brand focus:outline-none transition-colors text-sm"
+                className="w-full h-12 px-4 rounded-sm border border-ivory/15 bg-obsidian text-ivory placeholder:text-ivory/30 focus:border-emerald-brand focus:outline-none transition-colors text-base sm:text-sm"
                 placeholder="••••••••"
               />
             </div>

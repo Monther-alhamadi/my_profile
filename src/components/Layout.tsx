@@ -70,7 +70,7 @@ export function Layout({ children }: LayoutProps) {
             : 'bg-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
           <div className="flex items-center justify-between h-16">
 
             {/* Logo */}
@@ -246,7 +246,7 @@ export function Layout({ children }: LayoutProps) {
 
       {/* ── Footer ── */}
       <footer className="bg-obsidian text-ivory">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-16">
           <div className="grid md:grid-cols-3 gap-8 md:gap-12 mb-12">
 
             <div>

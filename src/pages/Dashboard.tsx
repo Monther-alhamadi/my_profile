@@ -105,7 +105,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
         {/* Sidebar — hidden on small screens via mobile toggle */}
         <div className="hidden lg:block">
           <Sidebar active={activeTab} onSelect={setActiveTab} unreadCount={unreadCount} onSignOut={signOut} />
@@ -113,7 +113,7 @@ export default function Dashboard() {
 
         {/* Mobile tabs */}
         <div className="lg:hidden w-full">
-          <div className="flex overflow-x-auto gap-1 px-3 py-2 border-b border-border/40 bg-white scrollbar-none">
+          <div className="flex overflow-x-auto gap-1 px-4 py-2 border-b border-border/40 bg-white scrollbar-none">
             {(['overview', 'messages', 'projects', 'skills', 'services', 'experience', 'stats', 'testimonials', 'cv', 'profile'] as TabId[]).map(tab => (
               <button
                 key={tab}

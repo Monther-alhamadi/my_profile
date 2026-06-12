@@ -197,7 +197,7 @@ export default function Home() {
         <div className="absolute bottom-1/4 left-[4%] w-[200px] h-[200px] md:w-[380px] md:h-[380px] rounded-full bg-emerald-brand opacity-[0.03] blur-[80px]  pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10 w-full py-16 md:py-24">
-          <div className="grid lg:grid-cols-[1fr_400px] gap-12 md:gap-16 items-start">
+          <div className="grid lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_400px] gap-12 md:gap-16 items-start">
 
             {/* Left */}
             <motion.div variants={heroContainer} initial="hidden" animate="visible">
@@ -343,7 +343,7 @@ export default function Home() {
           <img src={IMAGES.DARK_BG_1} alt="" loading="lazy" className="w-full h-full object-cover" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
           <RevealWrapper>
             <SectionHeader number="01" title={t.about.title} subtitle={t.about.subtitle} light />
           </RevealWrapper>
@@ -363,7 +363,7 @@ export default function Home() {
             </RevealWrapper>
 
             <RevealWrapper delay={0.3} direction="right">
-              <div className="grid grid-cols-2 gap-3 md:gap-5 mb-8">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-5 mb-8">
                 {stats.map(stat => (
                   <div key={stat.id} className="border border-ivory/10 rounded-sm p-6">
                     <StatCard value={parseInt(stat.value)} label={stat.label} suffix={stat.suffix} dark />
@@ -388,7 +388,7 @@ export default function Home() {
       <section id="expertise" className="section-ivory py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-foreground">02</span>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
           <RevealWrapper>
             <SectionHeader number="02" title={t.expertise.title} subtitle={t.expertise.subtitle} />
           </RevealWrapper>
@@ -397,8 +397,7 @@ export default function Home() {
             <div
               ref={skillsCarousel.ref}
               onScroll={skillsCarousel.onScroll}
-              className="flex md:grid md:grid-cols-2 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0"
-              style={{ maskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)' }}
+              className="flex md:grid md:grid-cols-2 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0 carousel-mask"
             >
               {skills.map((skill, i) => {
                 const Icon = resolveIcon(skill.icon)
@@ -436,19 +435,19 @@ export default function Home() {
           <img src={IMAGES.DARK_BG_7} alt="" loading="lazy" className="w-full h-full object-cover" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
           <RevealWrapper>
             <SectionHeader number="03" title={t.projects.title} subtitle={t.projects.subtitle} light />
           </RevealWrapper>
 
           {/* ── Project Filter ── */}
           <RevealWrapper delay={0.1}>
-            <div className="flex flex-wrap gap-2 mb-14 pb-6 border-b border-ivory/8">
+            <div className="flex gap-2 mb-8 sm:mb-14 pb-4 sm:pb-6 border-b border-ivory/8 overflow-x-auto scrollbar-none">
               {projectCategories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setActiveFilter(cat)}
-                  className={`px-5 py-3 rounded-sm text-sm font-mono font-medium transition-all duration-300 ${
+                  className={`px-4 sm:px-5 py-2.5 sm:py-3 rounded-sm text-sm font-mono font-medium transition-all duration-300 whitespace-nowrap shrink-0 ${
                     activeFilter === cat
                       ? 'bg-emerald-brand text-white shadow-lg shadow-emerald-brand/25'
                       : 'text-ivory/45 hover:text-ivory hover:bg-ivory/5 border border-ivory/8'
@@ -478,7 +477,7 @@ export default function Home() {
                   {/* Info */}
                   <div className={i % 2 === 1 ? 'lg:order-2' : ''}>
                     <div className="flex items-baseline gap-4 mb-6">
-                      <span className="font-mono text-5xl md:text-7xl font-bold text-emerald-brand opacity-[0.18] leading-none select-none">
+                      <span className="font-mono text-4xl sm:text-5xl md:text-7xl font-bold text-emerald-brand opacity-[0.18] leading-none select-none">
                         {project.number}
                       </span>
                       <div>
@@ -570,7 +569,7 @@ export default function Home() {
       <section id="services" className="section-ivory py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-foreground">04</span>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
           <RevealWrapper>
             <SectionHeader number="04" title={t.services.title} subtitle={t.services.subtitle} />
           </RevealWrapper>
@@ -579,8 +578,7 @@ export default function Home() {
             <div
               ref={servicesCarousel.ref}
               onScroll={servicesCarousel.onScroll}
-              className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0"
-              style={{ maskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)' }}
+              className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0 carousel-mask"
             >
               {services.map((service, i) => {
                 const Icon = resolveIcon(service.icon)
@@ -595,7 +593,7 @@ export default function Home() {
                         <p className="text-sm text-muted-foreground leading-relaxed">{service.description}</p>
                       </div>
                       <div className="mt-auto">
-                        <p className="text-2xl md:text-3xl font-bold font-heading text-emerald-brand mb-5">{service.pricing}</p>
+                        <p className="text-xl sm:text-2xl md:text-3xl font-bold font-heading text-emerald-brand mb-5">{service.pricing}</p>
                         <div className="space-y-2.5">
                           {service.features.map((f, idx) => (
                             <div key={idx} className="flex items-start gap-2.5">
@@ -640,7 +638,7 @@ export default function Home() {
       <section id="experience" className="section-obsidian py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-ivory">05</span>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
           <RevealWrapper>
             <SectionHeader number="05" title={t.experience.title} subtitle={t.experience.subtitle} light />
           </RevealWrapper>
@@ -682,7 +680,7 @@ export default function Home() {
       <section id="testimonials" className="section-ivory py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-foreground">06</span>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
           <RevealWrapper>
             <SectionHeader number="06" title={t.testimonials.title} subtitle={t.testimonials.subtitle} />
           </RevealWrapper>
@@ -691,8 +689,7 @@ export default function Home() {
             <div
               ref={testimonialsCarousel.ref}
               onScroll={testimonialsCarousel.onScroll}
-              className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0"
-              style={{ maskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)', WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 48px), transparent 100%)' }}
+              className="flex md:grid md:grid-cols-3 gap-5 md:gap-6 overflow-x-auto snap-x snap-mandatory scrollbar-none md:overflow-visible pb-2 md:pb-0 carousel-mask"
             >
               {testimonials.map((t2, i) => (
                 <RevealWrapper key={t2.id} delay={0.1 * i} className="snap-start shrink-0 w-[80vw] md:w-auto md:shrink">
@@ -725,10 +722,10 @@ export default function Home() {
           CONTACT — Split layout
       ══════════════════════════════════════════════ */}
       <section id="contact" className="relative overflow-hidden">
-        <div className="grid lg:grid-cols-2 min-h-[80vh]">
+        <div className="grid lg:grid-cols-2 min-h-0 lg:min-h-[80vh]">
 
           {/* Left — Obsidian info */}
-          <div className="section-obsidian py-16 md:py-24 px-6 lg:px-16 relative overflow-hidden">
+          <div className="section-obsidian py-12 sm:py-16 md:py-24 px-4 sm:px-6 lg:px-16 relative overflow-hidden">
             <span className="section-num text-ivory">07</span>
             <div className="relative z-10">
               <RevealWrapper direction="left">
@@ -774,7 +771,7 @@ export default function Home() {
           </div>
 
           {/* Right — Form */}
-          <div className="section-ivory py-16 md:py-24 px-6 lg:px-16">
+          <div className="section-ivory py-12 sm:py-16 md:py-24 px-4 sm:px-6 lg:px-16">
             <RevealWrapper delay={0.18} direction="right">
               {submitted ? (
                 <div className="flex flex-col items-center justify-center h-full gap-6 text-center py-20">

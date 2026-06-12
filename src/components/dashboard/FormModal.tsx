@@ -28,7 +28,7 @@ export default function FormModal({ open, onClose, title, children, size = 'sm' 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
       onClick={(e) => { if (e.target === overlayRef.current) onClose() }}
     >
-      <div className={`bg-white rounded-sm shadow-xl w-full ${maxWidth} mx-3 md:mx-4 max-h-[85vh] md:max-h-[90vh] overflow-y-auto`}>
+      <div className={`bg-white rounded-sm shadow-xl w-full ${maxWidth} mx-4 sm:mx-6 md:mx-auto max-h-[85vh] md:max-h-[90vh] overflow-y-auto`}>
         <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-border">
           <h2 className="text-sm md:text-base font-bold text-foreground">{title}</h2>
           <button onClick={onClose} className="p-2 hover:bg-muted rounded-sm transition-colors">

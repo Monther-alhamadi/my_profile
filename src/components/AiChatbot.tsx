@@ -63,7 +63,7 @@ export default function AiChatbot() {
   return (
     <>
       {/* ── Floating button ── */}
-      <div className="fixed bottom-6 right-3 md:right-6 z-40 flex flex-col items-end">
+      <div className="fixed safe-bottom right-3 md:right-6 z-40 flex flex-col items-end">
         {/* Glow ring */}
         <motion.div
           className="absolute -inset-3 rounded-full bg-emerald-brand/20 blur-xl pointer-events-none"
@@ -124,8 +124,8 @@ export default function AiChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
             exit={{ opacity: 0, y: 60, scale: 0.95, x: 20 }}
             transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-            className="fixed bottom-24 right-6 z-40 w-[380px] max-w-[calc(100vw-2rem)] bg-background/90 backdrop-blur-xl border border-border/60 rounded-xl shadow-2xl flex flex-col overflow-hidden"
-            style={{ maxHeight: '560px' }}
+            className="fixed bottom-24 right-3 sm:right-6 z-40 w-[calc(100vw-1.5rem)] sm:w-[380px] max-w-[calc(100vw-2rem)] bg-background/90 backdrop-blur-xl border border-border/60 rounded-xl shadow-2xl flex flex-col overflow-hidden"
+            style={{ maxHeight: 'min(560px, calc(100vh - 8rem))' }}
           >
             {/* ── Header ── */}
             <div className="relative flex items-center justify-between px-5 py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white overflow-hidden">

@@ -11,7 +11,7 @@ interface ProjectGalleryProps {
 
 function PhoneFrame({ children, variant = 'modern' }: { children: React.ReactNode; variant?: 'modern' | 'classic' }) {
   return (
-    <div className="relative select-none" style={{ width: 'min(220px, 38vh)', aspectRatio: '9/19.5' }}>
+    <div className="relative select-none" style={{ width: 'min(220px, 38vh)', minWidth: '140px', aspectRatio: '9/19.5' }}>
       {/* Phone outer shell with realistic shadow */}
       <div className="absolute inset-0 rounded-[28px] bg-gradient-to-b from-zinc-700 via-zinc-800 to-zinc-900 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.05)]" />
 

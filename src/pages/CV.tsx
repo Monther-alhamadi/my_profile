@@ -20,11 +20,11 @@ export default function CV() {
     <div className="min-h-screen bg-obsidian">
       {/* Header */}
       <section className="section-obsidian py-16 md:py-20 border-b border-ivory/10">
-        <div className="max-w-4xl mx-auto px-6 lg:px-12">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-12">
           <RevealWrapper>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold text-ivory mb-2">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-ivory mb-2">
                   Monther Alhamadi
                 </h1>
                 <p className="text-emerald-brand font-mono text-sm mb-4">

@@ -136,7 +136,7 @@ export default function Assistant() {
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSend()}
             placeholder={language === 'ar' ? 'اكتب سؤالك...' : 'Type your question...'}
-            className="flex-1 h-12 px-4 rounded-sm border border-border bg-white text-foreground placeholder:text-muted-foreground/50 focus:border-emerald-brand focus:outline-none transition-colors text-sm"
+            className="flex-1 h-12 px-4 rounded-sm border border-border bg-white text-foreground placeholder:text-muted-foreground/50 focus:border-emerald-brand focus:outline-none transition-colors text-base sm:text-sm"
           />
           <button
             onClick={handleSend}

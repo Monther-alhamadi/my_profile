@@ -47,7 +47,7 @@ export default function ProjectDetail() {
       <section className="section-obsidian py-20 md:py-28 relative overflow-hidden">
         <span className="section-num text-ivory">{project.number}</span>
 
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 relative z-10">
           <RevealWrapper>
             <Link
               to="/"
@@ -105,7 +105,7 @@ export default function ProjectDetail() {
 
       {/* Technologies & Highlights */}
       <section className="section-ivory py-16 md:py-20">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
           <div className="grid lg:grid-cols-2 gap-10 md:gap-16">
             <RevealWrapper>
               <h3 className="text-[11px] font-mono font-semibold text-emerald-brand uppercase tracking-widest mb-5">
@@ -134,7 +134,7 @@ export default function ProjectDetail() {
           </div>
 
           <RevealWrapper delay={0.2}>
-            <div className="mt-16 flex flex-wrap gap-4">
+            <div className="mt-16 flex flex-col sm:flex-row flex-wrap gap-4">
               <Link to="/" className="btn-outline-dark inline-flex items-center gap-2">
                 <ArrowLeft className="w-4 h-4" />
                 {language === 'ar' ? 'جميع المشاريع' : 'All Projects'}

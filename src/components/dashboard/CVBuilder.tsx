@@ -728,7 +728,7 @@ function SettingsPanel({ cv, setCv, isAr }: { cv: CVData; setCv: (c: CVData) => 
         <Settings className="w-4 h-4 text-emerald-brand" />
         <h3 className="text-sm font-bold text-obsidian">{isAr ? 'الإعدادات' : 'Settings'}</h3>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <div>
           <label className="text-xs font-mono text-muted-foreground">{isAr ? 'اللون الأساسي' : 'Theme Color'}</label>
           <input type="color" value={cv.settings.theme_color} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, theme_color: e.target.value } })} className="w-full h-8 rounded cursor-pointer mt-1" />

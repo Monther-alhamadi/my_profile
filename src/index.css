@@ -408,6 +408,26 @@
   }
 }
 
+/* ── iOS zoom prevention — 16px min on all inputs ── */
+@supports (-webkit-touch-callout: none) {
+  input, select, textarea {
+    font-size: max(16px, 1em) !important;
+  }
+}
+
+/* ── Safe area bottom for FAB ── */
+.safe-bottom {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.5rem);
+}
+
+/* ── Remove carousel mask on small screens ── */
+@media (max-width: 767px) {
+  .carousel-mask {
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+  }
+}
+
 @keyframes marquee-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }

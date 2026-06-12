@@ -24,7 +24,7 @@ const NotFound = () => {
       </div>
 
       <div className="text-center relative z-10 px-6">
-        <div className="font-mono text-[clamp(5rem,15vw,10rem)] font-bold text-emerald-brand opacity-[0.08] leading-none select-none mb-[-3rem]">
+        <div className="font-mono text-[clamp(5rem,15vw,10rem)] font-bold text-emerald-brand opacity-[0.08] leading-none select-none mb-[-1.5rem] sm:mb-[-3rem]">
           404
         </div>
         <h1 className="text-4xl font-bold text-ivory mb-4">

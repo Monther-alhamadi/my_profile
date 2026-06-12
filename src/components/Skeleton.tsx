@@ -72,7 +72,7 @@ export function SkillsSkeleton() {
     <section className="section-ivory px-6 lg:px-12 py-24">
       <div className="max-w-7xl mx-auto">
         <SectionHeaderSkeleton />
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 gap-6">
           {[1, 2, 3].map(i => (
             <div key={i} className="ruled-card p-6">
               <SkeletonBlock className="h-8 w-8 mb-4" />
