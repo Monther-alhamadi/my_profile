@@ -5,7 +5,7 @@ import type { Language } from "@/lib/index";
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GROK_API_KEY = import.meta.env.VITE_GROK_API_KEY;
 
-const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
+const genAI = GEMINI_API_KEY?.startsWith("AIzaSy") ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
 
 const profileSummary = `
 Name: ${PROFILE_STATIC.name}
@@ -46,13 +46,37 @@ async function askGemini(
   question: string,
   language: Language,
 ): Promise<string> {
-  if (!genAI) throw new Error("Gemini API key not configured");
+  if (!GEMINI_API_KEY) throw new Error("Gemini API key not configured");
 
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
   const prompt = `${getSystemPrompt(language)}\n\nVisitor question: ${question}`;
 
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+  if (GEMINI_API_KEY.startsWith("AIzaSy")) {
+    if (!genAI) throw new Error("Gemini SDK not initialized");
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  }
+
+  // New key format (AQ....) - use REST API directly
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${GEMINI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 200, temperature: 0.7 },
+      }),
+    }
+  );
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Gemini API error: ${response.status} ${error}`);
+  }
+
+  const data = await response.json();
+  return data.candidates[0].content.parts[0].text;
 }
 
 async function askGrok(
