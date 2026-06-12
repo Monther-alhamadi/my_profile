@@ -2,9 +2,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PROFILE_STATIC, PROJECTS_EN } from "@/lib/data-static";
 import type { Language } from "@/lib/index";
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const GROK_API_KEY = import.meta.env.VITE_GROK_API_KEY;
 
-const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null;
+const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
 
 const profileSummary = `
 Name: ${PROFILE_STATIC.name}
@@ -26,16 +27,9 @@ Technical Skills: React, Next.js, TypeScript, Node.js, Python, Flutter, PostgreS
 Experience: Senior Full-Stack Engineer (Freelance/Contract, 2022-present), Tech Startup (2020-2022)
 `;
 
-async function askGemini(
-  question: string,
-  language: Language,
-): Promise<string> {
-  if (!genAI) throw new Error("Gemini API key not configured");
-
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+function getSystemPrompt(language: Language): string {
   const lang = language === "ar" ? "Arabic" : "English";
-
-  const prompt = `You are the AI assistant for Monther Alhamadi's portfolio website. You help visitors learn about Monther's skills, experience, projects, and how to contact him.
+  return `You are the AI assistant for Monther Alhamadi's portfolio website. You help visitors learn about Monther's skills, experience, projects, and how to contact him.
 
 Here is Monther's profile information:
 ${profileSummary}
@@ -45,12 +39,52 @@ Rules:
 - Be concise and professional (2-4 sentences max)
 - If asked something outside this context, politely redirect to Monther's relevant skills/projects
 - Do not make up information not provided above
-- Use natural, conversational language
+- Use natural, conversational language`;
+}
 
-Visitor question: ${question}`;
+async function askGemini(
+  question: string,
+  language: Language,
+): Promise<string> {
+  if (!genAI) throw new Error("Gemini API key not configured");
+
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
+  const prompt = `${getSystemPrompt(language)}\n\nVisitor question: ${question}`;
 
   const result = await model.generateContent(prompt);
   return result.response.text();
+}
+
+async function askGrok(
+  question: string,
+  language: Language,
+): Promise<string> {
+  if (!GROK_API_KEY) throw new Error("Grok API key not configured");
+
+  const response = await fetch("https://api.x.ai/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${GROK_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: "grok-3-mini",
+      messages: [
+        { role: "system", content: getSystemPrompt(language) },
+        { role: "user", content: question },
+      ],
+      max_tokens: 200,
+      temperature: 0.7,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Grok API error: ${response.status} ${error}`);
+  }
+
+  const data = await response.json();
+  return data.choices[0].message.content;
 }
 
 const RESPONSES_EN: Record<string, string> = {
@@ -98,13 +132,26 @@ export async function askAssistant(
   question: string,
   language: Language,
 ): Promise<string> {
-  if (!API_KEY) return getFallbackResponse(question, language);
-
-  try {
-    const response = await askGemini(question, language);
-    return response;
-  } catch (error) {
-    console.warn("Gemini API error, falling back to static responses:", error);
-    return getFallbackResponse(question, language);
+  // Try Gemini first
+  if (GEMINI_API_KEY) {
+    try {
+      const response = await askGemini(question, language);
+      return response;
+    } catch (error) {
+      console.warn("Gemini API error, trying Grok:", error);
+    }
   }
+
+  // Try Grok as fallback
+  if (GROK_API_KEY) {
+    try {
+      const response = await askGrok(question, language);
+      return response;
+    } catch (error) {
+      console.warn("Grok API error, using static responses:", error);
+    }
+  }
+
+  // Final fallback to static responses
+  return getFallbackResponse(question, language);
 }
