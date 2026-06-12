@@ -5,7 +5,7 @@ import type { Language } from "@/lib/index";
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GROK_API_KEY = import.meta.env.VITE_GROK_API_KEY;
 
-const genAI = GEMINI_API_KEY?.startsWith("AIzaSy") ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
+const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
 
 const profileSummary = `
 Name: ${PROFILE_STATIC.name}
@@ -49,50 +49,72 @@ async function askGemini(
   if (!GEMINI_API_KEY) throw new Error("Gemini API key not configured");
 
   const prompt = `${getSystemPrompt(language)}\n\nVisitor question: ${question}`;
+  const models = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-3.5-flash"];
+  let lastError: any = null;
 
-  if (GEMINI_API_KEY.startsWith("AIzaSy")) {
-    if (!genAI) throw new Error("Gemini SDK not initialized");
-    const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
-    const result = await model.generateContent(prompt);
-    return result.response.text();
-  }
+  for (const modelName of models) {
+    try {
+      // Prefer SDK initialization
+      if (genAI) {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        const text = result.response.text();
+        if (text) return text;
+      }
+      
+      // Fallback to direct REST API
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: 200, temperature: 0.7 },
+          }),
+        }
+      );
 
-  // New key format (AQ....) - use REST API directly
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 200, temperature: 0.7 },
-      }),
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Status ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return data.candidates[0].content.parts[0].text;
+      }
+      throw new Error("Invalid response structure from REST API");
+    } catch (err) {
+      console.warn(`Failed to request Gemini model ${modelName}:`, err);
+      lastError = err;
     }
-  );
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Gemini API error: ${response.status} ${error}`);
   }
 
-  const data = await response.json();
-  return data.candidates[0].content.parts[0].text;
+  throw new Error(`All Gemini models failed. Last error: ${lastError?.message || lastError}`);
 }
 
 async function askGrok(
   question: string,
   language: Language,
 ): Promise<string> {
-  if (!GROK_API_KEY) throw new Error("Grok API key not configured");
+  if (!GROK_API_KEY) throw new Error("Grok/Groq API key not configured");
 
-  const response = await fetch("https://api.x.ai/v1/chat/completions", {
+  const isGroq = GROK_API_KEY.startsWith("gsk_");
+  const endpoint = isGroq 
+    ? "https://api.groq.com/openai/v1/chat/completions"
+    : "https://api.x.ai/v1/chat/completions";
+  
+  const model = isGroq ? "llama-3.3-70b-versatile" : "grok-3-mini";
+
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${GROK_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "grok-3-mini",
+      model: model,
       messages: [
         { role: "system", content: getSystemPrompt(language) },
         { role: "user", content: question },
@@ -104,7 +126,7 @@ async function askGrok(
 
   if (!response.ok) {
     const error = await response.text();
-    throw new Error(`Grok API error: ${response.status} ${error}`);
+    throw new Error(`${isGroq ? "Groq" : "Grok"} API error: ${response.status} ${error}`);
   }
 
   const data = await response.json();
