@@ -2,8 +2,13 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { PROFILE_STATIC, PROJECTS_EN } from "@/lib/data-static";
 import type { Language } from "@/lib/index";
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GROK_API_KEY = import.meta.env.VITE_GROK_API_KEY;
+const cleanApiKey = (key: string | undefined): string => {
+  if (!key) return "";
+  return key.replace(/^['"]|['"]$/g, "").trim();
+};
+
+const GEMINI_API_KEY = cleanApiKey(import.meta.env.VITE_GEMINI_API_KEY);
+const GROK_API_KEY = cleanApiKey(import.meta.env.VITE_GROK_API_KEY);
 
 const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
 
@@ -100,7 +105,7 @@ async function askGrok(
 ): Promise<string> {
   if (!GROK_API_KEY) throw new Error("Grok/Groq API key not configured");
 
-  const isGroq = GROK_API_KEY.startsWith("gsk_");
+  const isGroq = GROK_API_KEY.startsWith("gsk_") || GROK_API_KEY.startsWith("gsk-") || GROK_API_KEY.includes("gsk_");
   const endpoint = isGroq 
     ? "https://api.groq.com/openai/v1/chat/completions"
     : "https://api.x.ai/v1/chat/completions";
