@@ -179,7 +179,7 @@ export function Layout({ children }: LayoutProps) {
               className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/98 backdrop-blur-2xl border-t border-border rounded-t-2xl shadow-2xl max-h-[80vh] overflow-y-auto"
             >
               {/* Drag handle */}
-              <div className={`mx-auto mt-2 w-10 h-1 rounded-full bg-muted-foreground/20 ${isArabic ? 'ml-auto mr-auto' : ''}`} />
+              <div className="mx-auto mt-2 w-10 h-1 rounded-full bg-muted-foreground/20" />
 
               <nav className="px-6 py-5 pb-8">
                 {isHome && navLinks.map((link, i) => (
@@ -189,8 +189,8 @@ export function Layout({ children }: LayoutProps) {
                     initial={{ opacity: 0, x: -16 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.04 }}
-                    onClick={e => { e.preventDefault(); scrollTo(link.href); }}
-                    className="flex items-center gap-3 text-base font-medium text-foreground/75 hover:text-foreground py-[13px] border-b border-border/40 transition-colors"
+                      onClick={e => { e.preventDefault(); scrollTo(link.href); }}
+                    className="flex items-center gap-3 text-base font-medium text-foreground/75 hover:text-foreground py-3.5 border-b border-border/40 transition-colors"
                   >
                     {link.label}
                   </motion.a>
@@ -205,7 +205,7 @@ export function Layout({ children }: LayoutProps) {
                     <Link
                       to={link.href}
                       onClick={() => setMobileOpen(false)}
-                      className="flex items-center gap-3 text-base font-medium text-foreground/75 hover:text-emerald-brand py-[13px] border-b border-border/40 transition-colors"
+                      className="flex items-center gap-3 text-base font-medium text-foreground/75 hover:text-emerald-brand py-3.5 border-b border-border/40 transition-colors"
                     >
                       {link.label}
                     </Link>
@@ -222,14 +222,14 @@ export function Layout({ children }: LayoutProps) {
                   <button
                     onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                     aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-                    className="flex items-center text-muted-foreground p-[13px] border border-border rounded-sm"
+                    className="flex items-center text-muted-foreground p-3.5 border border-border rounded-sm"
                   >
                     {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                   </button>
                   <button
                     onClick={toggleLanguage}
                     aria-label={language === 'ar' ? 'تغيير اللغة إلى الإنجليزية' : 'Switch language to Arabic'}
-                    className="flex items-center gap-1.5 text-xs font-mono font-semibold text-muted-foreground p-[13px] border border-border rounded-sm"
+                    className="flex items-center gap-1.5 text-xs font-mono font-semibold text-muted-foreground p-3.5 border border-border rounded-sm"
                   >
                     <Globe className="w-4 h-4" />
                     {isArabic ? 'EN' : 'AR'}

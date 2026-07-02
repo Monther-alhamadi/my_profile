@@ -758,11 +758,11 @@ export default function Home() {
               <RevealWrapper delay={0.28} direction="left">
                 <div className="flex gap-3">
                   <a href={CONTACT_INFO.github} target="_blank" rel="noopener noreferrer"
-                     className="p-[13px] border border-ivory/14 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/45">
+                     className="p-3.5 border border-ivory/14 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/45 active:border-emerald-brand active:text-emerald-brand">
                     <SiGithub className="w-5 h-5" />
                   </a>
                   <a href={CONTACT_INFO.linkedin} target="_blank" rel="noopener noreferrer"
-                     className="p-[13px] border border-ivory/14 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/45">
+                     className="p-3.5 border border-ivory/14 rounded-sm hover:border-emerald-brand hover:text-emerald-brand transition-colors text-ivory/45 active:border-emerald-brand active:text-emerald-brand">
                     <SiLinkedin className="w-5 h-5" />
                   </a>
                 </div>

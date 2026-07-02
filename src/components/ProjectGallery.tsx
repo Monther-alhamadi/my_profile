@@ -154,7 +154,7 @@ export default function ProjectGallery({ images, title, projectId }: ProjectGall
   return (
     <div className="relative group">
       <div
-        className="relative overflow-hidden rounded-sm cursor-pointer border border-white/[0.06] transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.15)] aspect-[4/3]"
+        className="relative overflow-hidden rounded-sm cursor-pointer border border-white/[0.06] transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.15)] active:border-emerald-500/30 aspect-[4/3]"
         onClick={() => setZoomed(!zoomed)}
         onMouseEnter={() => clearInterval(intervalRef.current)}
         onMouseLeave={() => {
@@ -241,16 +241,16 @@ export default function ProjectGallery({ images, title, projectId }: ProjectGall
             : (language === 'ar' ? 'تطبيق جوال' : 'Mobile App')}
         </div>
 
-        {/* Hover gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10" />
+        {/* Hover gradient — always visible gradient on mobile */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10" />
 
-        {/* Toggle button */}
+        {/* Toggle button — always visible on mobile */}
         <button
           onClick={(e) => { e.stopPropagation(); toggleView() }}
           aria-label={view === 'desktop'
             ? (language === 'ar' ? 'عرض الجوال' : 'Switch to mobile view')
             : (language === 'ar' ? 'عرض سطح المكتب' : 'Switch to desktop view')}
-          className="absolute bottom-3 right-3 z-20 px-3 py-1.5 text-[11px] font-mono font-semibold uppercase tracking-wider rounded-sm bg-black/60 text-white/70 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-400 transition-all backdrop-blur-md opacity-0 group-hover:opacity-100 flex items-center gap-1.5"
+          className="absolute bottom-3 right-3 z-20 px-3 py-1.5 text-[11px] font-mono font-semibold uppercase tracking-wider rounded-sm bg-black/60 text-white/70 border border-white/10 hover:border-emerald-500/50 hover:text-emerald-400 transition-all backdrop-blur-md opacity-100 md:opacity-0 md:group-hover:opacity-100 flex items-center gap-1.5 active:bg-black/80 active:text-emerald-400"
         >
           {view === 'desktop' ? <Smartphone className="w-3.5 h-3.5" /> : <Monitor className="w-3.5 h-3.5" />}
           {view === 'desktop'
