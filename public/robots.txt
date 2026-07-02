@@ -6,4 +6,4 @@ Allow: /assistant
 Disallow: /dashboard
 Disallow: /dashboard/login
 
-Sitemap: https://my-profile.vercel.app/sitemap.xml
+Sitemap: https://montheralhamadi.vercel.app/sitemap.xml

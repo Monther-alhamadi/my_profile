@@ -21,5 +21,11 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/((?!assets/|images/|favicon.ico|cv.pdf|placeholder.svg|manifest.json|robots.txt|sitemap.xml|sw.js|google).*)",
+      "destination": "/index.html"
+    }
   ]
 }
