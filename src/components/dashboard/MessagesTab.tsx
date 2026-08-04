@@ -134,7 +134,7 @@ export default function MessagesTab() {
                   className="px-4 pb-4 border-t border-border/30"
                 >
                   <div className="pt-3 space-y-2">
-                    <div className="flex gap-4 text-xs text-muted-foreground font-mono">
+                    <div className="flex flex-col sm:flex-row gap-1 sm:gap-4 text-xs text-muted-foreground font-mono">
                       <span><span className="text-foreground/50">{language === 'ar' ? 'البريد' : 'Email'}:</span> {msg.email}</span>
                       {msg.subject && (
                         <span><span className="text-foreground/50">{language === 'ar' ? 'الموضوع' : 'Subject'}:</span> {msg.subject}</span>

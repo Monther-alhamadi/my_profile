@@ -6,6 +6,7 @@ import { useUpdateProfile } from '@/services/portfolio-queries'
 import { uploadImage, getImagePath } from '@/services/storage'
 import { useAuth } from '@/hooks/useAuth'
 import type { ProfileData } from '@/lib'
+import { PROFILE_STATIC } from '@/lib/data-static'
 import ImageUploader from './ImageUploader'
 import { toast } from 'sonner'
 
@@ -26,23 +27,32 @@ export default function ProfileTab() {
 
   useEffect(() => {
     fetchProfile().then(p => {
-      if (p) {
-        setProfile(p)
-        setForm({
-          name: p.name, title_en: p.title_en, title_ar: p.title_ar,
-          bio_en: p.bio_en, bio_ar: p.bio_ar, location: p.location,
-          email: p.email, github_url: p.github_url ?? '',
-          linkedin_url: p.linkedin_url ?? '',
-          facebook_url: p.facebook_url ?? '',
-          cv_url: p.cv_url ?? '',
-        })
-      }
-    }).catch(() => toast.error(language === 'ar' ? 'فشل تحميل البروفايل' : 'Failed to load profile'))
+      const initial = p || PROFILE_STATIC
+      setProfile(initial)
+      setForm({
+        name: initial.name, title_en: initial.title_en, title_ar: initial.title_ar,
+        bio_en: initial.bio_en, bio_ar: initial.bio_ar, location: initial.location,
+        email: initial.email, github_url: initial.github_url ?? '',
+        linkedin_url: initial.linkedin_url ?? '',
+        facebook_url: initial.facebook_url ?? '',
+        cv_url: initial.cv_url ?? '',
+      })
+    }).catch(() => {
+      setProfile(PROFILE_STATIC)
+      setForm({
+        name: PROFILE_STATIC.name, title_en: PROFILE_STATIC.title_en, title_ar: PROFILE_STATIC.title_ar,
+        bio_en: PROFILE_STATIC.bio_en, bio_ar: PROFILE_STATIC.bio_ar, location: PROFILE_STATIC.location,
+        email: PROFILE_STATIC.email, github_url: PROFILE_STATIC.github_url ?? '',
+        linkedin_url: PROFILE_STATIC.linkedin_url ?? '',
+        facebook_url: PROFILE_STATIC.facebook_url ?? '',
+        cv_url: PROFILE_STATIC.cv_url ?? '',
+      })
+    })
     .finally(() => setLoading(false))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSave = async () => {
-    if (!profile?.id) return
+    const targetId = profile?.id || '1'
     setSaving(true)
     const updates: Record<string, string | null> = { ...form }
     updates.github_url = updates.github_url || null
@@ -59,7 +69,8 @@ export default function ProfileTab() {
         const path = getImagePath(user.id, 'cv', cvFile.name)
         updates.cv_url = await uploadImage(cvFile, path)
       }
-      await updateMut.mutateAsync({ id: profile.id, updates })
+      await updateMut.mutateAsync({ id: targetId, updates })
+      setProfile(prev => prev ? { ...prev, ...updates, id: targetId } : { id: targetId, ...updates } as ProfileData)
       toast.success(language === 'ar' ? 'تم حفظ البروفايل' : 'Profile saved')
     } catch {
       toast.error(language === 'ar' ? 'فشل الحفظ' : 'Save failed')
@@ -78,8 +89,8 @@ export default function ProfileTab() {
       </div>
 
       <div className="max-w-2xl space-y-6">
-        <div className="flex gap-6">
-          <div className="w-32 flex-shrink-0">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
+          <div className="w-full sm:w-32 flex-shrink-0">
             <label className="text-xs font-mono font-semibold text-muted-foreground mb-2 block">{language === 'ar' ? 'الصورة الرمزية' : 'Avatar'}</label>
             <ImageUploader currentUrl={profile?.avatar_url} onUpload={async (file) => setAvatarFile(file)} />
           </div>
@@ -90,7 +101,7 @@ export default function ProfileTab() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           <div>
             <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">{language === 'ar' ? 'الاسم' : 'Name'} *</label>
             <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none" />
@@ -123,7 +134,7 @@ export default function ProfileTab() {
           <input value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none" />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
           <div>
             <label className="text-xs font-mono font-semibold text-muted-foreground mb-1 block">GitHub</label>
             <input value={form.github_url} onChange={e => setForm(f => ({ ...f, github_url: e.target.value }))} className="w-full h-9 px-3 border border-border rounded-sm text-sm focus:border-emerald-brand focus:outline-none" placeholder="https://github.com/..." />

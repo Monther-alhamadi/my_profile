@@ -24,7 +24,7 @@ const cards = [
 export default function StatsSummary({ projectCount, skillCount, serviceCount, experienceCount, testimonialCount, messageCount, unreadCount }: StatsSummaryProps) {
   const { language } = useLanguage()
 
-  const values: Record<string, { value: number; label: string }> = {
+  const values: Record<string, { value: number; label: string; extra?: string }> = {
     projects: { value: projectCount, label: language === 'ar' ? 'المشاريع' : 'Projects' },
     skills: { value: skillCount, label: language === 'ar' ? 'المهارات' : 'Skills' },
     services: { value: serviceCount, label: language === 'ar' ? 'الخدمات' : 'Services' },

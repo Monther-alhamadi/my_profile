@@ -202,7 +202,7 @@ export function TiltCard({
   const rotateX = useTransform(springY, [0, 1], [-tiltDegree, tiltDegree]);
   const glareX = useTransform(springX, [0, 1], [0, 100]);
   const glareY = useTransform(springY, [0, 1], [0, 100]);
-  const glareBackground = useTransform([glareX, glareY], (gx: number, gy: number) =>
+  const glareBackground = useTransform([glareX, glareY], ([gx, gy]: number[]) =>
     `radial-gradient(circle at ${gx}% ${gy}%, rgba(255,255,255,0.15), transparent 70%)`
   );
 
@@ -232,7 +232,7 @@ export function TiltCard({
       {glare && (
         <motion.div
           className="pointer-events-none absolute inset-0 z-10"
-          style={{ background: glareBackground }}
+          style={{ backgroundImage: glareBackground }}
         />
       )}
     </motion.div>

@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 const pulse = {
   initial: { opacity: 0.5 },
   animate: { opacity: [0.5, 0.8, 0.5] },
-  transition: { duration: 1.4, repeat: Infinity, ease: 'easeInOut' },
+  transition: { duration: 1.4, repeat: Infinity, ease: 'easeInOut' as const },
 }
 
 export function SkeletonBlock({ className = '' }: { className?: string }) {

@@ -112,7 +112,7 @@ export default function TestimonialsTab() {
             <Star className="w-3.5 h-3.5" />
             <span>Shared</span>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
             <Field label="Rating" required>
               <div className="flex items-center gap-1 h-9">
                 {[1, 2, 3, 4, 5].map(n => (

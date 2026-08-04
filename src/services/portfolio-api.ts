@@ -4,15 +4,18 @@ import type {
   Stat, Testimonial, ContactMessage, ProfileData,
 } from '@/lib';
 
-function localeFilter<T extends { locale: string }>(data: T[], locale: Language): T[] {
-  return data.filter(item => item.locale === locale);
+function localeFilter<T extends { locale?: string }>(data: T[], locale: Language): T[] {
+  return data.filter(item => !item.locale || item.locale === locale);
 }
 
-function parseJSONFields<T extends Record<string, unknown>>(item: T, ...fields: string[]): T {
+function parseJSONFields<T>(item: T, ...fields: string[]): T {
   const result = { ...item };
   for (const f of fields) {
-    if (typeof result[f] === 'string') {
-      try { (result as Record<string, unknown>)[f] = JSON.parse(result[f] as string); } catch { /* keep as-is */ }
+    const val = (result as Record<string, unknown>)[f];
+    if (typeof val === 'string') {
+      try {
+        (result as Record<string, unknown>)[f] = JSON.parse(val);
+      } catch { /* keep as-is */ }
     }
   }
   return result;
@@ -63,9 +66,9 @@ export async function fetchTestimonials(locale: Language): Promise<Testimonial[]
 }
 
 export async function fetchProfile(): Promise<ProfileData | null> {
-  const { data, error } = await supabase.from('profile').select('*').limit(1).single();
+  const { data, error } = await supabase.from('profile').select('*').limit(1).maybeSingle();
   if (error) throw error;
-  return data as ProfileData;
+  return data as ProfileData | null;
 }
 
 // ── Contact (public insert / authenticated read+update+delete) ──
@@ -295,7 +298,7 @@ export async function deleteTestimonial(id: string, locale: string): Promise<voi
 // ── CRUD: Profile ──
 
 export async function updateProfile(id: string, updates: Partial<ProfileData>): Promise<void> {
-  const payload: Record<string, unknown> = {};
+  const payload: Record<string, unknown> = { id };
   if (updates.name !== undefined) payload.name = updates.name;
   if (updates.title_en !== undefined) payload.title_en = updates.title_en;
   if (updates.title_ar !== undefined) payload.title_ar = updates.title_ar;
@@ -308,7 +311,7 @@ export async function updateProfile(id: string, updates: Partial<ProfileData>): 
   if (updates.linkedin_url !== undefined) payload.linkedin_url = updates.linkedin_url;
   if (updates.facebook_url !== undefined) payload.facebook_url = updates.facebook_url;
   if (updates.cv_url !== undefined) payload.cv_url = updates.cv_url;
-  const { error } = await supabase.from('profile').update(payload).eq('id', id);
+  const { error } = await supabase.from('profile').upsert(payload, { onConflict: 'id' });
   if (error) throw error;
 }
 

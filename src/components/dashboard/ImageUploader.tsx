@@ -40,7 +40,7 @@ export default function ImageUploader({ currentUrl, onUpload, onRemove }: ImageU
       {preview ? (
         <div className="relative w-full h-40 rounded-sm overflow-hidden border border-border bg-muted/30 group">
           <img src={preview} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+          <div className="absolute inset-0 bg-black/30 md:bg-black/0 md:group-hover:bg-black/30 transition-colors flex items-center justify-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100">
             <button onClick={() => inputRef.current?.click()} disabled={uploading} className="p-2 bg-white/90 rounded-sm hover:bg-white transition-colors">
               <Upload className="w-4 h-4 text-obsidian" />
             </button>

@@ -1,9 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, isValidElement } from 'react'
 import { Pencil, Trash2, GripVertical, Search, X, Download, Trash } from 'lucide-react'
-import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, closestCenter, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
 import type { DragEndEvent } from '@dnd-kit/core'
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { useLanguage } from '@/hooks/useLanguage'
 
 interface Column<T> {
@@ -33,7 +32,7 @@ function getTextContent(node: React.ReactNode): string {
   if (node == null || typeof node === 'boolean') return ''
   if (typeof node === 'string' || typeof node === 'number') return String(node)
   if (Array.isArray(node)) return node.map(getTextContent).join(' ')
-  if (typeof node === 'object' && 'props' in node) return getTextContent((node as React.ReactElement).props.children)
+  if (isValidElement(node)) return getTextContent((node.props as { children?: React.ReactNode }).children)
   return ''
 }
 
@@ -55,7 +54,10 @@ export default function DataTable<T>({
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Set<string>>(new Set())
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } })
+  )
 
   const filtered = useMemo(() => {
     if (!search.trim()) return data
@@ -141,12 +143,12 @@ export default function DataTable<T>({
   }
 
   const tableContent = (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto border border-border/40 rounded-sm">
+      <table className="w-full text-sm min-w-[520px]">
         <thead>
-          <tr className="border-b border-border">
+          <tr className="border-b border-border bg-muted/20">
             {onEdit || onDelete ? (
-              <th className="text-left py-3 pr-2 w-10">
+              <th className="text-left py-2.5 px-3 w-10 whitespace-nowrap">
                 {onBulkDelete ? (
                   <input
                     type="checkbox"
@@ -160,12 +162,12 @@ export default function DataTable<T>({
               </th>
             ) : null}
             {columns.map(col => (
-              <th key={col.key} className={`text-left py-3 font-mono text-xs font-semibold text-muted-foreground uppercase tracking-wider ${col.className ?? ''}`}>
+              <th key={col.key} className={`text-left py-2.5 px-3 font-mono text-xs font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap ${col.className ?? ''}`}>
                 {col.header}
               </th>
             ))}
             {(onEdit || onDelete) ? (
-              <th className="text-right py-3 w-24" />
+              <th className="text-right py-2.5 px-3 w-20 whitespace-nowrap" />
             ) : null}
           </tr>
         </thead>
@@ -182,7 +184,7 @@ export default function DataTable<T>({
               return (
                 <tr key={itemId} className={`border-b border-border/40 hover:bg-muted/30 transition-colors ${selected.has(itemId) ? 'bg-emerald-50/50' : ''}`}>
                   {onEdit || onDelete ? (
-                    <td className="py-3 pr-2">
+                    <td className="py-2.5 px-3">
                       {onBulkDelete ? (
                         <input
                           type="checkbox"
@@ -196,20 +198,20 @@ export default function DataTable<T>({
                     </td>
                   ) : null}
                   {columns.map(col => (
-                    <td key={col.key} className={`py-3 ${col.className ?? ''}`}>
+                    <td key={col.key} className={`py-2.5 px-3 ${col.className ?? ''}`}>
                       {col.render(item)}
                     </td>
                   ))}
                   {(onEdit || onDelete) ? (
-                    <td className="py-3 text-right">
+                    <td className="py-2.5 px-3 text-right">
                       <div className="flex items-center gap-1 justify-end">
                         {onEdit && (
-                          <button onClick={() => onEdit(item)} className="p-2 hover:bg-muted rounded-sm transition-colors" title="Edit">
+                          <button onClick={() => onEdit(item)} className="p-1.5 sm:p-2 hover:bg-muted rounded-sm transition-colors" title="Edit">
                             <Pencil className="w-4 h-4 text-muted-foreground/60 hover:text-emerald-brand" />
                           </button>
                         )}
                         {onDelete && (
-                          <button onClick={() => onDelete(item)} className="p-2 hover:bg-red-50 rounded-sm transition-colors" title="Delete">
+                          <button onClick={() => onDelete(item)} className="p-1.5 sm:p-2 hover:bg-red-50 rounded-sm transition-colors" title="Delete">
                             <Trash2 className="w-4 h-4 text-muted-foreground/60 hover:text-red-500" />
                           </button>
                         )}
@@ -227,7 +229,7 @@ export default function DataTable<T>({
 
   return (
     <div>
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mb-4">
         {data.length > 3 && (
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/50" />
@@ -245,7 +247,7 @@ export default function DataTable<T>({
             )}
           </div>
         )}
-        <div className="flex items-center gap-2 ml-auto shrink-0">
+        <div className="flex items-center justify-end gap-2 shrink-0">
           {hasSelection && onBulkDelete && (
             <button onClick={handleBulkDelete} className="inline-flex items-center gap-1.5 h-9 px-3 text-xs font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-sm transition-colors">
               <Trash className="w-3.5 h-3.5" />

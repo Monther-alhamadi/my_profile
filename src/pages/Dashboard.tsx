@@ -85,7 +85,7 @@ export default function Dashboard() {
   return (
     <div className="section-ivory min-h-screen flex flex-col">
       {/* Top bar */}
-      <div className="bg-white border-b border-border/60 px-6 py-3 flex items-center justify-between flex-shrink-0">
+      <div className="bg-white border-b border-border/60 px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 bg-obsidian rounded-sm flex items-center justify-center lg:hidden">
             <span className="text-ivory font-mono font-bold text-xs">D</span>
@@ -98,30 +98,36 @@ export default function Dashboard() {
           <span className="text-xs text-muted-foreground font-mono hidden sm:block">{user.email}</span>
           <button
             onClick={signOut}
-            className="text-xs font-mono text-red-400 hover:text-red-500 px-3 py-2 border border-red-200 rounded-sm hover:bg-red-50 transition-colors"
+            className="text-xs font-mono text-red-400 hover:text-red-500 px-2.5 py-1.5 sm:px-3 sm:py-2 border border-red-200 rounded-sm hover:bg-red-50 transition-colors"
           >
             {language === 'ar' ? 'خروج' : 'Sign Out'}
           </button>
         </div>
       </div>
 
-      <div className="flex flex-1 overflow-hidden min-h-0">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden min-h-0">
         {/* Sidebar — hidden on small screens via mobile toggle */}
         <div className="hidden lg:block">
           <Sidebar active={activeTab} onSelect={setActiveTab} unreadCount={unreadCount} onSignOut={signOut} />
         </div>
 
         {/* Mobile tabs */}
-        <div className="lg:hidden w-full">
-          <div className="flex overflow-x-auto gap-1 px-4 py-2 border-b border-border/40 bg-white scrollbar-none">
+        <div className="lg:hidden w-full flex-shrink-0 bg-white border-b border-border/40">
+          <div className="flex overflow-x-auto gap-1 px-3 py-1.5 scrollbar-none">
             {(['overview', 'messages', 'projects', 'skills', 'services', 'experience', 'stats', 'testimonials', 'cv', 'profile'] as TabId[]).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`text-xs font-mono whitespace-nowrap px-3 py-3 rounded-sm transition-colors ${
+                className={`text-xs font-mono whitespace-nowrap px-3 py-2 rounded-sm transition-colors relative ${
                   activeTab === tab ? 'bg-emerald-brand/10 text-emerald-brand font-semibold' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
+                {activeTab === tab && (
+                  <motion.div
+                    layoutId="mobile-tab-active"
+                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-emerald-brand rounded-t"
+                  />
+                )}
                 {tab === 'overview' ? (language === 'ar' ? 'نظرة' : 'Overview')
                   : tab === 'messages' ? (language === 'ar' ? 'رسائل' : 'Messages')
                   : tab === 'projects' ? (language === 'ar' ? 'مشاريع' : 'Projects')
@@ -138,7 +144,7 @@ export default function Dashboard() {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8 dashboard-content">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6 lg:p-8 dashboard-content min-h-0">
           {renderTab()}
         </div>
       </div>

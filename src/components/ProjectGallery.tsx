@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { Monitor, Smartphone, Store, Sparkles, Lock, Zap } from 'lucide-react'
+import { Monitor, Smartphone, Store, Sparkles, Lock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/hooks/useLanguage'
 
@@ -127,13 +127,13 @@ function PlaceholderContent({ title, type, language }: { title: string; type: 'm
   )
 }
 
-export default function ProjectGallery({ images, title, projectId }: ProjectGalleryProps) {
+export default function ProjectGallery({ images, title, projectId: _projectId }: ProjectGalleryProps) {
   const { language } = useLanguage()
   const [view, setView] = useState<'desktop' | 'mobile'>(
     images.type === 'mobile-app' ? 'mobile' : 'desktop'
   )
   const [zoomed, setZoomed] = useState(false)
-  const intervalRef = useRef<ReturnType<typeof setInterval>>()
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const isMobileApp = images.type === 'mobile-app'
 
@@ -145,7 +145,7 @@ export default function ProjectGallery({ images, title, projectId }: ProjectGall
     if (!isMobileApp) {
       intervalRef.current = setInterval(toggleView, 5000)
     }
-    return () => clearInterval(intervalRef.current)
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current) }
   }, [toggleView, isMobileApp])
 
   const desktopImg = images.desktop
@@ -156,7 +156,7 @@ export default function ProjectGallery({ images, title, projectId }: ProjectGall
       <div
         className="relative overflow-hidden rounded-sm cursor-pointer border border-white/[0.06] transition-all duration-500 hover:border-emerald-500/30 hover:shadow-[0_0_40px_-15px_rgba(16,185,129,0.15)] active:border-emerald-500/30 aspect-[4/3]"
         onClick={() => setZoomed(!zoomed)}
-        onMouseEnter={() => clearInterval(intervalRef.current)}
+        onMouseEnter={() => { if (intervalRef.current) clearInterval(intervalRef.current) }}
         onMouseLeave={() => {
           if (!isMobileApp) {
             intervalRef.current = setInterval(toggleView, 5000)

@@ -7,7 +7,8 @@ import { supabase } from '@/services/api'
 import html2canvas from 'html2canvas-pro'
 import { jsPDF } from 'jspdf'
 import type { CVData, CVSection } from '@/lib'
-import { PROFILE_STATIC, EXPERIENCE_EN, EXPERIENCE_AR, SKILLS_EN, SKILLS_AR, PROJECTS_EN, PROJECTS_AR } from '@/lib/data-static'
+import { PROFILE_STATIC, EXPERIENCE_EN, EXPERIENCE_AR, SKILLS_EN, PROJECTS_EN, PROJECTS_AR } from '@/lib/data-static'
+import { fetchProfile, fetchExperience, fetchSkills, fetchProjects } from '@/services/portfolio-api'
 
 const DEFAULT_SECTIONS: CVSection[] = [
   { id: 'header', type: 'header', title: 'Header', enabled: true, order: 0, data: {} },
@@ -227,37 +228,67 @@ const PROJECT_LINKS: Record<string, { url?: string; github_url?: string }> = {
   'kayany': { url: 'https://kayany7.vercel.app' },
 }
 
-function buildInitialSections(): CVSection[] {
+async function buildInitialSectionsFromDB(): Promise<CVSection[]> {
   const sections = DEFAULT_SECTIONS.map(s => ({ ...s, data: { ...s.data } }))
+
+  let prof = PROFILE_STATIC
+  try {
+    const dbProf = await fetchProfile()
+    if (dbProf) prof = dbProf
+  } catch { /* use fallback */ }
+
+  let expEn = EXPERIENCE_EN
+  let expAr = EXPERIENCE_AR
+  try {
+    const dbExpEn = await fetchExperience('en')
+    const dbExpAr = await fetchExperience('ar')
+    if (dbExpEn.length) expEn = dbExpEn
+    if (dbExpAr.length) expAr = dbExpAr
+  } catch { /* use fallback */ }
+
+  let skillsEn = SKILLS_EN
+  try {
+    const dbSkills = await fetchSkills('en')
+    if (dbSkills.length) skillsEn = dbSkills
+  } catch { /* use fallback */ }
+
+  let projEn = PROJECTS_EN
+  let projAr = PROJECTS_AR
+  try {
+    const dbProjEn = await fetchProjects('en')
+    const dbProjAr = await fetchProjects('ar')
+    if (dbProjEn.length) projEn = dbProjEn
+    if (dbProjAr.length) projAr = dbProjAr
+  } catch { /* use fallback */ }
 
   const header = sections.find(s => s.id === 'header')!
   header.data = {
-    name: PROFILE_STATIC.name,
-    title_en: PROFILE_STATIC.title_en,
-    title_ar: PROFILE_STATIC.title_ar,
-    email: PROFILE_STATIC.email,
+    name: prof.name || PROFILE_STATIC.name,
+    title_en: prof.title_en || PROFILE_STATIC.title_en,
+    title_ar: prof.title_ar || PROFILE_STATIC.title_ar,
+    email: prof.email || PROFILE_STATIC.email,
     phone: '',
-    location: PROFILE_STATIC.location,
-    linkedin: PROFILE_STATIC.linkedin_url || '',
-    github: PROFILE_STATIC.github_url || '',
+    location: prof.location || PROFILE_STATIC.location,
+    linkedin: prof.linkedin_url || PROFILE_STATIC.linkedin_url || '',
+    github: prof.github_url || PROFILE_STATIC.github_url || '',
     website: '',
   }
 
   const summary = sections.find(s => s.id === 'summary')!
   summary.data = {
-    summary_en: PROFILE_STATIC.bio_en,
-    summary_ar: PROFILE_STATIC.bio_ar,
+    summary_en: prof.bio_en || PROFILE_STATIC.bio_en,
+    summary_ar: prof.bio_ar || PROFILE_STATIC.bio_ar,
   }
 
   const exp = sections.find(s => s.id === 'experience')!
   exp.data = {
-    items: EXPERIENCE_EN.map((e, i) => {
-      const ar = EXPERIENCE_AR[i]
-      const parts = e.year.split(' - ')
+    items: expEn.map((e, i) => {
+      const ar = expAr[i]
+      const parts = (e.year || '').split(' - ')
       const end = parts[1]
       const current = end?.toLowerCase() === 'present'
       return {
-        id: crypto.randomUUID(),
+        id: e.id || crypto.randomUUID(),
         role: e.title,
         company: e.company,
         start_date: parts[0] || '',
@@ -265,8 +296,8 @@ function buildInitialSections(): CVSection[] {
         current,
         description_en: e.description,
         description_ar: ar?.description || '',
-        achievements_en: e.achievements,
-        achievements_ar: ar?.achievements || [],
+        achievements_en: Array.isArray(e.achievements) ? e.achievements : [],
+        achievements_ar: Array.isArray(ar?.achievements) ? ar.achievements : [],
         technologies: [],
       }
     }),
@@ -274,26 +305,26 @@ function buildInitialSections(): CVSection[] {
 
   const skills = sections.find(s => s.id === 'skills')!
   skills.data = {
-    skill_categories: SKILLS_EN.map(s => ({
-      id: crypto.randomUUID(),
+    skill_categories: skillsEn.map(s => ({
+      id: s.id || crypto.randomUUID(),
       name: s.category,
-      skills: s.technologies,
+      skills: Array.isArray(s.technologies) ? s.technologies : [],
     })),
   }
 
   const projects = sections.find(s => s.id === 'projects')!
   projects.data = {
-    project_items: PROJECTS_EN.map((p, i) => {
-      const ar = PROJECTS_AR[i]
+    project_items: projEn.map((p, i) => {
+      const ar = projAr[i]
       const cvDesc = PROJECT_CV_DESCRIPTIONS[p.id]
       const links = PROJECT_LINKS[p.id] || {}
       return {
-        id: crypto.randomUUID(),
+        id: p.id || crypto.randomUUID(),
         name: p.title,
         description_en: cvDesc?.en || p.solution,
         description_ar: cvDesc?.ar || ar?.solution || '',
-        technologies: p.technologies,
-        url: links.url || '',
+        technologies: Array.isArray(p.technologies) ? p.technologies : [],
+        url: p.link_url || links.url || '',
         github_url: links.github_url || '',
       }
     }),
@@ -304,7 +335,7 @@ function buildInitialSections(): CVSection[] {
 
 /* ── Generate Print HTML ────────────────────────────────── */
 
-function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily: string, isAr: boolean): string {
+export function generatePrintHTML(sections: CVSection[], themeColor: string, fontFamily: string, isAr: boolean): string {
   const dir = isAr ? 'rtl' : 'ltr'
   const ff = fontFamily === 'ibm-plex' ? '"IBM Plex Sans Arabic", Inter, sans-serif' : fontFamily === 'geist' ? 'Geist, Inter, sans-serif' : 'Inter, system-ui, sans-serif'
 
@@ -545,27 +576,33 @@ export default function CVBuilder() {
       .from('cvs')
       .select('*')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
     if (error && error.code !== 'PGRST116') return
     if (data) {
       setCv(data as unknown as CVData)
     } else {
+      const initSections = await buildInitialSectionsFromDB()
       setCv({
         user_id: user.id,
         locale: language,
-        sections: buildInitialSections(),
+        sections: initSections,
         template: 'modern',
         settings: { ...DEFAULT_SETTINGS },
       })
     }
   }
 
-  const refreshFromPortfolio = () => {
-    setCv(prev => ({
-      ...prev,
-      sections: buildInitialSections(),
-    }))
-    toast.success(language === 'ar' ? 'تم تحديث البيانات من الملف الشخصي' : 'Data refreshed from portfolio')
+  const refreshFromPortfolio = async () => {
+    try {
+      const freshSections = await buildInitialSectionsFromDB()
+      setCv(prev => ({
+        ...prev,
+        sections: freshSections,
+      }))
+      toast.success(language === 'ar' ? 'تم تحديث البيانات من قاعدة البيانات والملف الشخصي' : 'Data refreshed from portfolio DB')
+    } catch {
+      toast.error(language === 'ar' ? 'فشل تحديث البيانات' : 'Failed to refresh data')
+    }
   }
 
   const saveCV = async () => {
@@ -672,15 +709,15 @@ export default function CVBuilder() {
         <div className="flex gap-2">
           <button onClick={() => setPreview(true)} className="btn-outline text-xs py-2 px-3">
             <Eye className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline ml-1">{isAr ? 'معاينة' : 'Preview'}</span>
+            <span className="hidden sm:inline ml-1">{isAr ? 'معاينة' : 'Preview'}</span>
           </button>
           <button onClick={refreshFromPortfolio} className="btn-outline text-xs py-2 px-3" title={isAr ? 'تحديث من الملف الشخصي' : 'Refresh from portfolio'}>
             <RotateCcw className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline ml-1">{isAr ? 'تحديث' : 'Refresh'}</span>
+            <span className="hidden sm:inline ml-1">{isAr ? 'تحديث' : 'Refresh'}</span>
           </button>
           <button onClick={saveCV} disabled={saving} className="btn-emerald text-xs py-2 px-3">
             <Save className="w-3.5 h-3.5" />
-            <span className="hidden xs:inline ml-1">{saving ? (isAr ? 'جاري الحفظ...' : 'Saving...') : (isAr ? 'حفظ' : 'Save')}</span>
+            <span className="hidden sm:inline ml-1">{saving ? (isAr ? 'جاري الحفظ...' : 'Saving...') : (isAr ? 'حفظ' : 'Save')}</span>
           </button>
         </div>
       </div>
@@ -723,19 +760,19 @@ export default function CVBuilder() {
 
 function SettingsPanel({ cv, setCv, isAr }: { cv: CVData; setCv: (c: CVData) => void; isAr: boolean }) {
   return (
-    <div className="border border-ivory/10 rounded-sm p-4 bg-white">
+    <div className="border border-border/60 rounded-sm p-4 bg-white">
       <div className="flex items-center gap-2 mb-4">
         <Settings className="w-4 h-4 text-emerald-brand" />
         <h3 className="text-sm font-bold text-obsidian">{isAr ? 'الإعدادات' : 'Settings'}</h3>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
         <div>
           <label className="text-xs font-mono text-muted-foreground">{isAr ? 'اللون الأساسي' : 'Theme Color'}</label>
-          <input type="color" value={cv.settings.theme_color} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, theme_color: e.target.value } })} className="w-full h-8 rounded cursor-pointer mt-1" />
+          <input type="color" value={cv.settings.theme_color} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, theme_color: e.target.value } })} className="w-full h-9 rounded cursor-pointer mt-1" />
         </div>
         <div>
           <label className="text-xs font-mono text-muted-foreground">{isAr ? 'الخط' : 'Font'}</label>
-          <select value={cv.settings.font_family} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, font_family: e.target.value as any } })} className="w-full text-xs bg-ivory/5 border border-ivory/10 rounded px-2 py-1.5 mt-1">
+          <select value={cv.settings.font_family} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, font_family: e.target.value as any } })} className="w-full text-xs bg-white border border-border rounded px-2 py-1.5 mt-1 h-9">
             <option value="inter">Inter</option>
             <option value="ibm-plex">IBM Plex</option>
             <option value="system">System</option>
@@ -746,7 +783,7 @@ function SettingsPanel({ cv, setCv, isAr }: { cv: CVData; setCv: (c: CVData) => 
         </div>
         <div>
           <label className="text-xs font-mono text-muted-foreground">{isAr ? 'التباعد' : 'Spacing'}</label>
-          <select value={cv.settings.spacing} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, spacing: e.target.value as any } })} className="w-full text-xs bg-ivory/5 border border-ivory/10 rounded px-2 py-1.5 mt-1">
+          <select value={cv.settings.spacing} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, spacing: e.target.value as any } })} className="w-full text-xs bg-white border border-border rounded px-2 py-1.5 mt-1 h-9">
             <option value="compact">{isAr ? 'مضغوط' : 'Compact'}</option>
             <option value="normal">{isAr ? 'عادي' : 'Normal'}</option>
             <option value="relaxed">{isAr ? 'واسع' : 'Relaxed'}</option>
@@ -754,7 +791,7 @@ function SettingsPanel({ cv, setCv, isAr }: { cv: CVData; setCv: (c: CVData) => 
         </div>
         <div>
           <label className="text-xs font-mono text-muted-foreground">{isAr ? 'القالب' : 'Template'}</label>
-          <select value={cv.template} onChange={(e) => setCv({ ...cv, template: e.target.value as any })} className="w-full text-xs bg-ivory/5 border border-ivory/10 rounded px-2 py-1.5 mt-1">
+          <select value={cv.template} onChange={(e) => setCv({ ...cv, template: e.target.value as any })} className="w-full text-xs bg-white border border-border rounded px-2 py-1.5 mt-1 h-9">
             <option value="modern">{isAr ? 'حديث' : 'Modern'}</option>
             <option value="classic">{isAr ? 'كلاسيكي' : 'Classic'}</option>
             <option value="minimal">{isAr ? 'بسيط' : 'Minimal'}</option>
@@ -773,20 +810,20 @@ function SectionCard({ section, index, total, isActive, isAr, onToggle, onMoveUp
   onToggle: () => void; onMoveUp: () => void; onMoveDown: () => void; onToggleActive: () => void; onUpdate: (data: any) => void;
 }) {
   return (
-    <div className={`border rounded-sm transition-all ${section.enabled ? 'border-ivory/10' : 'border-red-200 bg-red-50/30'} ${isActive ? 'ring-1 ring-emerald-brand' : ''}`}>
-      <div className="flex items-center gap-1.5 px-3 py-2.5 bg-ivory/5">
-        <GripVertical className="w-4 h-4 text-ivory/30 cursor-grab flex-shrink-0" />
+    <div className={`border rounded-sm transition-all ${section.enabled ? 'border-border/60 bg-white' : 'border-red-200 bg-red-50/30'} ${isActive ? 'ring-1 ring-emerald-brand' : ''}`}>
+      <div className="flex items-center gap-1.5 px-3 py-2.5 bg-muted/10">
+        <GripVertical className="w-4 h-4 text-muted-foreground/40 cursor-grab flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <h3 className={`text-sm font-semibold truncate ${section.enabled ? 'text-obsidian' : 'text-muted-foreground line-through'}`}>{section.title}</h3>
         </div>
         {!section.enabled && <span className="text-[10px] text-red-500 whitespace-nowrap hidden sm:inline">{isAr ? 'معطل' : 'Disabled'}</span>}
-        <div className="flex items-center gap-0.5 sm:gap-1">
-          <button onClick={onToggle} className="p-1 hover:text-emerald-brand transition-colors" title={isAr ? 'تفعيل/تعطيل' : 'Toggle'}>
-            {section.enabled ? <ToggleRight className="w-4 h-4 text-emerald-brand" /> : <ToggleLeft className="w-4 h-4 text-ivory/30" />}
+        <div className="flex items-center gap-1">
+          <button onClick={onToggle} className="p-1.5 hover:text-emerald-brand transition-colors" title={isAr ? 'تفعيل/تعطيل' : 'Toggle'}>
+            {section.enabled ? <ToggleRight className="w-5 h-5 text-emerald-brand" /> : <ToggleLeft className="w-5 h-5 text-muted-foreground/30" />}
           </button>
-          <button onClick={onMoveUp} disabled={index === 0} className="p-1 hover:text-emerald-brand transition-colors disabled:opacity-30"><ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
-          <button onClick={onMoveDown} disabled={index === total - 1} className="p-1 hover:text-emerald-brand transition-colors disabled:opacity-30"><ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" /></button>
-          <button onClick={onToggleActive} className="p-1 hover:text-emerald-brand transition-colors"><Settings className="w-3.5 h-3.5" /></button>
+          <button onClick={onMoveUp} disabled={index === 0} className="p-1.5 hover:text-emerald-brand transition-colors disabled:opacity-30"><ChevronUp className="w-4 h-4" /></button>
+          <button onClick={onMoveDown} disabled={index === total - 1} className="p-1.5 hover:text-emerald-brand transition-colors disabled:opacity-30"><ChevronDown className="w-4 h-4" /></button>
+          <button onClick={onToggleActive} className="p-1.5 hover:text-emerald-brand transition-colors"><Settings className="w-4 h-4" /></button>
         </div>
       </div>
       {isActive && <div className="p-4 border-t border-ivory/10"><SectionEditor section={section} onUpdate={onUpdate} isAr={isAr} /></div>}
@@ -997,7 +1034,7 @@ function CustomEditor({ data, onUpdate, isAr }: { data: any; onUpdate: (d: any) 
 
 /* ── Shared Form Fields ─────────────────────────────────── */
 
-function Field({ label, value, onChange, isAr, className }: { label: string; value: string; onChange: (v: string) => void; isAr: boolean; className?: string }) {
+function Field({ label, value, onChange, isAr: _isAr, className }: { label: string; value: string; onChange: (v: string) => void; isAr: boolean; className?: string }) {
   return (
     <div className={className}>
       <label className="text-[10px] font-mono text-muted-foreground block mb-0.5">{label}</label>
@@ -1006,7 +1043,7 @@ function Field({ label, value, onChange, isAr, className }: { label: string; val
   )
 }
 
-function TextAreaField({ label, value, onChange, isAr, rows = 3 }: { label: string; value: string; onChange: (v: string) => void; isAr: boolean; rows?: number }) {
+function TextAreaField({ label, value, onChange, isAr: _isAr, rows = 3 }: { label: string; value: string; onChange: (v: string) => void; isAr: boolean; rows?: number }) {
   return (
     <div>
       <label className="text-[10px] font-mono text-muted-foreground block mb-0.5">{label}</label>
@@ -1127,7 +1164,9 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onDownloadPDF }
         <div ref={cvRef} id="cv-preview" className="bg-white shadow-lg mx-auto" dir={isAr ? 'rtl' : 'ltr'}
           style={{ width: '210mm', maxWidth: '100%', fontFamily, color: '#1a1a1a', padding: getTplCfg(cv.template, fontFamily, isAr).pagePad }}>
           {sections.map(section => (
-            <CVSectionRender key={section.id} section={section} themeColor={theme_color} isAr={isAr} fontFamily={fontFamily} template={cv.template} />
+            <div key={section.id} style={{ marginBottom: spacingGap }}>
+              <CVSectionRender section={section} themeColor={theme_color} isAr={isAr} fontFamily={fontFamily} template={cv.template} />
+            </div>
           ))}
         </div>
       </div>
