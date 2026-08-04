@@ -32,6 +32,30 @@ const DEFAULT_SETTINGS = {
   rtl: false,
 }
 
+const PRESET_COLORS = [
+  { name: 'Emerald', value: '#10b981' },
+  { name: 'Navy', value: '#1e3a5f' },
+  { name: 'Burgundy', value: '#722f37' },
+  { name: 'Charcoal', value: '#36454f' },
+  { name: 'Teal', value: '#008080' },
+  { name: 'Indigo', value: '#3f51b5' },
+  { name: 'Slate', value: '#475569' },
+  { name: 'Rose', value: '#be123c' },
+  { name: 'Amber', value: '#b45309' },
+  { name: 'Violet', value: '#7c3aed' },
+]
+
+const TEMPLATE_OPTIONS = [
+  { id: 'modern', label_en: 'Modern', label_ar: 'حديث', desc_en: 'Clean centered layout', desc_ar: 'تصميم نظيف ومركزي' },
+  { id: 'classic', label_en: 'Classic', label_ar: 'كلاسيكي', desc_en: 'Serif headings, centered', desc_ar: 'عناوين كلاسيكية مركزية' },
+  { id: 'minimal', label_en: 'Minimal', label_ar: 'بسيط', desc_en: 'Ultra-clean, no borders', desc_ar: 'تصميم بسيط بلا حدود' },
+  { id: 'executive', label_en: 'Executive', label_ar: 'تنفيذي', desc_en: 'Accent bar, shaded entries', desc_ar: 'شريط جانبي مع خلفيات' },
+  { id: 'sidebar', label_en: 'Sidebar', label_ar: 'شريط جانبي', desc_en: 'Colored sidebar column', desc_ar: 'عمود جانبي ملون' },
+  { id: 'two-column', label_en: 'Two-Column', label_ar: 'عمودين', desc_en: 'Dark left, white right', desc_ar: 'عمود داكن وآخر أبيض' },
+  { id: 'timeline', label_en: 'Timeline', label_ar: 'خط زمني', desc_en: 'Vertical timeline dots', desc_ar: 'نقاط على خط زمني' },
+  { id: 'bold-header', label_en: 'Bold Header', label_ar: 'ترويسة جريئة', desc_en: 'Full-width colored banner', desc_ar: 'شريط علوي ملون عريض' },
+]
+
 /* ── Helper Functions and SVG Icons for Contacts ────────── */
 
 const cleanUrlText = (url: string, type: 'linkedin' | 'github' | 'website') => {
@@ -124,6 +148,7 @@ const GitHubIcon = ({ color }: { color: string }) => (
 
 interface TplCfg {
   pagePad: string
+  layout: 'single' | 'sidebar' | 'two-column'
   name: { size: string; weight: number; align: string; color: string; spacing: string }
   title: { size: string; weight: number }
   contact: { size: string; justify: string; gap: string; sep: string }
@@ -136,12 +161,15 @@ interface TplCfg {
   gap: { sec: string; entry: string }
   hFont: string; bFont: string
   accentBar: boolean; entryBg: string | null
+  sidebarBg: string | null; sidebarColor: string | null
+  headerBanner: boolean; timelineDots: boolean
 }
 
 function getTplCfg(tpl: string, ff: string, isAr: boolean = false): TplCfg {
   const serif = 'Merriweather, Georgia, "Times New Roman", serif'
   const m: TplCfg = {
     pagePad: '18mm 20mm',
+    layout: 'single',
     name: { size: '20pt', weight: 800, align: isAr ? 'right' : 'center', color: '#111827', spacing: isAr ? '0' : '0.02em' },
     title: { size: '10.5pt', weight: 500 },
     contact: { size: '8.5pt', justify: isAr ? 'flex-end' : 'center', gap: '14px', sep: '' },
@@ -154,6 +182,8 @@ function getTplCfg(tpl: string, ff: string, isAr: boolean = false): TplCfg {
     gap: { sec: '12pt', entry: '10pt' },
     hFont: ff, bFont: ff,
     accentBar: false, entryBg: null,
+    sidebarBg: null, sidebarColor: null,
+    headerBanner: false, timelineDots: false,
   }
   if (tpl === 'minimal') return { ...m,
     pagePad: '20mm 22mm',
@@ -188,6 +218,52 @@ function getTplCfg(tpl: string, ff: string, isAr: boolean = false): TplCfg {
     sec: { ...m.sec, size: '10pt', spacing: isAr ? '0.03em' : '0.08em', borderW: '0', useBorder: false },
     tech: { ...m.tech, rad: '3pt', pad: '1.5pt 6pt' },
     accentBar: true, entryBg: '#f9fafb',
+  }
+  if (tpl === 'sidebar') return { ...m,
+    pagePad: '0',
+    layout: 'sidebar' as const,
+    name: { size: '16pt', weight: 800, align: isAr ? 'right' : 'left', color: '#ffffff', spacing: '0' },
+    title: { size: '9.5pt', weight: 400 },
+    contact: { size: '8pt', justify: 'flex-start', gap: '8px', sep: '' },
+    sec: { ...m.sec, size: '9.5pt', spacing: isAr ? '0.02em' : '0.08em', borderW: '0', useBorder: false, pb: '0', mb: '6pt' },
+    entry: { ...m.entry, titleSize: '10pt', coSize: '9pt' },
+    body: { ...m.body, size: '9pt', lh: isAr ? 1.55 : 1.35 },
+    skills: { layout: 'inline', size: '8.5pt' },
+    gap: { sec: '10pt', entry: '8pt' },
+    sidebarBg: null, sidebarColor: '#ffffff',
+  }
+  if (tpl === 'two-column') return { ...m,
+    pagePad: '0',
+    layout: 'two-column' as const,
+    name: { size: '18pt', weight: 800, align: isAr ? 'right' : 'left', color: '#ffffff', spacing: '0' },
+    title: { size: '9.5pt', weight: 400 },
+    contact: { size: '8pt', justify: 'flex-start', gap: '6px', sep: '' },
+    sec: { ...m.sec, size: '9.5pt', spacing: isAr ? '0.02em' : '0.08em', borderW: '0', useBorder: false, pb: '0', mb: '6pt' },
+    entry: { ...m.entry, titleSize: '10pt', coSize: '9pt' },
+    body: { ...m.body, size: '9pt', lh: isAr ? 1.55 : 1.35 },
+    skills: { layout: 'inline', size: '8.5pt' },
+    gap: { sec: '10pt', entry: '8pt' },
+    sidebarBg: '#1a1a2e', sidebarColor: '#e2e8f0',
+  }
+  if (tpl === 'timeline') return { ...m,
+    pagePad: '16mm 18mm',
+    name: { size: '22pt', weight: 800, align: isAr ? 'right' : 'center', color: '#111827', spacing: isAr ? '0' : '0.02em' },
+    title: { size: '10.5pt', weight: 500 },
+    contact: { ...m.contact, justify: isAr ? 'flex-end' : 'center' },
+    sec: { ...m.sec, borderW: '0', useBorder: false, pb: '0', mb: '6pt' },
+    entry: { ...m.entry, dateColor: '#ffffff' },
+    bullet: { ch: isAr ? '•' : '•', size: '8pt', useTheme: true },
+    gap: { sec: '14pt', entry: '12pt' },
+    timelineDots: true,
+  }
+  if (tpl === 'bold-header') return { ...m,
+    pagePad: '0',
+    name: { size: '24pt', weight: 800, align: isAr ? 'right' : 'left', color: '#ffffff', spacing: isAr ? '0' : '0.02em' },
+    title: { size: '11pt', weight: 400 },
+    contact: { size: '8.5pt', justify: isAr ? 'flex-end' : 'flex-start', gap: '12px', sep: '' },
+    sec: { ...m.sec, spacing: isAr ? '0.03em' : '0.08em', borderW: '1.5pt', useColor: true, useBorder: true },
+    gap: { sec: '12pt', entry: '10pt' },
+    headerBanner: true,
   }
   return m
 }
@@ -759,47 +835,226 @@ export default function CVBuilder() {
 /* ── Settings Panel ─────────────────────────────────────── */
 
 function SettingsPanel({ cv, setCv, isAr }: { cv: CVData; setCv: (c: CVData) => void; isAr: boolean }) {
+  const themeColor = cv.settings.theme_color
   return (
-    <div className="border border-border/60 rounded-sm p-4 bg-white">
-      <div className="flex items-center gap-2 mb-4">
+    <div className="border border-border/60 rounded-sm p-4 bg-white space-y-5">
+      <div className="flex items-center gap-2">
         <Settings className="w-4 h-4 text-emerald-brand" />
         <h3 className="text-sm font-bold text-obsidian">{isAr ? 'الإعدادات' : 'Settings'}</h3>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+
+      {/* ── Template Cards ── */}
+      <div>
+        <label className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">{isAr ? 'القالب' : 'Template'}</label>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {TEMPLATE_OPTIONS.map(tpl => (
+            <button
+              key={tpl.id}
+              onClick={() => setCv({ ...cv, template: tpl.id as any })}
+              className={`group relative border rounded-md p-2.5 text-left transition-all hover:shadow-md ${cv.template === tpl.id ? 'border-emerald-brand ring-1 ring-emerald-brand bg-emerald-50/40' : 'border-border/60 bg-white hover:border-gray-300'}`}
+            >
+              <TemplateMiniPreview id={tpl.id} color={themeColor} isSelected={cv.template === tpl.id} />
+              <p className={`text-[11px] font-semibold mt-1.5 ${cv.template === tpl.id ? 'text-emerald-brand' : 'text-obsidian'}`}>{isAr ? tpl.label_ar : tpl.label_en}</p>
+              <p className="text-[9px] text-muted-foreground leading-tight">{isAr ? tpl.desc_ar : tpl.desc_en}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Color & Font & Spacing ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="text-xs font-mono text-muted-foreground">{isAr ? 'اللون الأساسي' : 'Theme Color'}</label>
-          <input type="color" value={cv.settings.theme_color} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, theme_color: e.target.value } })} className="w-full h-9 rounded cursor-pointer mt-1" />
+          <label className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{isAr ? 'اللون الأساسي' : 'Theme Color'}</label>
+          <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
+            {PRESET_COLORS.map(c => (
+              <button
+                key={c.value}
+                onClick={() => setCv({ ...cv, settings: { ...cv.settings, theme_color: c.value } })}
+                title={c.name}
+                className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${themeColor === c.value ? 'border-obsidian ring-1 ring-offset-1 ring-obsidian scale-110' : 'border-transparent'}`}
+                style={{ backgroundColor: c.value }}
+              />
+            ))}
+          </div>
+          <input type="color" value={themeColor} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, theme_color: e.target.value } })} className="w-full h-7 rounded cursor-pointer" />
         </div>
         <div>
-          <label className="text-xs font-mono text-muted-foreground">{isAr ? 'الخط' : 'Font'}</label>
-          <select value={cv.settings.font_family} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, font_family: e.target.value as any } })} className="w-full text-xs bg-white border border-border rounded px-2 py-1.5 mt-1 h-9">
+          <label className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{isAr ? 'الخط' : 'Font'}</label>
+          <select value={cv.settings.font_family} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, font_family: e.target.value as any } })} className="w-full text-xs bg-white border border-border rounded px-2 py-1.5 h-9">
             <option value="inter">Inter</option>
-            <option value="ibm-plex">IBM Plex</option>
-            <option value="system">System</option>
+            <option value="ibm-plex">IBM Plex Sans Arabic</option>
+            <option value="system">System UI</option>
             <option value="geist">Geist</option>
             <option value="merriweather">Merriweather (Serif)</option>
             <option value="georgia">Georgia (Serif)</option>
           </select>
         </div>
         <div>
-          <label className="text-xs font-mono text-muted-foreground">{isAr ? 'التباعد' : 'Spacing'}</label>
-          <select value={cv.settings.spacing} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, spacing: e.target.value as any } })} className="w-full text-xs bg-white border border-border rounded px-2 py-1.5 mt-1 h-9">
+          <label className="text-[10px] font-mono font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">{isAr ? 'التباعد' : 'Spacing'}</label>
+          <select value={cv.settings.spacing} onChange={(e) => setCv({ ...cv, settings: { ...cv.settings, spacing: e.target.value as any } })} className="w-full text-xs bg-white border border-border rounded px-2 py-1.5 h-9">
             <option value="compact">{isAr ? 'مضغوط' : 'Compact'}</option>
             <option value="normal">{isAr ? 'عادي' : 'Normal'}</option>
             <option value="relaxed">{isAr ? 'واسع' : 'Relaxed'}</option>
           </select>
         </div>
-        <div>
-          <label className="text-xs font-mono text-muted-foreground">{isAr ? 'القالب' : 'Template'}</label>
-          <select value={cv.template} onChange={(e) => setCv({ ...cv, template: e.target.value as any })} className="w-full text-xs bg-white border border-border rounded px-2 py-1.5 mt-1 h-9">
-            <option value="modern">{isAr ? 'حديث' : 'Modern'}</option>
-            <option value="classic">{isAr ? 'كلاسيكي' : 'Classic'}</option>
-            <option value="minimal">{isAr ? 'بسيط' : 'Minimal'}</option>
-            <option value="executive">{isAr ? 'تنفيذي' : 'Executive'}</option>
-          </select>
-        </div>
       </div>
     </div>
+  )
+}
+
+/* ── Template Mini-Preview SVG ──────────────────────────── */
+
+function TemplateMiniPreview({ id, color, isSelected }: { id: string; color: string; isSelected: boolean }) {
+  const bg = isSelected ? '#f0fdf4' : '#fafafa'
+  const line = '#d1d5db'
+  const w = 64
+  const h = 44
+
+  if (id === 'sidebar') return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="rounded-sm overflow-hidden">
+      <rect width={w} height={h} fill={bg} />
+      <rect x="0" y="0" width="20" height={h} fill={color} opacity="0.85" />
+      <rect x="3" y="4" width="14" height="2" rx="0.5" fill="#fff" />
+      <rect x="3" y="8" width="10" height="1" rx="0.5" fill="#fff" opacity="0.6" />
+      <rect x="3" y="14" width="14" height="1" rx="0.5" fill="#fff" opacity="0.4" />
+      <rect x="3" y="17" width="12" height="1" rx="0.5" fill="#fff" opacity="0.4" />
+      <rect x="3" y="20" width="14" height="1" rx="0.5" fill="#fff" opacity="0.4" />
+      <rect x="24" y="4" width="20" height="2" rx="0.5" fill={color} />
+      <rect x="24" y="9" width="36" height="1" rx="0.5" fill={line} />
+      <rect x="24" y="12" width="34" height="1" rx="0.5" fill={line} />
+      <rect x="24" y="18" width="18" height="2" rx="0.5" fill={color} />
+      <rect x="24" y="23" width="36" height="1" rx="0.5" fill={line} />
+      <rect x="24" y="26" width="30" height="1" rx="0.5" fill={line} />
+      <rect x="24" y="32" width="18" height="2" rx="0.5" fill={color} />
+      <rect x="24" y="37" width="34" height="1" rx="0.5" fill={line} />
+      <rect x="24" y="40" width="28" height="1" rx="0.5" fill={line} />
+    </svg>
+  )
+
+  if (id === 'two-column') return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="rounded-sm overflow-hidden">
+      <rect width={w} height={h} fill={bg} />
+      <rect x="0" y="0" width="24" height={h} fill="#1a1a2e" />
+      <rect x="3" y="4" width="18" height="2.5" rx="0.5" fill="#fff" />
+      <rect x="3" y="9" width="14" height="1" rx="0.5" fill="#94a3b8" />
+      <rect x="3" y="15" width="10" height="1.5" rx="0.5" fill={color} />
+      <rect x="3" y="19" width="18" height="1" rx="0.5" fill="#64748b" />
+      <rect x="3" y="22" width="16" height="1" rx="0.5" fill="#64748b" />
+      <rect x="3" y="28" width="10" height="1.5" rx="0.5" fill={color} />
+      <rect x="3" y="32" width="18" height="1" rx="0.5" fill="#64748b" />
+      <rect x="28" y="4" width="18" height="2" rx="0.5" fill={color} />
+      <rect x="28" y="9" width="32" height="1" rx="0.5" fill={line} />
+      <rect x="28" y="12" width="30" height="1" rx="0.5" fill={line} />
+      <rect x="28" y="18" width="16" height="2" rx="0.5" fill={color} />
+      <rect x="28" y="23" width="32" height="1" rx="0.5" fill={line} />
+      <rect x="28" y="26" width="28" height="1" rx="0.5" fill={line} />
+      <rect x="28" y="32" width="16" height="2" rx="0.5" fill={color} />
+      <rect x="28" y="37" width="30" height="1" rx="0.5" fill={line} />
+    </svg>
+  )
+
+  if (id === 'timeline') return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="rounded-sm overflow-hidden">
+      <rect width={w} height={h} fill={bg} />
+      <rect x="16" y="3" width="32" height="3" rx="0.5" fill="#111827" />
+      <rect x="22" y="8" width="20" height="1" rx="0.5" fill={color} />
+      <line x1="14" y1="14" x2="14" y2="42" stroke={color} strokeWidth="1" opacity="0.4" />
+      <circle cx="14" cy="16" r="2" fill={color} />
+      <rect x="19" y="15" width="22" height="1.5" rx="0.5" fill="#374151" />
+      <rect x="19" y="18.5" width="36" height="1" rx="0.5" fill={line} />
+      <rect x="19" y="21" width="30" height="1" rx="0.5" fill={line} />
+      <circle cx="14" cy="27" r="2" fill={color} />
+      <rect x="19" y="26" width="20" height="1.5" rx="0.5" fill="#374151" />
+      <rect x="19" y="29.5" width="36" height="1" rx="0.5" fill={line} />
+      <rect x="19" y="32" width="32" height="1" rx="0.5" fill={line} />
+      <circle cx="14" cy="38" r="2" fill={color} />
+      <rect x="19" y="37" width="18" height="1.5" rx="0.5" fill="#374151" />
+      <rect x="19" y="40.5" width="34" height="1" rx="0.5" fill={line} />
+    </svg>
+  )
+
+  if (id === 'bold-header') return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="rounded-sm overflow-hidden">
+      <rect width={w} height={h} fill={bg} />
+      <rect x="0" y="0" width={w} height="14" fill={color} />
+      <rect x="4" y="3" width="28" height="3" rx="0.5" fill="#fff" />
+      <rect x="4" y="8" width="20" height="1" rx="0.5" fill="#fff" opacity="0.7" />
+      <rect x="4" y="10.5" width="40" height="1" rx="0.5" fill="#fff" opacity="0.5" />
+      <rect x="4" y="18" width="20" height="2" rx="0.5" fill={color} />
+      <rect x="4" y="23" width="56" height="1" rx="0.5" fill={line} />
+      <rect x="4" y="26" width="50" height="1" rx="0.5" fill={line} />
+      <rect x="4" y="31" width="18" height="2" rx="0.5" fill={color} />
+      <rect x="4" y="36" width="56" height="1" rx="0.5" fill={line} />
+      <rect x="4" y="39" width="44" height="1" rx="0.5" fill={line} />
+    </svg>
+  )
+
+  if (id === 'executive') return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="rounded-sm overflow-hidden">
+      <rect width={w} height={h} fill={bg} />
+      <rect x="4" y="3" width="30" height="3" rx="0.5" fill="#111827" />
+      <rect x="4" y="8" width="18" height="1" rx="0.5" fill={color} />
+      <rect x="0" y="13" width="2" height="6" fill={color} />
+      <rect x="4" y="14" width="16" height="1.5" rx="0.5" fill="#374151" />
+      <rect x="4" y="17.5" width={w - 8} height="4" rx="1" fill="#f9fafb" />
+      <rect x="0" y="24" width="2" height="6" fill={color} />
+      <rect x="4" y="25" width="20" height="1.5" rx="0.5" fill="#374151" />
+      <rect x="4" y="28.5" width={w - 8} height="4" rx="1" fill="#f9fafb" />
+      <rect x="0" y="35" width="2" height="6" fill={color} />
+      <rect x="4" y="36" width="16" height="1.5" rx="0.5" fill="#374151" />
+      <rect x="4" y="39.5" width={w - 8} height="3" rx="1" fill="#f9fafb" />
+    </svg>
+  )
+
+  if (id === 'minimal') return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="rounded-sm overflow-hidden">
+      <rect width={w} height={h} fill={bg} />
+      <rect x="4" y="4" width="24" height="3" rx="0.5" fill="#111827" />
+      <rect x="4" y="9" width="16" height="1" rx="0.5" fill="#9ca3af" />
+      <rect x="4" y="15" width="14" height="1.5" rx="0.5" fill="#6b7280" />
+      <rect x="4" y="19" width={w - 8} height="1" rx="0.5" fill={line} />
+      <rect x="4" y="22" width={w - 12} height="1" rx="0.5" fill={line} />
+      <rect x="4" y="27" width="14" height="1.5" rx="0.5" fill="#6b7280" />
+      <rect x="4" y="31" width={w - 8} height="1" rx="0.5" fill={line} />
+      <rect x="4" y="34" width={w - 14} height="1" rx="0.5" fill={line} />
+      <rect x="4" y="39" width="14" height="1.5" rx="0.5" fill="#6b7280" />
+      <rect x="4" y="42" width="30" height="1" rx="0.5" fill={line} />
+    </svg>
+  )
+
+  if (id === 'classic') return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="rounded-sm overflow-hidden">
+      <rect width={w} height={h} fill={bg} />
+      <rect x="14" y="3" width="36" height="3" rx="0.5" fill="#111827" />
+      <rect x="20" y="8" width="24" height="1" rx="0.5" fill={color} />
+      <rect x="18" y="11" width="28" height="1" rx="0.5" fill="#9ca3af" />
+      <line x1="4" y1="16" x2="60" y2="16" stroke={color} strokeWidth="0.5" />
+      <rect x="18" y="18" width="28" height="2" rx="0.5" fill={color} />
+      <rect x="4" y="23" width={w - 8} height="1" rx="0.5" fill={line} />
+      <rect x="4" y="26" width={w - 12} height="1" rx="0.5" fill={line} />
+      <line x1="4" y1="31" x2="60" y2="31" stroke={color} strokeWidth="0.5" />
+      <rect x="18" y="33" width="28" height="2" rx="0.5" fill={color} />
+      <rect x="4" y="38" width={w - 8} height="1" rx="0.5" fill={line} />
+      <rect x="4" y="41" width={w - 14} height="1" rx="0.5" fill={line} />
+    </svg>
+  )
+
+  // Modern (default)
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="rounded-sm overflow-hidden">
+      <rect width={w} height={h} fill={bg} />
+      <rect x="12" y="3" width="40" height="3" rx="0.5" fill="#111827" />
+      <rect x="18" y="8" width="28" height="1" rx="0.5" fill={color} />
+      <rect x="14" y="11" width="36" height="1" rx="0.5" fill="#9ca3af" />
+      <rect x="4" y="17" width="20" height="2" rx="0.5" fill={color} />
+      <line x1="4" y1="21" x2="60" y2="21" stroke={color} strokeWidth="1" />
+      <rect x="4" y="24" width={w - 8} height="1" rx="0.5" fill={line} />
+      <rect x="4" y="27" width={w - 12} height="1" rx="0.5" fill={line} />
+      <rect x="4" y="32" width="18" height="2" rx="0.5" fill={color} />
+      <line x1="4" y1="36" x2="60" y2="36" stroke={color} strokeWidth="1" />
+      <rect x="4" y="39" width={w - 8} height="1" rx="0.5" fill={line} />
+      <rect x="4" y="42" width={w - 14} height="1" rx="0.5" fill={line} />
+    </svg>
   )
 }
 
@@ -1162,14 +1417,78 @@ function PreviewPane({ cv, previewLang, setPreviewLang, onClose, onDownloadPDF }
 
       <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0 pb-4">
         <div ref={cvRef} id="cv-preview" className="bg-white shadow-lg mx-auto" dir={isAr ? 'rtl' : 'ltr'}
-          style={{ width: '210mm', maxWidth: '100%', fontFamily, color: '#1a1a1a', padding: getTplCfg(cv.template, fontFamily, isAr).pagePad }}>
-          {sections.map(section => (
+          style={{ width: '210mm', maxWidth: '100%', fontFamily, color: '#1a1a1a' }}>
+          <CVLayoutRenderer sections={sections} template={cv.template} themeColor={theme_color} isAr={isAr} fontFamily={fontFamily} spacingGap={spacingGap} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Layout Renderer ─────────────────────────────────────── */
+
+const SIDEBAR_SECTION_TYPES = new Set(['header', 'skills', 'languages', 'certifications'])
+
+function CVLayoutRenderer({ sections, template, themeColor, isAr, fontFamily, spacingGap }: {
+  sections: CVSection[]; template: string; themeColor: string; isAr: boolean; fontFamily: string; spacingGap: string;
+}) {
+  const cfg = getTplCfg(template, fontFamily, isAr)
+
+  if (cfg.layout === 'sidebar' || cfg.layout === 'two-column') {
+    const sidebarSections = sections.filter(s => SIDEBAR_SECTION_TYPES.has(s.type))
+    const mainSections = sections.filter(s => !SIDEBAR_SECTION_TYPES.has(s.type))
+    const bgColor = cfg.layout === 'two-column' ? (cfg.sidebarBg || '#1a1a2e') : themeColor
+    const sideW = cfg.layout === 'two-column' ? '38%' : '32%'
+    const mainW = cfg.layout === 'two-column' ? '62%' : '68%'
+
+    return (
+      <div style={{ display: 'flex', flexDirection: isAr ? 'row-reverse' : 'row', minHeight: '297mm' }}>
+        <div style={{ width: sideW, backgroundColor: bgColor, color: '#ffffff', padding: '24pt 16pt', flexShrink: 0 }}>
+          {sidebarSections.map(section => (
             <div key={section.id} style={{ marginBottom: spacingGap }}>
-              <CVSectionRender section={section} themeColor={theme_color} isAr={isAr} fontFamily={fontFamily} template={cv.template} />
+              <CVSectionRender section={section} themeColor={themeColor} isAr={isAr} fontFamily={fontFamily} template={template} sidebarMode />
+            </div>
+          ))}
+        </div>
+        <div style={{ width: mainW, padding: '24pt 20pt', backgroundColor: '#ffffff', color: '#1a1a1a' }}>
+          {mainSections.map(section => (
+            <div key={section.id} style={{ marginBottom: spacingGap }}>
+              <CVSectionRender section={section} themeColor={themeColor} isAr={isAr} fontFamily={fontFamily} template={template} />
             </div>
           ))}
         </div>
       </div>
+    )
+  }
+
+  if (cfg.headerBanner) {
+    const headerSection = sections.find(s => s.type === 'header')
+    const restSections = sections.filter(s => s.type !== 'header')
+    return (
+      <>
+        {headerSection && (
+          <div style={{ backgroundColor: themeColor, padding: '28pt 24pt 20pt', color: '#ffffff' }}>
+            <CVSectionRender section={headerSection} themeColor={themeColor} isAr={isAr} fontFamily={fontFamily} template={template} sidebarMode />
+          </div>
+        )}
+        <div style={{ padding: '18pt 24pt' }}>
+          {restSections.map(section => (
+            <div key={section.id} style={{ marginBottom: spacingGap }}>
+              <CVSectionRender section={section} themeColor={themeColor} isAr={isAr} fontFamily={fontFamily} template={template} />
+            </div>
+          ))}
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <div style={{ padding: cfg.pagePad }}>
+      {sections.map(section => (
+        <div key={section.id} style={{ marginBottom: spacingGap }}>
+          <CVSectionRender section={section} themeColor={themeColor} isAr={isAr} fontFamily={fontFamily} template={template} />
+        </div>
+      ))}
     </div>
   )
 }
@@ -1195,15 +1514,16 @@ function SectionTitle({ title, themeColor, cfg, isAr }: { title: string; themeCo
   )
 }
 
-function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
-  section: CVSection; themeColor: string; isAr: boolean; fontFamily: string; template: string;
+function CVSectionRender({ section, themeColor, isAr, fontFamily, template, sidebarMode = false }: {
+  section: CVSection; themeColor: string; isAr: boolean; fontFamily: string; template: string; sidebarMode?: boolean;
 }) {
   const d = section.data as any
   const cfg = getTplCfg(template, fontFamily, isAr)
   const bColor = cfg.bullet.useTheme ? themeColor : '#6b7280'
+  const inSidebar = sidebarMode
 
   if (section.type === 'header') {
-    const iconColor = cfg.sec.useColor ? themeColor : '#6b7280'
+    const iconColor = inSidebar ? 'rgba(255,255,255,0.8)' : (cfg.sec.useColor ? themeColor : '#6b7280')
 
     const row1: { icon: React.ReactNode; value: string; href?: string }[] = []
     if (d.location) row1.push({ icon: <MapPinIcon color={iconColor} />, value: d.location })
@@ -1233,26 +1553,30 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
       })
     }
 
-    const alignment = isAr ? 'right' : cfg.name.align
-    const justify = isAr ? 'flex-end' : cfg.contact.justify
+    const alignment = isAr ? 'right' : (inSidebar ? 'left' : cfg.name.align)
+    const justify = isAr ? 'flex-end' : (inSidebar ? 'flex-start' : cfg.contact.justify)
+    const nameColor = inSidebar ? '#ffffff' : cfg.name.color
+    const titleColor = inSidebar ? 'rgba(255,255,255,0.85)' : themeColor
+    const contactColor = inSidebar ? 'rgba(255,255,255,0.75)' : '#6b7280'
+    const contactLinkColor = inSidebar ? 'rgba(255,255,255,0.9)' : '#374151'
 
     return (
       <div style={{ marginBottom: cfg.gap.sec, textAlign: alignment as any }}>
-        {d.name && <h1 style={{ fontSize: cfg.name.size, fontWeight: cfg.name.weight, color: cfg.name.color, margin: 0, lineHeight: 1.2, letterSpacing: cfg.name.spacing, fontFamily: cfg.hFont }}>{d.name}</h1>}
-        {(d.title_en || d.title_ar) && <p style={{ fontSize: cfg.title.size, color: themeColor, fontWeight: cfg.title.weight, margin: '2pt 0 0', fontFamily: cfg.bFont }}>{isAr && d.title_ar ? d.title_ar : d.title_en}</p>}
+        {d.name && <h1 style={{ fontSize: cfg.name.size, fontWeight: cfg.name.weight, color: nameColor, margin: 0, lineHeight: 1.2, letterSpacing: cfg.name.spacing, fontFamily: cfg.hFont }}>{d.name}</h1>}
+        {(d.title_en || d.title_ar) && <p style={{ fontSize: cfg.title.size, color: titleColor, fontWeight: cfg.title.weight, margin: '2pt 0 0', fontFamily: cfg.bFont }}>{isAr && d.title_ar ? d.title_ar : d.title_en}</p>}
         
         {/* Row 1: Location, Email, Phone */}
         {row1.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: cfg.contact.gap, marginTop: '6pt', justifyContent: justify as any, fontSize: cfg.contact.size, color: '#6b7280', fontFamily: cfg.bFont }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: cfg.contact.gap, marginTop: '6pt', justifyContent: justify as any, fontSize: cfg.contact.size, color: contactColor, fontFamily: cfg.bFont }}>
             {row1.map((c, i) => (
               <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 {c.href ? (
-                  <a href={c.href} target="_blank" rel="noopener noreferrer" style={{ color: '#374151', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <a href={c.href} target="_blank" rel="noopener noreferrer" style={{ color: contactLinkColor, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '12px', height: '12px' }}>{c.icon}</span>
                     <span>{c.value}</span>
                   </a>
                 ) : (
-                  <span style={{ color: '#374151', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ color: contactLinkColor, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '12px', height: '12px' }}>{c.icon}</span>
                     <span>{c.value}</span>
                   </span>
@@ -1269,12 +1593,12 @@ function CVSectionRender({ section, themeColor, isAr, fontFamily, template }: {
             {row2.map((c, i) => (
               <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 {c.href ? (
-                  <a href={c.href} target="_blank" rel="noopener noreferrer" style={{ color: '#374151', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <a href={c.href} target="_blank" rel="noopener noreferrer" style={{ color: contactLinkColor, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '12px', height: '12px' }}>{c.icon}</span>
                     <span>{c.value}</span>
                   </a>
                 ) : (
-                  <span style={{ color: '#374151', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                  <span style={{ color: contactLinkColor, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                     <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '12px', height: '12px' }}>{c.icon}</span>
                     <span>{c.value}</span>
                   </span>
