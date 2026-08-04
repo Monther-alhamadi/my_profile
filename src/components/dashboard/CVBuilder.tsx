@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { FileText, Plus, Save, Eye, Download, GripVertical, Trash2, ChevronDown, ChevronUp, Settings, ToggleLeft, ToggleRight, RotateCcw, ArrowLeft } from 'lucide-react'
+import { FileText, Plus, Save, Eye, Download, GripVertical, Trash2, ChevronDown, ChevronUp, Settings, ToggleLeft, ToggleRight, RotateCcw, ArrowLeft, Sparkles, Target } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
@@ -9,6 +9,9 @@ import { jsPDF } from 'jspdf'
 import type { CVData, CVSection } from '@/lib'
 import { PROFILE_STATIC, EXPERIENCE_EN, EXPERIENCE_AR, SKILLS_EN, PROJECTS_EN, PROJECTS_AR } from '@/lib/data-static'
 import { fetchProfile, fetchExperience, fetchSkills, fetchProjects } from '@/services/portfolio-api'
+import { CVAICoPilot } from './CVAICoPilot'
+import { CVATSChecker } from './CVATSChecker'
+import type { CVAIAssistantResponse } from '@/services/gemini-cv-assistant'
 
 const DEFAULT_SECTIONS: CVSection[] = [
   { id: 'header', type: 'header', title: 'Header', enabled: true, order: 0, data: {} },
@@ -640,6 +643,101 @@ export default function CVBuilder() {
   const [preview, setPreview] = useState(false)
   const [previewLang, setPreviewLang] = useState<'en' | 'ar'>(language as 'en' | 'ar')
   const [activeSection, setActiveSection] = useState<string | null>(null)
+  const [isAiOpen, setIsAiOpen] = useState(false)
+  const [isAtsOpen, setIsAtsOpen] = useState(false)
+
+  const handleApplyAIAction = (actionType: CVAIAssistantResponse['actionType'], payload: any) => {
+    if (!payload || actionType === 'NONE') return
+
+    setCv(prevCv => {
+      const updatedSections = [...prevCv.sections]
+
+      if (actionType === 'UPDATE_HEADER') {
+        const idx = updatedSections.findIndex(s => s.type === 'header')
+        if (idx !== -1) {
+          updatedSections[idx] = {
+            ...updatedSections[idx],
+            data: { ...updatedSections[idx].data, ...payload },
+          }
+        }
+      } else if (actionType === 'UPDATE_SUMMARY') {
+        const idx = updatedSections.findIndex(s => s.type === 'summary')
+        if (idx !== -1) {
+          updatedSections[idx] = {
+            ...updatedSections[idx],
+            data: { ...updatedSections[idx].data, ...payload },
+          }
+        }
+      } else if (actionType === 'ADD_EXPERIENCE') {
+        const idx = updatedSections.findIndex(s => s.type === 'experience')
+        if (idx !== -1) {
+          const currentItems = (updatedSections[idx].data as any).items || []
+          const newItem = { id: crypto.randomUUID(), ...payload }
+          updatedSections[idx] = {
+            ...updatedSections[idx],
+            data: { ...updatedSections[idx].data, items: [newItem, ...currentItems] },
+          }
+        }
+      } else if (actionType === 'ADD_EDUCATION') {
+        const idx = updatedSections.findIndex(s => s.type === 'education')
+        if (idx !== -1) {
+          const currentItems = (updatedSections[idx].data as any).education_items || []
+          const newItem = { id: crypto.randomUUID(), ...payload }
+          updatedSections[idx] = {
+            ...updatedSections[idx],
+            data: { ...updatedSections[idx].data, education_items: [newItem, ...currentItems] },
+          }
+        }
+      } else if (actionType === 'ADD_SKILL_CATEGORY') {
+        const idx = updatedSections.findIndex(s => s.type === 'skills')
+        if (idx !== -1) {
+          const currentCats = (updatedSections[idx].data as any).skill_categories || []
+          const newCat = { id: crypto.randomUUID(), ...payload }
+          updatedSections[idx] = {
+            ...updatedSections[idx],
+            data: { ...updatedSections[idx].data, skill_categories: [...currentCats, newCat] },
+          }
+        }
+      } else if (actionType === 'ADD_PROJECT') {
+        const idx = updatedSections.findIndex(s => s.type === 'projects')
+        if (idx !== -1) {
+          const currentItems = (updatedSections[idx].data as any).project_items || []
+          const newItem = { id: crypto.randomUUID(), ...payload }
+          updatedSections[idx] = {
+            ...updatedSections[idx],
+            data: { ...updatedSections[idx].data, project_items: [newItem, ...currentItems] },
+          }
+        }
+      } else if (actionType === 'ADD_CERTIFICATION') {
+        const idx = updatedSections.findIndex(s => s.type === 'certifications')
+        if (idx !== -1) {
+          const currentItems = (updatedSections[idx].data as any).cert_items || []
+          const newItem = { id: crypto.randomUUID(), ...payload }
+          updatedSections[idx] = {
+            ...updatedSections[idx],
+            data: { ...updatedSections[idx].data, cert_items: [...currentItems, newItem] },
+          }
+        }
+      }
+
+      let newTemplate = prevCv.template
+      let newSettings = { ...prevCv.settings }
+
+      if (actionType === 'CHANGE_SETTINGS') {
+        if (payload.template) newTemplate = payload.template
+        if (payload.theme_color) newSettings.theme_color = payload.theme_color
+        if (payload.font_family) newSettings.font_family = payload.font_family
+        if (payload.spacing) newSettings.spacing = payload.spacing
+      }
+
+      return {
+        ...prevCv,
+        sections: updatedSections,
+        template: newTemplate,
+        settings: newSettings,
+      }
+    })
+  }
 
   useEffect(() => {
     if (!user) return
@@ -782,7 +880,15 @@ export default function CVBuilder() {
             {isAr ? 'بناء السيرة الذاتية' : 'CV Builder'}
           </h2>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <button onClick={() => setIsAiOpen(true)} className="btn-emerald text-xs py-2 px-3 flex items-center gap-1.5 shadow-sm">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>{isAr ? 'المساعد الذكي' : 'AI Co-Pilot'}</span>
+          </button>
+          <button onClick={() => setIsAtsOpen(true)} className="btn-outline text-xs py-2 px-3 flex items-center gap-1.5">
+            <Target className="w-3.5 h-3.5 text-emerald-brand" />
+            <span>{isAr ? 'فحص ATS' : 'ATS Checker'}</span>
+          </button>
           <button onClick={() => setPreview(true)} className="btn-outline text-xs py-2 px-3">
             <Eye className="w-3.5 h-3.5" />
             <span className="hidden sm:inline ml-1">{isAr ? 'معاينة' : 'Preview'}</span>
@@ -828,6 +934,26 @@ export default function CVBuilder() {
           </div>
         </>
       )}
+
+      {/* AI Assistant Drawer & ATS Checker Modal */}
+      <CVAICoPilot
+        cv={cv}
+        isOpen={isAiOpen}
+        onClose={() => setIsAiOpen(false)}
+        language={language}
+        onApplyAction={handleApplyAIAction}
+      />
+
+      <CVATSChecker
+        cv={cv}
+        isOpen={isAtsOpen}
+        onClose={() => setIsAtsOpen(false)}
+        language={language}
+        onApplySummary={(sumEn, sumAr) => {
+          handleApplyAIAction('UPDATE_SUMMARY', { summary_en: sumEn, summary_ar: sumAr });
+          setIsAtsOpen(false);
+        }}
+      />
     </div>
   )
 }
