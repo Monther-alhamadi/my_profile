@@ -147,7 +147,7 @@ export function generatePrintHTML(
       if (!categories.length) continue;
       body += `<div style="margin-bottom:8px">
         <h2 style="font-size:11px;font-weight:700;color:${themeColor};text-transform:uppercase;letter-spacing:0.1em;margin:0 0 5px;padding-bottom:3px;border-bottom:2px solid ${themeColor}">${isAr ? 'المهارات التقنية' : 'Technical Skills'}</h2>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px">`;
+        <div class="skills-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 16px">`;
       for (const cat of categories) {
         body += `<div style="font-size:9.5px;word-wrap:break-word;overflow-wrap:break-word"><strong style="color:#111827">${cat.name}:</strong> <span style="color:#4b5563">${(cat.skills || []).join(' · ')}</span></div>`;
       }
@@ -231,15 +231,33 @@ export function generatePrintHTML(
       background: #fff;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
+      word-break: break-word;
+      overflow-wrap: anywhere;
+    }
+    .cv-container {
+      padding: 20px 24px;
+      max-width: 210mm;
+      margin: 0 auto;
+      width: 100%;
+    }
+    @media screen and (max-width: 640px) {
+      .cv-container {
+        padding: 12px 14px !important;
+      }
+      .skills-grid {
+        grid-template-columns: 1fr !important;
+        gap: 6px !important;
+      }
     }
     @media print {
       body { margin: 0; padding: 0; }
+      .cv-container { padding: 0 !important; max-width: 100% !important; }
       @page { margin: 12mm 14mm; size: A4; }
     }
   </style>
 </head>
 <body>
-  <div style="padding:20px 24px;max-width:210mm;margin:0 auto" dir="${dir}">
+  <div class="cv-container" dir="${dir}">
     ${body}
   </div>
 </body>

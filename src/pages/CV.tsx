@@ -109,7 +109,7 @@ export default function CV() {
               </div>
 
               {/* Action Buttons Toolbar */}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 text-xs w-full md:w-auto justify-start md:justify-end">
                 <a
                   href={headerData?.github || CONTACT_INFO.github}
                   target="_blank"
@@ -129,30 +129,30 @@ export default function CV() {
                   <SiLinkedin className="w-4 h-4" />
                 </a>
 
-                {/* View CV Button (زر رؤية السيرة الذاتية) */}
+                {/* View CV Button */}
                 <button
                   onClick={() => setShowPreviewModal(true)}
-                  className="px-3.5 py-2.5 border border-emerald-brand/50 bg-emerald-brand/10 hover:bg-emerald-brand/20 text-emerald-brand font-semibold text-xs rounded-md inline-flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                  className="px-3 py-2 sm:px-3.5 sm:py-2.5 border border-emerald-brand/50 bg-emerald-brand/10 hover:bg-emerald-brand/20 text-emerald-brand font-semibold text-xs rounded-md inline-flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
                 >
-                  <Eye className="w-4 h-4" />
+                  <Eye className="w-4 h-4 flex-shrink-0" />
                   <span>{isAr ? 'رؤية السيرة الذاتية' : 'View CV'}</span>
                 </button>
 
-                {/* Download HTML Button (تحميل HTML) */}
+                {/* Download HTML Button */}
                 <button
                   onClick={handleDownloadHTML}
-                  className="px-3.5 py-2.5 border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-semibold text-xs rounded-md inline-flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
+                  className="px-3 py-2 sm:px-3.5 sm:py-2.5 border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-semibold text-xs rounded-md inline-flex items-center gap-1.5 transition-colors shadow-sm cursor-pointer"
                 >
-                  <FileCode className="w-4 h-4 text-purple-400" />
+                  <FileCode className="w-4 h-4 text-purple-400 flex-shrink-0" />
                   <span>{isAr ? 'تحميل HTML' : 'Download HTML'}</span>
                 </button>
 
-                {/* Download PDF Button (تحميل PDF) */}
+                {/* Download PDF Button */}
                 <button
                   onClick={handleDownloadPDF}
-                  className="btn-emerald text-xs py-2.5 px-4 inline-flex items-center gap-1.5 shadow-md cursor-pointer"
+                  className="btn-emerald text-xs py-2 sm:py-2.5 px-3 sm:px-4 inline-flex items-center gap-1.5 shadow-md cursor-pointer"
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-4 h-4 flex-shrink-0" />
                   <span>{isAr ? 'تحميل PDF' : 'Download PDF'}</span>
                 </button>
               </div>
@@ -162,7 +162,7 @@ export default function CV() {
       </section>
 
       {/* Main CV Content Display */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-12 py-10 md:py-14">
+      <div className="max-w-4xl mx-auto px-2 sm:px-6 lg:px-12 py-6 sm:py-10 md:py-14">
         {loading ? (
           <div className="py-20 text-center flex flex-col items-center justify-center">
             <Loader2 className="w-8 h-8 text-emerald-brand animate-spin mb-3" />
@@ -172,10 +172,10 @@ export default function CV() {
           </div>
         ) : primaryCv ? (
           <RevealWrapper>
-            <div className="relative group">
+            <div className="relative group w-full overflow-x-auto scrollbar-thin">
               {/* Card Outer Container */}
               <div
-                className="bg-white text-gray-900 rounded-xl p-6 sm:p-10 shadow-2xl border border-ivory/20 transition-all duration-300"
+                className="bg-white text-gray-900 rounded-xl p-3 sm:p-6 md:p-10 shadow-2xl border border-ivory/20 transition-all duration-300 min-w-[280px]"
                 id="cv-rendered-container"
                 ref={cvContainerRef}
               >
@@ -195,19 +195,19 @@ export default function CV() {
         ) : null}
       </div>
 
-      {/* View CV Interactive Preview Modal (زر رؤية السيرة الذاتية) */}
+      {/* View CV Interactive Preview Modal */}
       {showPreviewModal && primaryCv && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-obsidian/80 backdrop-blur-md overflow-y-auto">
-          <div className="bg-slate-900 border border-ivory/20 rounded-xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden my-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-obsidian/80 backdrop-blur-md overflow-y-auto">
+          <div className="bg-slate-900 border border-ivory/20 rounded-xl max-w-4xl w-full max-h-[94vh] flex flex-col shadow-2xl overflow-hidden my-auto">
             {/* Modal Top Toolbar */}
-            <div className="bg-slate-950 border-b border-ivory/15 px-4 py-3 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2">
-                <Eye className="w-4 h-4 text-emerald-brand" />
-                <h3 className="text-sm font-bold text-ivory font-mono">
+            <div className="bg-slate-950 border-b border-ivory/15 px-3 sm:px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-2 min-w-0">
+                <Eye className="w-4 h-4 text-emerald-brand flex-shrink-0" />
+                <h3 className="text-xs sm:text-sm font-bold text-ivory font-mono truncate">
                   {isAr ? 'معاينة السيرة الذاتية التفاعلية' : 'Interactive CV Preview'}
                 </h3>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <button
                   onClick={handlePrint}
                   className="p-1.5 text-ivory/70 hover:text-ivory bg-slate-800 hover:bg-slate-700 rounded transition-colors text-xs flex items-center gap-1"
@@ -240,9 +240,9 @@ export default function CV() {
             </div>
 
             {/* Modal Body Container */}
-            <div className="p-4 sm:p-8 overflow-y-auto bg-slate-900 flex-1 flex justify-center">
+            <div className="p-2 sm:p-6 overflow-y-auto bg-slate-900 flex-1 flex justify-center w-full">
               <div
-                className="bg-white text-gray-900 rounded-lg p-6 sm:p-10 shadow-2xl w-full max-w-3xl"
+                className="bg-white text-gray-900 rounded-lg p-3 sm:p-6 md:p-10 shadow-2xl w-full max-w-3xl overflow-x-auto"
                 ref={modalCvRef}
               >
                 <div
@@ -256,7 +256,6 @@ export default function CV() {
                   }}
                 />
               </div>
-            </div>
           </div>
         </div>
       )}
