@@ -256,6 +256,7 @@ export default function CV() {
                   }}
                 />
               </div>
+            </div>
           </div>
         </div>
       )}
