@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
-import { FileText, Plus, Save, Eye, Download, GripVertical, Trash2, ChevronDown, ChevronUp, Settings, ToggleLeft, ToggleRight, RotateCcw, ArrowLeft, Sparkles, Target } from 'lucide-react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { FileText, Plus, Save, Eye, Download, GripVertical, Trash2, ChevronDown, ChevronUp, Settings, ToggleLeft, ToggleRight, RotateCcw, ArrowLeft, Sparkles, Target, History, Undo, Redo } from 'lucide-react'
 import { useLanguage } from '@/hooks/useLanguage'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
@@ -11,7 +11,23 @@ import { PROFILE_STATIC, EXPERIENCE_EN, EXPERIENCE_AR, SKILLS_EN, PROJECTS_EN, P
 import { fetchProfile, fetchExperience, fetchSkills, fetchProjects } from '@/services/portfolio-api'
 import { CVAICoPilot } from './CVAICoPilot'
 import { CVATSChecker } from './CVATSChecker'
+import { CVVersionManager } from './CVVersionManager'
+import { CVHistoryPanel } from './CVHistoryPanel'
+import { CVImportModal } from './CVImportModal'
 import type { CVAIAssistantResponse } from '@/services/gemini-cv-assistant'
+import { CVHistory } from '@/services/cv-history'
+import { applyDeltaPatches, type CVDeltaPatch } from '@/services/cv-delta-merge'
+import {
+  fetchAllVersions,
+  saveVersion,
+  deleteVersion as deleteVersionFromDB,
+  setPrimary as setPrimaryInDB,
+  duplicateVersion as duplicateVersionInDB,
+  cacheVersionsLocally,
+  setActiveVersionId,
+  getActiveVersionId,
+  type CVVersionFull,
+} from '@/services/cv-version-store'
 
 const DEFAULT_SECTIONS: CVSection[] = [
   { id: 'header', type: 'header', title: 'Header', enabled: true, order: 0, data: {} },
@@ -646,6 +662,70 @@ export default function CVBuilder() {
   const [isAiOpen, setIsAiOpen] = useState(false)
   const [isAtsOpen, setIsAtsOpen] = useState(false)
 
+  // ── Multi-CV Engine V2 State ──────────────────────────────
+  const historyRef = useRef<CVHistory | null>(null)
+  const [, forceUpdate] = useState(0) // trigger re-render for history badge
+  const [versions, setVersions] = useState<CVVersionFull[]>([])
+  const [activeVersionId, setActiveVerState] = useState<string | null>(null)
+  const [activeVersionName, setActiveVersionName] = useState('Default')
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const [isImportOpen, setIsImportOpen] = useState(false)
+  const [versionsLoading, setVersionsLoading] = useState(false)
+
+  // Initialise history engine once CV loads
+  const ensureHistory = useCallback((cvData: CVData) => {
+    if (!historyRef.current) {
+      historyRef.current = new CVHistory(cvData)
+    }
+  }, [])
+
+  const pushHistory = useCallback((newCv: CVData, label: string, source: 'user' | 'ai' = 'user') => {
+    if (historyRef.current) {
+      historyRef.current.push(newCv, label, source)
+      forceUpdate(n => n + 1)
+    }
+  }, [])
+
+  const handleUndo = useCallback(() => {
+    if (!historyRef.current) return
+    const restored = historyRef.current.undo()
+    if (restored) {
+      setCv(restored)
+      forceUpdate(n => n + 1)
+    }
+  }, [])
+
+  const handleRedo = useCallback(() => {
+    if (!historyRef.current) return
+    const restored = historyRef.current.redo()
+    if (restored) {
+      setCv(restored)
+      forceUpdate(n => n + 1)
+    }
+  }, [])
+
+  const handleRestoreTo = useCallback((index: number) => {
+    if (!historyRef.current) return
+    const restored = historyRef.current.restoreTo(index)
+    if (restored) {
+      setCv(restored)
+      forceUpdate(n => n + 1)
+    }
+  }, [])
+
+  // ── Delta Patches handler (called from CVAICoPilot) ──────
+  const handleApplyPatches = useCallback((patches: CVDeltaPatch[], label: string) => {
+    setCv(prevCv => {
+      const result = applyDeltaPatches(prevCv, patches)
+      if (result.rejected.length > 0) {
+        const reasons = result.rejected.map(r => r.reason).join(', ')
+        toast.warning(language === 'ar' ? `تم رفض بعض التعديلات: ${reasons}` : `Some patches rejected: ${reasons}`)
+      }
+      pushHistory(result.cv, label, 'ai')
+      return result.cv
+    })
+  }, [language, pushHistory])
+
   const handleApplyAIAction = (actionType: CVAIAssistantResponse['actionType'], payload: any) => {
     if (!payload || actionType === 'NONE') return
 
@@ -730,14 +810,42 @@ export default function CVBuilder() {
         if (payload.spacing) newSettings.spacing = payload.spacing
       }
 
-      return {
+      const newCv = {
         ...prevCv,
         sections: updatedSections,
         template: newTemplate,
         settings: newSettings,
       }
+      pushHistory(newCv, `AI: ${String(actionType)}`, 'ai')
+      return newCv
     })
   }
+
+  // ── Load versions list from Supabase ─────────────────────
+  const loadVersions = useCallback(async () => {
+    if (!user) return
+    setVersionsLoading(true)
+    try {
+      const all = await fetchAllVersions(user.id)
+      setVersions(all)
+      cacheVersionsLocally(user.id, all)
+
+      // Determine which version to activate
+      const savedActiveId = getActiveVersionId()
+      const target = all.find(v => v.id === savedActiveId) || all.find(v => v.isPrimary) || all[0]
+      if (target) {
+        setActiveVerState(target.id)
+        setActiveVersionName(target.versionName)
+        setActiveVersionId(target.id)
+        setCv(target.data)
+        ensureHistory(target.data)
+      }
+    } catch (err) {
+      console.warn('Failed to load CV versions:', err)
+    } finally {
+      setVersionsLoading(false)
+    }
+  }, [user, ensureHistory])
 
   useEffect(() => {
     if (!user) return
@@ -753,26 +861,33 @@ export default function CVBuilder() {
       .maybeSingle()
     if (error && error.code !== 'PGRST116') return
     if (data) {
-      setCv(data as unknown as CVData)
+      const loaded = data as unknown as CVData
+      setCv(loaded)
+      ensureHistory(loaded)
     } else {
       const initSections = await buildInitialSectionsFromDB()
-      setCv({
+      const initial: CVData = {
         user_id: user.id,
         locale: language,
         sections: initSections,
         template: 'modern',
         settings: { ...DEFAULT_SETTINGS },
-      })
+      }
+      setCv(initial)
+      ensureHistory(initial)
     }
+    // Also try to load versions list (non-blocking, graceful if columns don't exist yet)
+    try { await loadVersions() } catch { /* schema not migrated yet — OK */ }
   }
 
   const refreshFromPortfolio = async () => {
     try {
       const freshSections = await buildInitialSectionsFromDB()
-      setCv(prev => ({
-        ...prev,
-        sections: freshSections,
-      }))
+      setCv(prev => {
+        const newCv = { ...prev, sections: freshSections }
+        pushHistory(newCv, language === 'ar' ? 'تحديث من الملف الشخصي' : 'Refreshed from portfolio')
+        return newCv
+      })
       toast.success(language === 'ar' ? 'تم تحديث البيانات من قاعدة البيانات والملف الشخصي' : 'Data refreshed from portfolio DB')
     } catch {
       toast.error(language === 'ar' ? 'فشل تحديث البيانات' : 'Failed to refresh data')
@@ -783,27 +898,96 @@ export default function CVBuilder() {
     if (!user) return
     setSaving(true)
     try {
-      const payload: Record<string, unknown> = {
-        user_id: user.id,
-        locale: cv.locale,
-        sections: cv.sections,
-        template: cv.template,
-        settings: cv.settings,
-        updated_at: new Date().toISOString(),
-      }
-      if (cv.id) payload.id = cv.id
-      const { error } = await supabase
-        .from('cvs')
-        .upsert(payload, { onConflict: 'user_id' })
-      if (error) throw error
+      const isPrimary = versions.length === 0 || versions.find(v => v.id === activeVersionId)?.isPrimary || false
+      const saved = await saveVersion(user.id, cv, activeVersionName, isPrimary)
+      // Update local state
+      setActiveVerState(saved.id)
+      setActiveVersionId(saved.id)
+      setCv(prev => ({ ...prev, id: saved.id }))
+      // Refresh versions list
+      await loadVersions()
       toast.success(language === 'ar' ? 'تم حفظ السيرة الذاتية بنجاح' : 'CV saved successfully')
     } catch (err: any) {
       console.error('CV save error:', err)
-      toast.error(language === 'ar' ? `فشل الحفظ: ${err?.message || 'خطأ غير معروف'}` : `Save failed: ${err?.message || 'Unknown error'}`)
+      // Fallback to legacy upsert if version columns don't exist yet
+      try {
+        const payload: Record<string, unknown> = {
+          user_id: user.id,
+          locale: cv.locale,
+          sections: cv.sections,
+          template: cv.template,
+          settings: cv.settings,
+          updated_at: new Date().toISOString(),
+        }
+        if (cv.id) payload.id = cv.id
+        const { error } = await supabase
+          .from('cvs')
+          .upsert(payload, { onConflict: 'user_id' })
+        if (error) throw error
+        toast.success(language === 'ar' ? 'تم حفظ السيرة الذاتية بنجاح (legacy)' : 'CV saved (legacy mode)')
+      } catch (e2: any) {
+        toast.error(language === 'ar' ? `فشل الحفظ: ${e2?.message || 'خطأ غير معروف'}` : `Save failed: ${e2?.message || 'Unknown error'}`)
+      }
     } finally {
       setSaving(false)
     }
   }
+
+  // ── Version management callbacks ─────────────────────────
+  const handleSelectVersion = useCallback((ver: CVVersionFull) => {
+    setActiveVerState(ver.id)
+    setActiveVersionName(ver.versionName)
+    setActiveVersionId(ver.id)
+    setCv(ver.data)
+    historyRef.current = new CVHistory(ver.data)
+    forceUpdate(n => n + 1)
+  }, [])
+
+  const handleCreateNewVersion = useCallback(async (name: string) => {
+    if (!user) return
+    const blankCv: CVData = {
+      user_id: user.id,
+      locale: language as 'en' | 'ar',
+      sections: DEFAULT_SECTIONS.map(s => ({ ...s, data: { ...s.data } })),
+      template: 'modern',
+      settings: { ...DEFAULT_SETTINGS },
+    }
+    const saved = await saveVersion(user.id, blankCv, name, false)
+    handleSelectVersion(saved)
+    await loadVersions()
+  }, [user, language, handleSelectVersion, loadVersions])
+
+  const handleDuplicateVersion = useCallback(async (sourceId: string, newName: string) => {
+    if (!user) return
+    const dup = await duplicateVersionInDB(user.id, sourceId, newName)
+    handleSelectVersion(dup)
+    await loadVersions()
+  }, [user, handleSelectVersion, loadVersions])
+
+  const handleDeleteVersion = useCallback(async (versionId: string) => {
+    await deleteVersionFromDB(versionId)
+    await loadVersions()
+  }, [loadVersions])
+
+  const handleSetPrimary = useCallback(async (versionId: string) => {
+    if (!user) return
+    await setPrimaryInDB(user.id, versionId)
+    await loadVersions()
+  }, [user, loadVersions])
+
+  const handleConfirmImport = useCallback(async (importedCv: Partial<CVData>, versionName: string) => {
+    if (!user) return
+    const fullCv: CVData = {
+      user_id: user.id,
+      locale: importedCv.locale || (language as 'en' | 'ar'),
+      sections: importedCv.sections || DEFAULT_SECTIONS.map(s => ({ ...s, data: { ...s.data } })),
+      template: (importedCv.template as CVData['template']) || 'modern',
+      settings: importedCv.settings || { ...DEFAULT_SETTINGS },
+    }
+    const saved = await saveVersion(user.id, fullCv, versionName, false)
+    handleSelectVersion(saved)
+    await loadVersions()
+  }, [user, language, handleSelectVersion, loadVersions])
 
   const moveSection = (index: number, direction: 'up' | 'down') => {
     const newSections = [...cv.sections]
@@ -873,6 +1057,22 @@ export default function CVBuilder() {
 
   return (
     <div className="space-y-6" dir={isAr ? 'rtl' : 'ltr'}>
+      {/* ── Version Manager Toolbar ── */}
+      {versions.length > 0 && (
+        <CVVersionManager
+          versions={versions}
+          activeVersionId={activeVersionId}
+          language={language}
+          onSelectVersion={handleSelectVersion}
+          onCreateNewVersion={handleCreateNewVersion}
+          onDuplicateVersion={handleDuplicateVersion}
+          onDeleteVersion={handleDeleteVersion}
+          onSetPrimaryVersion={handleSetPrimary}
+          onOpenImportModal={() => setIsImportOpen(true)}
+          loading={versionsLoading}
+        />
+      )}
+
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
         <div className="flex items-center gap-2">
           <FileText className="w-5 h-5 text-emerald-brand flex-shrink-0" />
@@ -881,6 +1081,24 @@ export default function CVBuilder() {
           </h2>
         </div>
         <div className="flex gap-2 flex-wrap">
+          {/* Undo / Redo buttons */}
+          <button
+            onClick={handleUndo}
+            disabled={!historyRef.current?.canUndo}
+            title={historyRef.current?.undoLabel || (isAr ? 'تراجع' : 'Undo')}
+            className="btn-outline text-xs py-2 px-2 disabled:opacity-30"
+          >
+            <Undo className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={handleRedo}
+            disabled={!historyRef.current?.canRedo}
+            title={historyRef.current?.redoLabel || (isAr ? 'إعادة' : 'Redo')}
+            className="btn-outline text-xs py-2 px-2 disabled:opacity-30"
+          >
+            <Redo className="w-3.5 h-3.5" />
+          </button>
+
           <button onClick={() => setIsAiOpen(true)} className="btn-emerald text-xs py-2 px-3 flex items-center gap-1.5 shadow-sm">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{isAr ? 'المساعد الذكي' : 'AI Co-Pilot'}</span>
@@ -888,6 +1106,13 @@ export default function CVBuilder() {
           <button onClick={() => setIsAtsOpen(true)} className="btn-outline text-xs py-2 px-3 flex items-center gap-1.5">
             <Target className="w-3.5 h-3.5 text-emerald-brand" />
             <span>{isAr ? 'فحص ATS' : 'ATS Checker'}</span>
+          </button>
+          <button onClick={() => setIsHistoryOpen(true)} className="btn-outline text-xs py-2 px-3 flex items-center gap-1.5">
+            <History className="w-3.5 h-3.5 text-purple-500" />
+            <span className="hidden sm:inline">{isAr ? 'السجل' : 'History'}</span>
+            {historyRef.current && historyRef.current.pastEntries.length > 0 && (
+              <span className="bg-purple-100 text-purple-700 text-[9px] font-mono px-1 rounded">{historyRef.current.pastEntries.length}</span>
+            )}
           </button>
           <button onClick={() => setPreview(true)} className="btn-outline text-xs py-2 px-3">
             <Eye className="w-3.5 h-3.5" />
@@ -935,15 +1160,17 @@ export default function CVBuilder() {
         </>
       )}
 
-      {/* AI Assistant Drawer & ATS Checker Modal */}
+      {/* AI Assistant Drawer (with Delta Patches) */}
       <CVAICoPilot
         cv={cv}
         isOpen={isAiOpen}
         onClose={() => setIsAiOpen(false)}
         language={language}
         onApplyAction={handleApplyAIAction}
+        onApplyPatches={handleApplyPatches}
       />
 
+      {/* ATS Checker Modal */}
       <CVATSChecker
         cv={cv}
         isOpen={isAtsOpen}
@@ -953,6 +1180,29 @@ export default function CVBuilder() {
           handleApplyAIAction('UPDATE_SUMMARY', { summary_en: sumEn, summary_ar: sumAr });
           setIsAtsOpen(false);
         }}
+      />
+
+      {/* History Panel */}
+      <CVHistoryPanel
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        language={language}
+        pastEntries={historyRef.current?.pastEntries || []}
+        canUndo={historyRef.current?.canUndo || false}
+        canRedo={historyRef.current?.canRedo || false}
+        undoLabel={historyRef.current?.undoLabel || null}
+        redoLabel={historyRef.current?.redoLabel || null}
+        onUndo={handleUndo}
+        onRedo={handleRedo}
+        onRestoreTo={handleRestoreTo}
+      />
+
+      {/* Smart AI Import Modal */}
+      <CVImportModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        language={language}
+        onConfirmImport={handleConfirmImport}
       />
     </div>
   )

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Bot, Send, Sparkles, X, Loader2, Check, RefreshCw, Wand2 } from 'lucide-react';
+import { Bot, Send, Sparkles, X, Loader2, Check, RefreshCw, Wand2, ShieldCheck, ListChecks } from 'lucide-react';
 import { askCVAssistant, CVAIAssistantResponse } from '@/services/gemini-cv-assistant';
+import type { CVDeltaPatch } from '@/services/cv-delta-merge';
 import type { CVData, Language } from '@/lib/index';
 import { toast } from 'sonner';
 
@@ -10,6 +11,7 @@ interface CVAICoPilotProps {
   onClose: () => void;
   language: Language;
   onApplyAction: (actionType: CVAIAssistantResponse['actionType'], payload: any) => void;
+  onApplyPatches?: (patches: CVDeltaPatch[], label: string) => void;
 }
 
 interface Message {
@@ -18,10 +20,11 @@ interface Message {
   text: string;
   actionType?: CVAIAssistantResponse['actionType'];
   payload?: any;
+  patches?: CVDeltaPatch[];
   applied?: boolean;
 }
 
-export function CVAICoPilot({ cv, isOpen, onClose, language, onApplyAction }: CVAICoPilotProps) {
+export function CVAICoPilot({ cv, isOpen, onClose, language, onApplyAction, onApplyPatches }: CVAICoPilotProps) {
   const isAr = language === 'ar';
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -30,8 +33,8 @@ export function CVAICoPilot({ cv, isOpen, onClose, language, onApplyAction }: CV
       id: '1',
       sender: 'ai',
       text: isAr
-        ? 'مرحباً! أنا مساعدك الذكي لبناء السيرة الذاتية. يمكنك أن تطلب مني إضافة خبرة، مهارات، إعادة صياغة الملخص، أو تغيير الألوان والقوالب بالأوامر النصية!'
-        : 'Hello! I am your AI CV Co-Pilot. You can ask me to add experience, skills, improve your summary, or change themes and templates in natural language!',
+        ? 'مرحباً! أنا مساعدك الذكي لبناء السيرة الذاتية. أعمل بنظام الدمج الذكي بدون مسح بياناتك السابقة. اطلب مني ما تشاء!'
+        : 'Hello! I am your AI CV Co-Pilot powered by Incremental Delta Merge. Ask me to add skills, roles, or update details without losing your previous data!',
     },
   ]);
 
@@ -70,16 +73,21 @@ export function CVAICoPilot({ cv, isOpen, onClose, language, onApplyAction }: CV
         text: res.message,
         actionType: res.actionType,
         payload: res.payload,
+        patches: res.patches,
         applied: false,
       };
 
       setMessages((prev) => [...prev, aiMsg]);
 
-      // Automatically apply action if present
-      if (res.actionType && res.actionType !== 'NONE' && res.payload) {
+      // Apply Delta Patches if available
+      if (res.patches && res.patches.length > 0 && onApplyPatches) {
+        onApplyPatches(res.patches, `AI: ${promptText.slice(0, 30)}`);
+        aiMsg.applied = true;
+        toast.success(isAr ? 'تم دمج التعديلات الذكية بنجاح دون مسح بياناتك!' : 'Incremental delta merge applied safely!');
+      } else if (res.actionType && res.actionType !== 'NONE' && res.payload) {
         onApplyAction(res.actionType, res.payload);
         aiMsg.applied = true;
-        toast.success(isAr ? 'تم تطبيق التعديلات التلقائية بنجاح!' : 'CV auto-updated successfully!');
+        toast.success(isAr ? 'تم تطبيق التعديل بنجاح!' : 'CV updated successfully!');
       }
     } catch (err: any) {
       setMessages((prev) => [
@@ -104,8 +112,11 @@ export function CVAICoPilot({ cv, isOpen, onClose, language, onApplyAction }: CV
             <Sparkles className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-xs font-bold">{isAr ? 'المساعد الذكي لبناء السيرة' : 'AI CV Co-Pilot'}</h3>
-            <p className="text-[9px] text-gray-300">{isAr ? 'مدعوم بـ Gemini 3.5' : 'Powered by Gemini 3.5'}</p>
+            <h3 className="text-xs font-bold">{isAr ? 'المساعد الذكي (Smart Delta Merge)' : 'AI CV Co-Pilot (Delta Merge)'}</h3>
+            <p className="text-[9px] text-emerald-400 font-mono flex items-center gap-1">
+              <ShieldCheck className="w-3 h-3" />
+              {isAr ? 'حماية من مسح البيانات' : 'Safe Incremental Editing'}
+            </p>
           </div>
         </div>
         <button onClick={onClose} className="p-1 rounded text-gray-300 hover:text-white hover:bg-white/10">
@@ -153,18 +164,40 @@ export function CVAICoPilot({ cv, isOpen, onClose, language, onApplyAction }: CV
               }`}
             >
               <p>{msg.text}</p>
+
+              {/* Patches preview badge */}
+              {msg.patches && msg.patches.length > 0 && (
+                <div className="mt-2 pt-2 border-t border-gray-200/80 text-[10px]">
+                  <span className="font-bold text-purple-700 flex items-center gap-1 mb-1">
+                    <ListChecks className="w-3 h-3" />
+                    {isAr ? `التغييرات المدمجة (${msg.patches.length}):` : `Applied Patches (${msg.patches.length}):`}
+                  </span>
+                  <div className="space-y-0.5 font-mono text-[9.5px] text-gray-600">
+                    {msg.patches.map((p, idx) => (
+                      <div key={idx} className="bg-white px-1.5 py-0.5 rounded border border-gray-200">
+                        <span className="font-bold uppercase text-emerald-600">{p.op}</span> {p.target}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {msg.actionType && msg.actionType !== 'NONE' && (
                 <div className="mt-2 pt-2 border-t border-gray-200/60 flex items-center justify-between text-[10px]">
                   <span className="font-mono text-emerald-600 font-semibold flex items-center gap-1">
                     <Check className="w-3 h-3" />
-                    {isAr ? `تم التعديل (${msg.actionType})` : `Action Executed (${msg.actionType})`}
+                    {isAr ? `تم الدمج الآمن (${msg.actionType})` : `Executed Safe Merge (${msg.actionType})`}
                   </span>
                   {!msg.applied && (
                     <button
                       onClick={() => {
-                        onApplyAction(msg.actionType, msg.payload);
+                        if (msg.patches && onApplyPatches) {
+                          onApplyPatches(msg.patches, 'Re-apply AI patches');
+                        } else if (msg.actionType && msg.payload) {
+                          onApplyAction(msg.actionType, msg.payload);
+                        }
                         msg.applied = true;
-                        toast.success(isAr ? 'تم التطبيق!' : 'Applied!');
+                        toast.success(isAr ? 'تم التكرار!' : 'Re-applied!');
                       }}
                       className="text-emerald-brand hover:underline font-semibold"
                     >
@@ -179,7 +212,7 @@ export function CVAICoPilot({ cv, isOpen, onClose, language, onApplyAction }: CV
         {loading && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
             <Loader2 className="w-4 h-4 animate-spin text-emerald-brand" />
-            <span>{isAr ? 'جاري التفكير وتجهيز التعديلات...' : 'Analyzing and generating CV changes...'}</span>
+            <span>{isAr ? 'جاري الفحص وإعداد الدمج الذكي...' : 'Analyzing & calculating delta patches...'}</span>
           </div>
         )}
       </div>
@@ -197,7 +230,7 @@ export function CVAICoPilot({ cv, isOpen, onClose, language, onApplyAction }: CV
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={isAr ? 'اكتب ما تريد تعديله بالسيرة...' : 'Ask AI to update CV...'}
+            placeholder={isAr ? 'اكتب التعديل المطلوبة بالسيرة...' : 'Ask AI to update CV...'}
             disabled={loading}
             className="flex-1 text-xs bg-gray-50 border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-1 focus:ring-emerald-brand"
           />

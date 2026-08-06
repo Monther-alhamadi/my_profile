@@ -72,12 +72,11 @@ export default function Links() {
 
         {/* Download CV */}
         <a
-          href="/cv.pdf"
-          download
+          href="/cv"
           className="btn-emerald w-full justify-center inline-flex items-center gap-2 mb-8 py-[13px]"
         >
           <Download className="w-4 h-4" />
-          {language === 'ar' ? 'تحميل السيرة الذاتية' : 'Download CV'}
+          {language === 'ar' ? 'عرض وتحميل السيرة الذاتية' : 'View & Download CV'}
         </a>
 
         <p className="text-xs text-muted-foreground font-mono">

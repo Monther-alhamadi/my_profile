@@ -254,13 +254,13 @@ export default function Home() {
                   {t.hero.cta2} <ArrowRight className="w-4 h-4" />
                 </motion.button>
                 <motion.a
-                  href="/cv.pdf" download
+                  href="/cv"
                   whileHover={{ scale: 1.03 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 15 }}
                   className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors border-b border-dashed border-border hover:border-emerald-brand pb-0.5"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  {language === 'ar' ? 'تحميل السيرة الذاتية' : 'Download CV'}
+                  {language === 'ar' ? 'عرض وتحميل السيرة الذاتية' : 'View & Download CV'}
                 </motion.a>
               </motion.div>
 
